@@ -1,0 +1,177 @@
+<?php
+
+use App\Http\Controllers\API\asignaturaController;
+use App\Http\Controllers\API\añoAcademicoController;
+use App\Http\Controllers\API\cursoController;
+use App\Http\Controllers\API\departamentoController;
+use App\Http\Controllers\API\FacultadController;
+use App\Http\Controllers\API\HistorialsC\asignaturaAgnoController;
+use App\Http\Controllers\API\HistorialsC\historialDepProgFormController;
+use App\Http\Controllers\API\HistorialsC\historialFacDepController;
+use App\Http\Controllers\API\HistorialsC\historialProgFormModCarController;
+use App\Http\Controllers\API\HistorialsC\historialUniversidadFacultadController;
+use App\Http\Controllers\API\indicadores\indicadorController;
+use App\Http\Controllers\API\indicadores\indicadorRegistroController;
+use App\Http\Controllers\API\indicadores\tipoIndicadorController;
+use App\Http\Controllers\API\modalidadCarreraController;
+use App\Http\Controllers\API\municipioController;
+use App\Http\Controllers\API\progFormController;
+use App\Http\Controllers\API\provinciaController;
+use App\Http\Controllers\API\universidadController;
+use App\Http\Controllers\API\categoriaCientificaController;
+use App\Http\Controllers\API\categoriaDocenteController;
+use App\Http\Controllers\API\ProfesorController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+//Rutas provincia
+Route::get('/provincia', [provinciaController::class, 'index']);
+Route::post('/provincia', [provinciaController::class, 'store']);
+Route::get('/provincia/{id}',[provinciaController::class, 'show']);
+Route::put('/provincia/{id}',[provinciaController::class, 'update']);
+Route::delete('/provincia/{id}', [provinciaController::class, 'destroy']);
+
+//Rutas municipio
+Route::get('/municipio', [municipioController::class, 'index']);
+Route::post('/municipio', [municipioController::class, 'store']);
+Route::get('/municipio/{id}',[municipioController::class, 'show']);
+Route::put('/municipio/{id}',[municipioController::class, 'update']);
+Route::delete('/municipio/{id}', [municipioController::class, 'destroy']);
+
+//Rutas universidad
+Route::get('/universidad', [universidadController::class, 'index']);
+Route::post('/universidad', [universidadController::class, 'store']);
+Route::get('/universidad/{id}',[universidadController::class, 'show']);
+Route::put('/universidad/{id}',[universidadController::class, 'update']);
+Route::delete('/universidad/{id}', [universidadController::class, 'destroy']);
+
+//Rutas universidad-facultad
+Route::get('/historial/unifacul', [historialUniversidadFacultadController::class, 'index']);
+Route::delete('/historial/unifacul', [historialUniversidadFacultadController::class, 'destroy']);
+
+//Rutas facultad
+Route::get('/facultad', [FacultadController::class, 'index']);
+Route::post('/facultad', [FacultadController::class, 'store']);
+Route::get('/facultad/{id}',[FacultadController::class, 'show']);
+Route::put('/facultad/{id}',[FacultadController::class, 'update']);
+Route::delete('/facultad/{id}', [FacultadController::class, 'destroy']);
+
+//Rutas facultad-departamento
+Route::get('/historial/faculdep', [historialFacDepController::class, 'index']);
+Route::delete('/historial/faculdep', [historialFacDepController::class, 'destroy']);
+
+//Rutas departamento
+Route::get('/departamento', [departamentoController::class, 'index']);
+Route::post('/departamento', [departamentoController::class, 'store']);
+Route::get('/departamento/{id}',[departamentoController::class, 'show']);
+Route::put('/departamento/{id}',[departamentoController::class, 'update']);
+Route::delete('/departamento/{id}', [departamentoController::class, 'destroy']);
+
+//Rutas departamento-programaDeFormacion
+Route::get('/historial/depProgForm', [historialDepProgFormController::class, 'index']);
+Route::delete('/historial/depProgForm', [historialDepProgFormController::class, 'destroy']);
+
+//Rutas Programa de Formacion
+Route::get('/progForm', [progFormController::class, 'index']);
+Route::post('/progForm', [progFormController::class, 'store']);
+Route::get('/progForm/{id}',[progFormController::class, 'show']);
+Route::put('/progForm/{id}',[progFormController::class, 'update']);
+Route::delete('/progForm/{id}', [progFormController::class, 'destroy']);
+
+//Rutas Año Academico
+Route::get('/a_academico', [añoAcademicoController::class, 'index']);
+Route::post('/a_academico', [añoAcademicoController::class, 'store']);
+Route::get('/a_academico/{id}',[añoAcademicoController::class, 'show']);
+Route::put('/a_academico/{id}',[añoAcademicoController::class, 'update']);
+Route::delete('/a_academico/{id}', [añoAcademicoController::class, 'destroy']);
+
+//Rutas Modalidad de Carrera
+Route::get('/modalidad', [modalidadCarreraController::class, 'index']);
+Route::post('/modalidad', [modalidadCarreraController::class, 'store']);
+Route::get('/modalidad/{id}',[modalidadCarreraController::class, 'show']);
+Route::put('/modalidad/{id}',[modalidadCarreraController::class, 'update']);
+Route::delete('/modalidad/{id}', [modalidadCarreraController::class, 'destroy']);
+
+//Rutas programa_de_formacion-modalidad_de_carrera
+Route::get('/progFormMod', [historialProgFormModCarController::class, 'index']);
+Route::post('/progFormMod', [historialProgFormModCarController::class, 'store']);
+Route::delete('/progFormMod/{idM}/{idP}', [historialProgFormModCarController::class, 'destroy']);
+
+//Rutas de curso
+Route::get('/curso', [cursoController::class, 'index']);
+Route::post('/curso', [cursoController::class, 'store']);
+Route::delete('/curso/{id}', [cursoController::class, 'destroy']);
+
+
+//
+// Rutas de indicadores
+//
+
+//Rutas de tipo de indicador
+Route::get('/tipoIndicador', [tipoIndicadorController::class, 'index']);
+Route::post('/tipoIndicador', [tipoIndicadorController::class, 'store']);
+Route::get('/tipoIndicador/{id}',[tipoIndicadorController::class, 'show']);
+Route::put('/tipoIndicador/{id}',[tipoIndicadorController::class, 'update']);
+Route::delete('/tipoIndicador/{id}', [tipoIndicadorController::class, 'destroy']);
+
+//Rutas de indicador
+Route::get('/indicador', [indicadorController::class, 'index']);
+Route::post('/indicador', [indicadorController::class, 'store']);
+Route::get('/indicador/{id}',[indicadorController::class, 'show']);
+Route::put('/indicador/{id}',[indicadorController::class, 'update']);
+Route::delete('/indicador/{id}', [indicadorController::class, 'destroy']);
+
+
+//Rutas asignatura
+Route::get('/asignatura', [asignaturaController::class, 'index']);
+
+//Rutas asignatura_agno
+Route::get('/asignaturaAgno', [asignaturaAgnoController::class, 'index']);
+//Rutas de registros de indicadores
+/*
+Estas son las rutas para los registros de los indicadores osea para intruducirle
+los valores, no tienen nada de el otro mundo, salvo que para el put y el delete
+se dividen entre los indicadores de año y los indicadores de asignatura:
+    los de asignatura son los que tienen 4 parametros y los de año son los que tienen 3
+
+    ademas las siglas:
+    idC = idCurso
+    idI = idIndicador osea el indicador al cual pertenecen
+    idAA = idAñoAcademico
+    idA = idAsignatura
+*/
+// Rutas existentes
+Route::get('/indicadorReg', [indicadorRegistroController::class, 'index']);
+Route::post('/indicadorReg', [indicadorRegistroController::class, 'store']);
+Route::put('/indicadorReg/{idC}/{idI}/{idAA}',[indicadorRegistroController::class, 'updateAA']);
+Route::put('/indicadorReg/{idC}/{idI}/{idAA}/{idA}',[indicadorRegistroController::class, 'updateA']);
+Route::delete('/indicadorReg/{idC}/{idI}/{idAA}',[indicadorRegistroController::class, 'destroyAA']);
+Route::delete('/indicadorReg/{idC}/{idI}/{idAA}/{idA}',[indicadorRegistroController::class, 'destroyA']);
+
+// Nuevas rutas para departamento
+Route::put('/indicadorReg/departamento/{idD}/{idI}/{idC}', [indicadorRegistroController::class, 'updateD']);
+Route::delete('/indicadorReg/departamento/{idD}/{idI}/{idC}', [indicadorRegistroController::class, 'destroyD']);
+
+
+
+// Rutas Profesor
+Route::get('/profesor', [ProfesorController::class, 'index']);
+Route::post('/profesor', [ProfesorController::class, 'store']);
+Route::get('/profesor/{id}', [ProfesorController::class, 'show']);
+Route::put('/profesor/{id}', [ProfesorController::class, 'update']);
+Route::delete('/profesor/{id}', [ProfesorController::class, 'destroy']);
+
+// Rutas categorias
+Route::get('/categoria_docente', [categoriaDocenteController::class, 'index']);
+Route::get('/categoria_cientifica', [categoriaCientificaController::class, 'index']);
+
+// Indicadores
+Route::get('/indicador/{id}/valores', [IndicadorController::class, 'getValores']);
+Route::get('/indicador/{id}/calculado', [IndicadorController::class, 'getValoresCalculados']);
+
+// Registro de valores
+Route::post('/indicadorReg', [indicadorRegistroController::class, 'store']);
