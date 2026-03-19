@@ -21,6 +21,8 @@ use App\Http\Controllers\API\universidadController;
 use App\Http\Controllers\API\categoriaCientificaController;
 use App\Http\Controllers\API\categoriaDocenteController;
 use App\Http\Controllers\API\ProfesorController;
+use App\Http\Controllers\API\PlanEstudioController;
+use App\Http\Controllers\API\PlanEstudioProgFormController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -175,3 +177,14 @@ Route::get('/indicador/{id}/calculado', [IndicadorController::class, 'getValores
 
 // Registro de valores
 Route::post('/indicadorReg', [indicadorRegistroController::class, 'store']);
+
+//Rutas de Plan de Estudio
+Route::get('/plan_estudio',[PlanEstudioController::class, 'index']);
+Route::post('/plan_estudio', [PlanEstudioController::class, 'store']);
+Route::get('/plan_estudio/{id}', [PlanEstudioController::class, 'show']);
+Route::put('/plan_estudio/{id}', [PlanEstudioController::class, 'update']);
+Route::delete('/plan_estudio/{id}', [PlanEstudioController::class, 'destroy']);
+
+//Rutas de Plan de Estudio Programa de Formacion
+Route::get('/plan_estudio_prog_form', [PlanEstudioProgFormController::class, 'index']);
+Route::delete('/plan_estudio_prog_form', [PlanEstudioProgFormController::class, 'destroy']);
