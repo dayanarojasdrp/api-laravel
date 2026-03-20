@@ -20,9 +20,12 @@ use App\Http\Controllers\API\provinciaController;
 use App\Http\Controllers\API\universidadController;
 use App\Http\Controllers\API\categoriaCientificaController;
 use App\Http\Controllers\API\categoriaDocenteController;
+use App\Http\Controllers\API\CurriculoController;
+use App\Http\Controllers\API\HistorialsC\PlanEstudioCurriculoController;
 use App\Http\Controllers\API\ProfesorController;
 use App\Http\Controllers\API\PlanEstudioController;
 use App\Http\Controllers\API\PlanEstudioProgFormController;
+use App\Models\Curriculo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -188,3 +191,14 @@ Route::delete('/plan_estudio/{id}', [PlanEstudioController::class, 'destroy']);
 //Rutas de Plan de Estudio Programa de Formacion
 Route::get('/plan_estudio_prog_form', [PlanEstudioProgFormController::class, 'index']);
 Route::delete('/plan_estudio_prog_form', [PlanEstudioProgFormController::class, 'destroy']);
+
+//Rutas de Curriculo
+Route::get('/curriculo', [CurriculoController::class, 'index']);
+Route::post('/curriculo', [CurriculoController::class, 'store']);
+Route::get('/curriculo/{id}', [CurriculoController::class, 'show']);
+Route::put('/curriculo/{id}', [CurriculoController::class, 'update']);
+Route::delete('/curriculo/{id}', [CurriculoController::class, 'destroy']);
+
+//Rutas de Plan de Estudio Curriculo
+Route::get('/plan_estudio_curriculo', [PlanEstudioCurriculoController::class, 'index']);
+Route::delete('/plan_estudio_curriculo', [PlanEstudioCurriculoController::class, 'destroy']);
