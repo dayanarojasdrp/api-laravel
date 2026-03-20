@@ -4,24 +4,24 @@ namespace App\Http\Controllers\API\HistorialsC;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Curriculo_Disciplina;
+use App\Models\Disciplina_Asignatura;
 use Illuminate\Support\Facades\Validator;
 
-class CurriculoDisciplinaController extends Controller
+class DisciplinaAsignaturaController extends Controller
 {
     public function index()
     {
         return response()->json([
             'res' => true,
-            'data' => Curriculo_Disciplina::all()
+            'data' => Disciplina_Asignatura::all()
         ], 200);
     }
 
-    public function destroy(Request $request)
+     public function destroy(Request $request)
     {
         $val = Validator::make($request->all(), [
-            'id_disciplina' => 'required',
-            'id_curriculo' => 'required'
+            'id_asignatura' => 'required',
+            'id_disciplina' => 'required'
         ]);
 
         if ($val->fails()) {
@@ -31,8 +31,8 @@ class CurriculoDisciplinaController extends Controller
             ], 400);
         }
 
-        $rel = Curriculo_Disciplina::where('id_disciplina', $request->id_disciplina)
-            ->where('id_curriculo', $request->id_plan_estudio)
+        $rel = Disciplina_Asignatura::where('id_asignatura', $request->id_asignatura)
+            ->where('id_disciplina', $request->id_disciplina)
             ->first();
 
         if (!$rel) {

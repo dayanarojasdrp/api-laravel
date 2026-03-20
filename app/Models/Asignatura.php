@@ -10,7 +10,8 @@ class Asignatura extends Model
     use HasFactory;
     protected $table = 'asignatura';
     protected $fillable = [
-        'nombre'
+        'nombre',
+        'fondo_tiempo'
     ];
     protected $hidden = [
         'created_at',

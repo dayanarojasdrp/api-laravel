@@ -15,33 +15,47 @@ class AsignaturaSeeder extends Seeder
     {
         DB::table('asignatura')->insert([
             [
-                'nombre' => 'Matematica 1'
+                'nombre' => 'Matematica 1',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Introduccion a la Programacion'
+                'nombre' => 'Introduccion a la Programacion',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Programacion Orientada a Objetos'
+                'nombre' => 'Programacion Orientada a Objetos',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Arquitectura de Computadoras'
+                'nombre' => 'Arquitectura de Computadoras',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Historia'
+                'nombre' => 'Historia',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Filosofia'
+                'nombre' => 'Filosofia',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Economia Politica'
+                'nombre' => 'Economia Politica',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Educacion Fisica 1'
+                'nombre' => 'Educacion Fisica 1',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Estructura de Datos'
+                'nombre' => 'Estructura de Datos',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Base de datos'
+                'nombre' => 'Base de datos',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Ingenieria de Software 1'
+                'nombre' => 'Ingenieria de Software 1',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Inteligencia Artificial 1'
+                'nombre' => 'Inteligencia Artificial 1',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Matematica Computacional'
+                'nombre' => 'Matematica Computacional',
+                'fondo_tiempo'=> 60
             ],[
-                'nombre' => 'Fisica'
+                'nombre' => 'Fisica',
+                'fondo_tiempo'=> 60
             ]
         ]);
     }

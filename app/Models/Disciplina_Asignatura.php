@@ -16,7 +16,7 @@ class Disciplina_Asignatura extends Model
     protected $keyType = 'string';
     protected $fillable = [
         'id_disciplina',
-        'id_curso',
+        
         'id_asignatura'
     ];
     protected $hidden = [
