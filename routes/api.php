@@ -21,11 +21,13 @@ use App\Http\Controllers\API\universidadController;
 use App\Http\Controllers\API\categoriaCientificaController;
 use App\Http\Controllers\API\categoriaDocenteController;
 use App\Http\Controllers\API\CurriculoController;
+use App\Http\Controllers\API\DisciplinaController;
+use App\Http\Controllers\API\HistorialsC\CurriculoDisciplinaController;
 use App\Http\Controllers\API\HistorialsC\PlanEstudioCurriculoController;
 use App\Http\Controllers\API\ProfesorController;
 use App\Http\Controllers\API\PlanEstudioController;
 use App\Http\Controllers\API\PlanEstudioProgFormController;
-use App\Models\Curriculo;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -202,3 +204,14 @@ Route::delete('/curriculo/{id}', [CurriculoController::class, 'destroy']);
 //Rutas de Plan de Estudio Curriculo
 Route::get('/plan_estudio_curriculo', [PlanEstudioCurriculoController::class, 'index']);
 Route::delete('/plan_estudio_curriculo', [PlanEstudioCurriculoController::class, 'destroy']);
+
+//Rutas de Disciplina
+Route::get('/disciplina', [DisciplinaController::class, 'index']);
+Route::post('/disciplina', [DisciplinaController::class, 'store']);
+Route::get('/disciplina/{id}', [DisciplinaController::class, 'show']);
+Route::put('/disciplina/{id}', [DisciplinaController::class, 'update']);
+Route::delete('/disciplina/{id}', [DisciplinaController::class, 'destroy']);
+
+//Rutas de CurriculoDisciplina
+Route::get('/curriculo_disciplina', [CurriculoDisciplinaController::class, 'index']);
+Route::delete('/curriculo_disciplina', [CurriculoDisciplinaController::class, 'destroy']);

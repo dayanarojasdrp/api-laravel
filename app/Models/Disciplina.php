@@ -10,7 +10,8 @@ class Disciplina extends Model
     use HasFactory;
     protected $table = 'disciplina';
     protected $fillable = [
-        'nombre'
+        'nombre',
+        'fondo_tiempo'
     ];
     protected $hidden = [
         'created_at',
