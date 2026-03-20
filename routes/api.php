@@ -23,6 +23,7 @@ use App\Http\Controllers\API\categoriaDocenteController;
 use App\Http\Controllers\API\CurriculoController;
 use App\Http\Controllers\API\DisciplinaController;
 use App\Http\Controllers\API\HistorialsC\CurriculoDisciplinaController;
+use App\Http\Controllers\API\HistorialsC\DisciplinaAsignaturaController;
 use App\Http\Controllers\API\HistorialsC\PlanEstudioCurriculoController;
 use App\Http\Controllers\API\ProfesorController;
 use App\Http\Controllers\API\PlanEstudioController;
@@ -135,6 +136,14 @@ Route::delete('/indicador/{id}', [indicadorController::class, 'destroy']);
 
 //Rutas asignatura
 Route::get('/asignatura', [asignaturaController::class, 'index']);
+Route::post('/asignatura', [asignaturaController::class, 'store']);
+Route::get('/asignatura/{id}', [asignaturaController::class, 'show']);
+Route::put('/asignatura/{id}', [asignaturaController::class, 'update']);
+Route::delete('/asignatura/{id}', [asignaturaController::class, 'destroy']);
+
+//Rutas de Disciplina Asignatura
+Route::get('/disciplina_asignatura', [DisciplinaAsignaturaController::class, 'index']);
+Route::delete('/disciplina_asignatura', [DisciplinaAsignaturaController::class, 'destroy']);
 
 //Rutas asignatura_agno
 Route::get('/asignaturaAgno', [asignaturaAgnoController::class, 'index']);
@@ -215,3 +224,4 @@ Route::delete('/disciplina/{id}', [DisciplinaController::class, 'destroy']);
 //Rutas de CurriculoDisciplina
 Route::get('/curriculo_disciplina', [CurriculoDisciplinaController::class, 'index']);
 Route::delete('/curriculo_disciplina', [CurriculoDisciplinaController::class, 'destroy']);
+
