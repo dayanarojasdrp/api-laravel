@@ -15,7 +15,7 @@ class PlanEstudio_Curriculo extends Model
     public $incrementing = false;
     protected $fillable = [
         'id_plan_estudio',
-        'id_curso',
+        
         'id_curriculo'
     ];
     protected $hidden = [

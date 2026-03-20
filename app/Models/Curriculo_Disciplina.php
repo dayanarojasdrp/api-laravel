@@ -16,7 +16,7 @@ class Curriculo_Disciplina extends Model
     protected $keyType = 'string';
     protected $fillable = [
         'id_curriculo',
-        'id_curso',
+        
         'id_disciplina'
     ];
     protected $hidden = [
