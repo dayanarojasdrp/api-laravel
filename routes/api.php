@@ -28,7 +28,7 @@ use App\Http\Controllers\API\HistorialsC\PlanEstudioCurriculoController;
 use App\Http\Controllers\API\ProfesorController;
 use App\Http\Controllers\API\PlanEstudioController;
 use App\Http\Controllers\API\PlanEstudioProgFormController;
-
+use App\Models\Asignatura_Agno;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -96,6 +96,10 @@ Route::post('/a_academico', [añoAcademicoController::class, 'store']);
 Route::get('/a_academico/{id}',[añoAcademicoController::class, 'show']);
 Route::put('/a_academico/{id}',[añoAcademicoController::class, 'update']);
 Route::delete('/a_academico/{id}', [añoAcademicoController::class, 'destroy']);
+
+//Rutas Asignatura Año Academico
+Route::get('/asignatura_a_academico', [asignaturaAgnoController::class, 'index']);
+Route::delete('/asignatura_a_academico', [asignaturaAgnoController::class, 'destroy']);
 
 //Rutas Modalidad de Carrera
 Route::get('/modalidad', [modalidadCarreraController::class, 'index']);

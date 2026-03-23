@@ -16,7 +16,7 @@ class Asignatura_Agno extends Model
     protected $keyType = 'string';
     protected $fillable = [
         'id_asignatura',
-        'id_curso',
+        
         'id_a_academico'
     ];
     protected $hidden = [
