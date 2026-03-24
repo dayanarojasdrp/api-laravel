@@ -5,22 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PlanEstudio extends Model
+class Version extends Model
 {
     use HasFactory;
-    protected $table = 'plan-estudio';
+    protected $table = 'version';
     protected $fillable = [
-        'id_prog_form',
+        'plan_estudio_id',
         'nombre'
     ];
-    protected $hidden = [
+     protected $hidden = [
         'created_at',
         'updated_at'
     ];
 
-    public function versiones()
+    public function planEstudio()
     {
-        return $this->hasMany(Version::class, 'plan_estudio_id');
+        return $this->belongsTo(PlanEstudio::class, 'plan_estudio_id');
     }
-   
 }

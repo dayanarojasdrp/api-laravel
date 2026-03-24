@@ -28,7 +28,9 @@ use App\Http\Controllers\API\HistorialsC\PlanEstudioCurriculoController;
 use App\Http\Controllers\API\ProfesorController;
 use App\Http\Controllers\API\PlanEstudioController;
 use App\Http\Controllers\API\PlanEstudioProgFormController;
+use App\Http\Controllers\API\VersionController;
 use App\Models\Asignatura_Agno;
+use App\Models\Version;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -229,3 +231,9 @@ Route::delete('/disciplina/{id}', [DisciplinaController::class, 'destroy']);
 Route::get('/curriculo_disciplina', [CurriculoDisciplinaController::class, 'index']);
 Route::delete('/curriculo_disciplina', [CurriculoDisciplinaController::class, 'destroy']);
 
+//Rutas de version
+Route::get('/version', [VersionController::class, 'index']);
+Route::post('/version', [VersionController::class, 'store']);
+Route::get('/version/{id}', [VersionController::class, 'show']);
+Route::put('/version/{id}', [VersionController::class, 'update']);
+Route::delete('/version/{id}', [VersionController::class, 'destroy']);
