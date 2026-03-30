@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ProgFormacion;
 use App\Models\AñoAcademico;
+use App\Models\Asignatura;
+use App\Models\Asignatura_Agno;
 use Illuminate\Support\Facades\Validator;
 
 class añoAcademicoController extends Controller
@@ -26,6 +28,7 @@ class añoAcademicoController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "identificador"=> "required",
+            "id_asignatura"=>"array"
         ]);
         if($validator->fails()){
             return response()->json([
@@ -51,6 +54,19 @@ class añoAcademicoController extends Controller
                 'message'=> 'No se pudo crear el registro'
             ]);
         }
+        if ($request->has('id_asignatura')) {
+            foreach ($request->id_asignatura as $id_asignatura) {
+
+                $asignatura = Asignatura::find($id_asignatura);
+
+                if ($asignatura) {
+                    Asignatura_Agno::create([
+                        'id_asignatura' => $id_asignatura,
+                        'id_a_academico' => $aA->id
+                    ]);
+                }
+            }
+        }
         return response()->json([
             'res'=> true,
             'message'=> 'Año academico Guardado Correctamente ',
@@ -69,9 +85,10 @@ class añoAcademicoController extends Controller
                 'message'=> 'No se encontro el año academico'
             ], 400);
         }
+       
         return response()->json([
             'res'=> true,
-            'data'=> $aA
+            'data'=>$aA
         ], 200);
     }
 
@@ -88,7 +105,8 @@ class añoAcademicoController extends Controller
             ], 400);
         }
         $validator = Validator::make($request->all(), [
-            'nombre' => 'unique:a-academico,nombre,'.$id,
+            'identificador'=>'sometimes',
+            'id_asignatura'=>'array'
         ]);
         if($validator->fails()){
             return response()->json([
@@ -109,6 +127,24 @@ class añoAcademicoController extends Controller
         if($request->has('identificador')) $data['identificador'] = $request->identificador;
         if($request->has('id_prog_form')) $data['id_prog_form'] = $request->id_prog_form;
         $aA->update($data);
+        if ($request->has('id_asignatura')) {
+
+            // eliminar relaciones actuales
+            Asignatura_Agno::where('id_a_academico', $id)->delete();
+
+            // crear nuevas
+            foreach ($request->id_asignatura as $id_asignatura) {
+
+                $asignatura = Asignatura::find($id_asignatura);
+
+                if ($asignatura) {
+                    Asignatura_Agno::create([
+                        'id_asignatura' => $id_asignatura,
+                        'id_a_academico' => $id
+                    ]);
+                }
+            }
+        }
         return response()->json([
             'res' => true,
             'message' => 'año academico actualizado'
@@ -127,7 +163,9 @@ class añoAcademicoController extends Controller
                 'message'=>'No se encontro el año academico a eliminar'
             ], 400);
         }
+        Asignatura_Agno::where('id_a_academico', $id)->delete();
         $aA->delete();
+        
         return response()->json([
             'res'=>true,
             'message'=>'Año academico eliminado satisfactoriamente'
