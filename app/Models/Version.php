@@ -22,4 +22,21 @@ class Version extends Model
     {
         return $this->belongsTo(PlanEstudio::class, 'plan_estudio_id');
     }
+
+    public function modificaciones()
+    {
+        return $this->hasMany(Modificacion::class, 'version_id');
+    }
+
+    public function cohortes()
+    {
+        return $this->hasMany(Cohorte::class, 'version_id');
+    }
+
+    public function cursos()
+    {
+        return $this->hasMany(Curso::class, 'version_id');
+    }
+
+    
 }
