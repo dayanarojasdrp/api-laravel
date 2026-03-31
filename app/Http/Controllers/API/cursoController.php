@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Curso;
+use App\Models\Version;
+use App\Models\Cohorte;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,7 +29,10 @@ class cursoController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'curso'=> 'required|unique:curso,curso'
+            'curso'=> 'required|unique:curso,curso',
+            "version_id"=>"required|exists:version,id",
+            "cohorte_id"=>"required|exists:cohorte,id"
+            
         ]);
         if($validator->fails()){
             return response()->json([
@@ -35,17 +40,26 @@ class cursoController extends Controller
                 'message' => $validator->errors()
             ], 400);
         }
-        $cur = Curso::create($request->all());
-        if(!$cur){
+       $cohorte = Cohorte::find($request->cohorte_id);
+
+        if (!$cohorte) {
             return response()->json([
-                'res'=> false,
-                'message' => 'Fallo al anadir el curso'
+                'res' => false,
+                'message' => 'La cohorte no existe'
             ], 400);
         }
+        $curso = Curso::create([
+            'curso'=>$request->curso,
+            'version_id' => $request->version_id,
+            'cohorte_id' => $request->cohorte_id
+        ]);
+
         return response()->json([
-            'res'=> true,
-            'message' => 'Se anadio correctamente el curso'
-        ], 400);
+            'res' => true,
+            'message' => 'Curso creado correctamente',
+            'data' => $curso
+        ], 201);
+
     }
 
     /**

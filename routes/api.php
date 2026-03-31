@@ -25,11 +25,14 @@ use App\Http\Controllers\API\DisciplinaController;
 use App\Http\Controllers\API\HistorialsC\CurriculoDisciplinaController;
 use App\Http\Controllers\API\HistorialsC\DisciplinaAsignaturaController;
 use App\Http\Controllers\API\HistorialsC\PlanEstudioCurriculoController;
+use App\Http\Controllers\API\ModificacionController;
 use App\Http\Controllers\API\ProfesorController;
 use App\Http\Controllers\API\PlanEstudioController;
 use App\Http\Controllers\API\PlanEstudioProgFormController;
 use App\Http\Controllers\API\VersionController;
+use App\Http\Controllers\CohorteController;
 use App\Models\Asignatura_Agno;
+use App\Models\Cohorte;
 use App\Models\Version;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -237,3 +240,15 @@ Route::post('/version', [VersionController::class, 'store']);
 Route::get('/version/{id}', [VersionController::class, 'show']);
 Route::put('/version/{id}', [VersionController::class, 'update']);
 Route::delete('/version/{id}', [VersionController::class, 'destroy']);
+
+//Rutas de modificacion
+Route::get('/modificacion', [ModificacionController::class, 'index']);
+Route::post('/modificacion', [ModificacionController::class, 'store']);
+Route::get('/modificacion/{id}', [ModificacionController::class, 'show']);
+Route::put('/modificacion/{id}', [ModificacionController::class, 'update']);
+Route::delete('/modificacion/{id}', [ModificacionController::class, 'destroy']);
+
+//Rutas de Cohorte
+Route::get('/cohorte', [CohorteController::class, 'index']);
+Route::post('/cohorte', [CohorteController::class, 'store']);
+Route::delete('/cohorte/{id}', [CohorteController::class, 'destroy']);

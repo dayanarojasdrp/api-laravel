@@ -5,28 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Curso extends Model
+class Modificacion extends Model
 {
-    protected $table = 'curso';
+    use HasFactory;
+    protected $table = 'modificacion';
     protected $fillable = [
-        'curso',
         'version_id',
-        'cohorte_id'
+        'nombre'
     ];
-    protected $hidden = [
+     protected $hidden = [
         'created_at',
         'updated_at'
     ];
-    use HasFactory;
+
     public function version()
     {
         return $this->belongsTo(Version::class, 'version_id');
     }
-
-    public function cohorte()
-    {
-        return $this->belongsTo(Cohorte::class, 'cohorte_id');
-    }
-
-
 }
