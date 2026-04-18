@@ -12,6 +12,7 @@ class PpaHistorial extends Model
     protected $fillable = [
         'id_profesor',
         'id_a_academico',
+        'id_curso',
         'accion',
         'fecha_accion'
     ];

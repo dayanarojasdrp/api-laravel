@@ -5,27 +5,41 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PPA;
 use App\Models\PpaHistorial;
+use App\Models\AgnoAcademicoCurso;
 
 class PPAController extends Controller
 {
     // 🟢 DESIGNAR
-    public function designar(Request $request)
-    {
-        $ppa = PPA::create([
-            'id_profesor' => $request->id_profesor,
-            'id_a_academico' => $request->id_a_academico,
-            'id_curso' => $request->id_curso
-        ]);
+   public function designar(Request $request)
+{
+    // ✅ VALIDAR PRIMERO
+    $valido = AgnoAcademicoCurso::where('id_curso', $request->id_curso)
+        ->where('id_a_academico', $request->id_a_academico)
+        ->exists();
 
-        PpaHistorial::create([
-            'id_profesor' => $request->id_profesor,
-            'id_a_academico' => $request->id_a_academico,
-            'accion' => 'designado',
-            'fecha_accion' => now()
-        ]);
-
-        return response()->json($ppa);
+    if (!$valido) {
+        return response()->json([
+            'error' => 'El curso no corresponde a ese año académico'
+        ], 400);
     }
+
+    // ✅ SI TODO BIEN → CREAR
+    $ppa = PPA::create([
+        'id_profesor' => $request->id_profesor,
+        'id_a_academico' => $request->id_a_academico,
+        'id_curso' => $request->id_curso
+    ]);
+
+    // ✅ HISTORIAL
+    PpaHistorial::create([
+        'id_profesor' => $request->id_profesor,
+        'id_a_academico' => $request->id_a_academico,
+        'accion' => 'designado',
+        'fecha_accion' => now()
+    ]);
+
+    return response()->json($ppa);
+}
 
     // 🔵 RATIFICAR
     public function ratificar(Request $request)
