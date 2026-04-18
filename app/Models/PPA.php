@@ -24,4 +24,8 @@ class PPA extends Model
         'uuid',
         'updated_at'
     ];
+    public function profesor()
+{
+    return $this->belongsTo(Profesor::class, 'id_profesor');
+}
 }

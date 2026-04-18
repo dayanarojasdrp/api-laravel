@@ -9,18 +9,44 @@ use App\Models\AgnoAcademico_Curso;
 use App\Models\AñoAcademico;
 use App\Models\Profesor;
 use App\Models\Curso;
+use App\Models\CatDocente;
+use App\Models\CatCientifica;
 
 class PPAController extends Controller
 {
     // 🟢 DESIGNAR
   public function designar(Request $request)
 {
+     $profesor = Profesor::find($request->id_profesor);
     // 🟡 VALIDAR PROFESOR
     if (!Profesor::where('id', $request->id_profesor)->exists()) {
         return response()->json([
             'error' => 'El profesor no existe'
         ], 400);
     }
+
+    // 🔍 OBTENER CATEGORÍAS
+$catDocente = CatDocente::find($profesor->idCatDocente);
+$catCientifica = CatCientifica::find($profesor->idCatCientifica);
+
+// 🔒 VALIDAR CATEGORÍA CIENTÍFICA
+$validaCientifica = in_array($catCientifica->nombre, [
+    'Investigador Auxiliar',
+    'Investigador Titular'
+]);
+
+// 🔒 VALIDAR CATEGORÍA DOCENTE
+$validaDocente = in_array($catDocente->nombre, [
+    'Instructor',
+    'Auxiliar',
+    'Titular'
+]);
+
+if (!$validaCientifica || !$validaDocente) {
+    return response()->json([
+        'error' => 'El profesor no cumple con los requisitos para ser PPA'
+    ], 400);
+}
     $existe = PPA::where('id_profesor', $request->id_profesor)
     ->where('id_curso', $request->id_curso)
     ->where('id_a_academico', $request->id_a_academico)
@@ -30,6 +56,15 @@ class PPAController extends Controller
 if ($existe) {
     return response()->json([
         'error' => 'El profesor ya está designado como PPA en ese curso y año académico'
+    ], 400);
+}
+    $existe = PPA::where('id_curso', $request->id_curso)
+    ->where('id_a_academico', $request->id_a_academico)
+    ->exists();
+
+if ($existe) {
+    return response()->json([
+        'error' => 'Ya existe un PPA asignado para ese curso en ese año académico'
     ], 400);
 }
     // 🟡 VALIDAR CURSO
@@ -119,5 +154,19 @@ if ($existe) {
     return response()->json([
         'message' => 'PPA eliminado correctamente'
     ]);
+}
+public function index()
+{
+    $ppa = PPA::with('profesor')->get();
+
+    return response()->json(
+        $ppa->map(function ($item) {
+            return [
+                'id' => $item->profesor->id,
+                'nombre' => $item->profesor->nombre,
+                'apellidos' => $item->profesor->apellidos
+            ];
+        })
+    );
 }
 }

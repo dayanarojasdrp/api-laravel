@@ -8,6 +8,7 @@ use App\Models\Version;
 use App\Models\Cohorte;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\AgnoAcademico_Curso;
 
 class cursoController extends Controller
 {
@@ -32,7 +33,7 @@ class cursoController extends Controller
             'curso'=> 'required|unique:curso,curso',
             "version_id"=>"required|exists:version,id",
             "cohorte_id"=>"required|exists:cohorte,id"
-            
+
         ]);
         if($validator->fails()){
             return response()->json([
@@ -96,4 +97,20 @@ class cursoController extends Controller
             'message'=>'curso eliminado satisfactoriamente'
         ], 200);
     }
+    public function porAgno($id)
+{
+    $cursos = AgnoAcademico_Curso::with('curso')
+        ->where('id_a_academico', $id)
+        ->get();
+
+    return response()->json(
+        $cursos->map(function ($item) {
+            return [
+                'id' => $item->curso->id,
+                'nombre' => $item->curso->curso
+            ];
+        })
+    );
+}
+
 }

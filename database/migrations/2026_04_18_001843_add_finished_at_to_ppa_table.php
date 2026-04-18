@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('ppa', function (Blueprint $table) {
     $table->timestamp('finished_at')->nullable();
+    $table->unique(['id_curso', 'id_a_academico']);
 });
     }
 

@@ -13,7 +13,7 @@ class ProfesorSeeder extends Seeder
             'nombre' => 'Juan',
             'apellidos' => 'Pérez Gómez',
             'idCatDocente' => 1,      // ID existente en categoria_docente
-            'idCatCientifica' => 1,   // ID existente en categoria_cientifica
+            'idCatCientifica' => 2,   // ID existente en categoria_cientifica
         ]);
     }
 }

@@ -34,7 +34,9 @@ class DatabaseSeeder extends Seeder
         ProfesorSeeder::class,
         VersionSeeder::class,
         CohorteSeeder::class,
+        UserSeeder::class,
         AgnoAcademicoCursoSeeder::class,
+
     ]);
     }
 }

@@ -119,6 +119,7 @@ Route::post('/progFormMod', [historialProgFormModCarController::class, 'store'])
 Route::delete('/progFormMod/{idM}/{idP}', [historialProgFormModCarController::class, 'destroy']);
 
 //Rutas de curso
+Route::get('/cursos/{id_a_academico}', [CursoController::class, 'porAgno']);
 Route::get('/curso', [cursoController::class, 'index']);
 Route::post('/curso', [cursoController::class, 'store']);
 Route::delete('/curso/{id}', [cursoController::class, 'destroy']);
@@ -257,3 +258,6 @@ Route::delete('/cohorte/{id}', [CohorteController::class, 'destroy']);
 Route::post('/ppa/designar', [PPAController::class, 'designar']);
 Route::post('/ppa/ratificar', [PPAController::class, 'ratificar']);
 Route::post('/ppa/desnombrar', [PPAController::class, 'desnombrar']);
+Route::get('/ppa', [PPAController::class, 'index']);
+
+
