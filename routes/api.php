@@ -252,3 +252,8 @@ Route::delete('/modificacion/{id}', [ModificacionController::class, 'destroy']);
 Route::get('/cohorte', [CohorteController::class, 'index']);
 Route::post('/cohorte', [CohorteController::class, 'store']);
 Route::delete('/cohorte/{id}', [CohorteController::class, 'destroy']);
+
+
+Route::post('/ppa/designar', [PPAController::class, 'designar']);
+Route::post('/ppa/ratificar', [PPAController::class, 'ratificar']);
+Route::post('/ppa/desnombrar', [PPAController::class, 'desnombrar']);
