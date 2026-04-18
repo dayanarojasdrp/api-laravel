@@ -10,7 +10,7 @@ class AgnoAcademico_Curso extends Model
 {
     use HasFactory;
     use HasUuids;
-    protected $table = 'a-academico_curso';
+    protected $table = 'a_academico_curso';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';

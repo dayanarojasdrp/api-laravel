@@ -13,7 +13,7 @@ class PPAController extends Controller
    public function designar(Request $request)
 {
     // ✅ VALIDAR PRIMERO
-    $valido = AgnoAcademicoCurso::where('id_curso', $request->id_curso)
+    $valido = AgnoAcademico_Curso::where('id_curso', $request->id_curso)
         ->where('id_a_academico', $request->id_a_academico)
         ->exists();
 
