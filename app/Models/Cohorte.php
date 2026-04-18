@@ -18,12 +18,12 @@ class Cohorte extends Model
         'curso_inicio',
         'curso_fin',
         'version_id'
-        
+
     ];
     protected $hidden = [
         'created_at',
         'updated_at',
-        
+
     ];
     public function version()
     {

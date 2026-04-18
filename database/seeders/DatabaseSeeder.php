@@ -27,11 +27,14 @@ class DatabaseSeeder extends Seeder
         AsignaturaSeeder::class,
         CursoSeeder::class,
         AsignaturaAgno::class,
-
         MunicipioSeeder::class,
         CatDocenteSeeder::class,
         CatCientificaSeeder::class,
-
+        PlanEstudioSeeder::class,
+        ProfesorSeeder::class,
+        VersionSeeder::class,
+        CohorteSeeder::class,
+        AgnoAcademicoCursoSeeder::class,
     ]);
     }
 }
