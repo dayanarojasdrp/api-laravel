@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PPA;
 use App\Models\PpaHistorial;
-use App\Models\AgnoAcademicoCurso;
+use App\Models\AgnoAcademico_Curso;
 
 class PPAController extends Controller
 {

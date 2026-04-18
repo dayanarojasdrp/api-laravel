@@ -17,55 +17,42 @@ class AsignaturaAgno extends Seeder
         $data = [
             [
                 'id_asignatura' => 1,
-                'id_curso' => 25,
                 'id_a_academico' => 1
             ],[
                 'id_asignatura' => 1,
-                'id_curso' => 24,
                 'id_a_academico' => 1
             ],[
                 'id_asignatura' => 2,
-                'id_curso' => 25,
                 'id_a_academico' => 1
             ],[
                 'id_asignatura' => 2,
-                'id_curso' => 24,
                 'id_a_academico' => 9
             ],[
                 'id_asignatura' => 2,
-                'id_curso' => 25,
                 'id_a_academico' => 9
             ],[
                 'id_asignatura' => 3,
-                'id_curso' => 25,
                 'id_a_academico' => 9
             ],[
                 'id_asignatura' => 3,
-                'id_curso' => 25,
                 'id_a_academico' => 1
             ],[
                 'id_asignatura' => 4,
-                'id_curso' => 25,
                 'id_a_academico' => 2
             ],[
                 'id_asignatura' => 4,
-                'id_curso' => 25,
                 'id_a_academico' => 2
             ],[
                 'id_asignatura' => 7,
-                'id_curso' => 25,
                 'id_a_academico' => 2
             ],[
                 'id_asignatura' => 7,
-                'id_curso' => 25,
                 'id_a_academico' => 10
             ],[
                 'id_asignatura' => 9,
-                'id_curso' => 25,
                 'id_a_academico' => 10
             ],[
                 'id_asignatura' => 9,
-                'id_curso' => 25,
                 'id_a_academico' => 2
             ]
         ];

@@ -11,19 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('curso', function (Blueprint $table) {
-            $table->unsignedBigInteger('version_id')->after('id');
-            $table->uuid('cohorte_id')->after('version_id');
-            $table->foreign('version_id')
-                  ->references('id')
-                  ->on('version')
-                  ->onDelete('cascade');
-            
-            $table->foreign('cohorte_id')
-                  ->references('id')
-                  ->on('cohorte')
-                  ->onDelete('cascade');      
-        });
+
     }
 
     /**
@@ -31,11 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('curso', function (Blueprint $table) {
-            $table->dropForeign(['version_id']);
-            $table->dropForeign(['cohorte_id']);
-            $table->dropForeign(['version_id']);
-            $table->dropForeign(['cohorte_id']);
-        });
+
     }
 };
