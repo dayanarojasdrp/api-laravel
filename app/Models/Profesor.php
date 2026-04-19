@@ -20,4 +20,13 @@ class Profesor extends Model
         'created_at',
         'updated_at'
     ];
+    public function catDocente()
+{
+    return $this->belongsTo(CatDocente::class, 'idCatDocente');
+}
+
+public function catCientifica()
+{
+    return $this->belongsTo(CatCientifica::class, 'idCatCientifica');
+}
 }

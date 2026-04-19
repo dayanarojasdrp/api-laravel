@@ -11,7 +11,7 @@ use App\Models\Profesor;
 use App\Models\Curso;
 use App\Models\CatDocente;
 use App\Models\CatCientifica;
-
+use App\Models\ProgFormacion;
 class PPAController extends Controller
 {
     // 🟢 DESIGNAR
@@ -47,11 +47,19 @@ if (!$validaCientifica || !$validaDocente) {
         'error' => 'El profesor no cumple con los requisitos para ser PPA'
     ], 400);
 }
-    $existe = PPA::where('id_profesor', $request->id_profesor)
-    ->where('id_curso', $request->id_curso)
-    ->where('id_a_academico', $request->id_a_academico)
-    ->whereNull('finished_at') // importante si usas historial de vida
+    $año = AñoAcademico::find($request->id_a_academico);
+
+$existe = PPA::where('id_a_academico', $request->id_a_academico)
+    ->whereHas('añoAcademico', function ($query) use ($año) {
+        $query->where('id_programa_formacion', $año->id_programa_formacion);
+    })
     ->exists();
+
+if ($existe) {
+    return response()->json([
+        'error' => 'Ya existe un PPA asignado para esa carrera en ese año'
+    ], 400);
+}
 
 if ($existe) {
     return response()->json([
@@ -108,7 +116,20 @@ if ($existe) {
         'fecha_accion' => now()
     ]);
 
-    return response()->json($ppa);
+   $año = AñoAcademico::find($request->id_a_academico);
+$profesor = Profesor::find($request->id_profesor);
+$carrera = ProgramaDeFormacion::find($año->id_programa_formacion);
+
+$descripcion = "Se designó a {$profesor->nombre} {$profesor->apellidos} como PPA en la carrera {$carrera->nombre}, {$año->identificador}";
+
+$usuario = $request->header('X-User') ?? 'desconocido';
+
+LogController::registrar(
+    $usuario,
+    'designar_ppa',
+    $descripcion
+);
+return response()->json($ppa);
 }
 
     // 🔵 RATIFICAR
@@ -121,8 +142,21 @@ if ($existe) {
             'accion' => 'ratificado',
             'fecha_accion' => now()
         ]);
+return response()->json(['message' => 'Ratificado']);
+        $año = AñoAcademico::find($request->id_a_academico);
+$profesor = Profesor::find($request->id_profesor);
+$carrera = ProgramaDeFormacion::find($año->id_programa_formacion);
 
-        return response()->json(['message' => 'Ratificado']);
+$descripcion = "Se ratificó a {$profesor->nombre} {$profesor->apellidos} como PPA en la carrera {$carrera->nombre}, {$año->identificador}";
+
+$usuario = $request->header('X-User') ?? 'desconocido';
+
+LogController::registrar(
+    $usuario,
+    'ratificar_ppa',
+    $descripcion
+);
+
     }
 
     // 🔴 DESNOMBRAR
@@ -154,17 +188,35 @@ if ($existe) {
     return response()->json([
         'message' => 'PPA eliminado correctamente'
     ]);
+   $año = AñoAcademico::find($request->id_a_academico);
+$profesor = Profesor::find($request->id_profesor);
+$carrera = ProgramaDeFormacion::find($año->id_programa_formacion);
+
+$descripcion = "Se eliminó a {$profesor->nombre} {$profesor->apellidos} como PPA en la carrera {$carrera->nombre}, {$año->identificador}";
+
+$usuario = $request->header('X-User') ?? 'desconocido';
+
+LogController::registrar(
+    $usuario,
+    'desnombrar_ppa',
+    $descripcion
+);
 }
 public function index()
 {
-    $ppa = PPA::with('profesor')->get();
+    $ppa = PPA::with([
+        'profesor.catDocente',
+        'profesor.catCientifica'
+    ])->get();
 
     return response()->json(
         $ppa->map(function ($item) {
             return [
                 'id' => $item->profesor->id,
                 'nombre' => $item->profesor->nombre,
-                'apellidos' => $item->profesor->apellidos
+                'apellidos' => $item->profesor->apellidos,
+                'catDocente' => $item->profesor->catDocente->nombre ?? 'No definida',
+                'catCientifica' => $item->profesor->catCientifica->nombre ?? 'No definida'
             ];
         })
     );
