@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\API\HistorialsC;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\HistorialFacultadDepartamento;
+use App\Models\Departamento;
+use App\Models\Facultad;
 use Illuminate\Support\Facades\Validator;
 class historialFacDepController extends Controller
 {
@@ -76,4 +78,22 @@ class historialFacDepController extends Controller
             'message' => 'Se elimino el registro'
         ], 200);
     }
+  public function departamentosPorFacultad($id)
+{
+    $departamentos = DB::table('facultad_departamento')
+        ->join(
+            'departamento',
+            'facultad_departamento.id_departamento',
+            '=',
+            'departamento.id'
+        )
+        ->where('facultad_departamento.id_facultad', $id)
+        ->select(
+            'departamento.id',
+            'departamento.nombre'
+        )
+        ->get();
+
+    return response()->json($departamentos);
+}
 }

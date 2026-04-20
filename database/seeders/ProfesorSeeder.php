@@ -15,5 +15,11 @@ class ProfesorSeeder extends Seeder
             'idCatDocente' => 1,      // ID existente en categoria_docente
             'idCatCientifica' => 2,   // ID existente en categoria_cientifica
         ]);
+       Profesor::create([
+            'nombre' => 'Jua',
+            'apellidos' => 'Pére Góme',
+            'idCatDocente' => 3,      // ID existente en categoria_docente
+            'idCatCientifica' => 3,   // ID existente en categoria_cientifica
+        ]);
     }
 }

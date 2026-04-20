@@ -13,7 +13,7 @@ class CohorteSeeder extends Seeder
     {
         DB::table('cohorte')->insert([
             [
-                'id' => Str::uuid(),
+                'id' => 1,
                 'curso_inicio' => 1,
                 'curso_fin' => 5,
                 'version_id' => 1, // ✅ IMPORTANTE

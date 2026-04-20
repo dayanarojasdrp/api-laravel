@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\API\HistorialsC;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\HistorialDepProgForm;
@@ -76,4 +76,22 @@ class historialDepProgFormController extends Controller
             'message' => 'Se elimino el registro'
         ], 200);
     }
+    public function carrerasPorDepartamento($id)
+{
+    $carreras = DB::table('departamento_prog_d_form')
+        ->join(
+            'programa_de_formacion',
+            'departamento_prog_d_form.id_prog_form',
+            '=',
+            'programa_de_formacion.id'
+        )
+        ->where('departamento_prog_d_form.id_departamento', $id)
+        ->select(
+            'programa_de_formacion.id',
+            'programa_de_formacion.nombre'
+        )
+        ->get();
+
+    return response()->json($carreras);
+}
 }

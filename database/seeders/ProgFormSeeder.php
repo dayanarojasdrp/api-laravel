@@ -41,7 +41,10 @@ class ProgFormSeeder extends Seeder
             ],[
                 'nombre' => 'Ing. Industrial',
                 'abreviatura' => 'Ing.I'
-            ]
+            ],[
+                'nombre' => 'Lic. Quimica',
+                'abreviatura' => 'LQ'
+            ],
         ]);
     }
 }

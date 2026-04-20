@@ -28,16 +28,16 @@ class AgnoAcademicoSeeder extends Seeder
                 'id_prog_form' => 1
             ],[
                 'identificador' => '1ro',
-                'id_prog_form' => 6
+                'id_prog_form' => 5
             ],[
                 'identificador' => '2do',
-                'id_prog_form' => 6
+                'id_prog_form' => 5
             ],[
                 'identificador' => '3ro',
-                'id_prog_form' => 6
+                'id_prog_form' => 5
             ],[
                 'identificador' => '4to',
-                'id_prog_form' => 6
+                'id_prog_form' => 5
             ],[
                 'identificador' => '1ro',
                 'id_prog_form' => 2

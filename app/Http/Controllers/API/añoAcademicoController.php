@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\API;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ProgFormacion;
@@ -76,7 +76,7 @@ class añoAcademicoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id) 
+    public function show(string $id)
     {
         $aA = AñoAcademico::find($id);
         if(!$aA){
@@ -85,7 +85,7 @@ class añoAcademicoController extends Controller
                 'message'=> 'No se encontro el año academico'
             ], 400);
         }
-       
+
         return response()->json([
             'res'=> true,
             'data'=>$aA
@@ -165,10 +165,28 @@ class añoAcademicoController extends Controller
         }
         Asignatura_Agno::where('id_a_academico', $id)->delete();
         $aA->delete();
-        
+
         return response()->json([
             'res'=>true,
             'message'=>'Año academico eliminado satisfactoriamente'
         ], 200);
     }
+    public function aniosPorPrograma($id)
+{
+    $anios = DB::table('a_academico')
+        ->where('id_prog_form', $id)
+        ->select('id', 'identificador')
+        ->get();
+
+    return response()->json($anios);
+}
+public function cursoPorAnio($id)
+{
+    $curso = DB::table('a_academico_curso')
+        ->where('id_a_academico', $id)
+        ->select('id_curso')
+        ->first();
+
+    return response()->json($curso);
+}
 }

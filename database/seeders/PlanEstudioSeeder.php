@@ -11,13 +11,13 @@ class PlanEstudioSeeder extends Seeder
     {
         DB::table('plan-estudio')->insert([
             [
-                'id' => 1,
+
                 'nombre' => 'Plan 2020',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-                'id' => 2,
+
                 'nombre' => 'Plan 2021',
                 'created_at' => now(),
                 'updated_at' => now()

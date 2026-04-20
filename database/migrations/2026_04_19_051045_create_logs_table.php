@@ -13,11 +13,9 @@ return new class extends Migration
     {
         Schema::create('logs', function (Blueprint $table) {
     $table->id();
-
-    $table->string('usuario'); // username o id
-    $table->string('accion'); // ejemplo: "crear_usuario"
+    $table->string('usuario')->nullable();
+    $table->string('accion');
     $table->text('descripcion')->nullable();
-
     $table->timestamps();
 });
     }

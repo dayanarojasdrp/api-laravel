@@ -260,4 +260,7 @@ Route::post('/ppa/ratificar', [PPAController::class, 'ratificar']);
 Route::post('/ppa/desnombrar', [PPAController::class, 'desnombrar']);
 Route::get('/ppa', [PPAController::class, 'index']);
 
-
+Route::get('/facultad/{id}/departamentos', [historialFacDepController::class, 'departamentosPorFacultad']);
+Route::get('/departamento/{id}/carreras', [historialDepProgFormController::class, 'carrerasPorDepartamento']);
+Route::get('/programa/{id}/anios', [añoAcademicoController::class, 'aniosPorPrograma']);
+Route::get('/anio/{id}/curso', [añoAcademicoController::class, 'cursoPorAnio']);
