@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\PPA;
 use App\Models\PpaHistorial;
 use App\Models\AgnoAcademico_Curso;
-use App\Models\AñoAcademico;
+use App\Models\AnoAcademico;
 use App\Models\Profesor;
 use App\Models\Curso;
 use App\Models\CatDocente;
@@ -53,14 +53,14 @@ if (!$validaCientifica || !$validaDocente) {
         'error' => 'El profesor no cumple con los requisitos para ser PPA'
     ], 400);
 }
-   $año = AñoAcademico::find($request->id_a_academico);
+   $ano = AnoAcademico::find($request->id_a_academico);
 
-if (!$año) {
+if (!$ano) {
     return response()->json([
-        'error' => 'Año académico inválido'
+        'error' => 'Ano académico inválido'
     ], 400);
 }
-$carrera = ProgFormacion::find($año->id_prog_form);
+$carrera = ProgFormacion::find($ano->id_prog_form);
 
 if (!$carrera) {
     return response()->json([
@@ -75,7 +75,7 @@ $existeCarrera = PPA::where('id_a_academico', $request->id_a_academico)
 
 if ($existeCarrera) {
     return response()->json([
-        'error' => 'Ya existe un PPA para ese año académico'
+        'error' => 'Ya existe un PPA para ese ano académico'
     ], 400);
 }
 
@@ -95,7 +95,7 @@ if ($existeProfesor) {
 
 if ($existe) {
     return response()->json([
-        'error' => 'Ya existe un PPA asignado para ese curso en ese año académico'
+        'error' => 'Ya existe un PPA asignado para ese curso en ese ano académico'
     ], 400);
 }
     // 🟡 VALIDAR CURSO
@@ -105,21 +105,21 @@ if ($existe) {
         ], 400);
     }
 
-    // 🟡 VALIDAR AÑO ACADÉMICO
-    if (!AñoAcademico::where('id', $request->id_a_academico)->exists()) {
+    // 🟡 VALIDAR ANO ACADÉMICO
+    if (!AnoAcademico::where('id', $request->id_a_academico)->exists()) {
         return response()->json([
-            'error' => 'El año académico no existe'
+            'error' => 'El ano académico no existe'
         ], 400);
     }
 
-    // 🟢 VALIDACIÓN PRINCIPAL (curso pertenece al año)
+    // 🟢 VALIDACIÓN PRINCIPAL (curso pertenece al ano)
     $valido = AgnoAcademico_Curso::where('id_curso', $request->id_curso)
         ->where('id_a_academico', $request->id_a_academico)
         ->exists();
 
     if (!$valido) {
         return response()->json([
-            'error' => 'El curso no corresponde a ese año académico'
+            'error' => 'El curso no corresponde a ese ano académico'
         ], 400);
     }
 
@@ -141,7 +141,7 @@ if ($existe) {
 
 
 $profesor = Profesor::find($request->id_profesor);
-$carrera = ProgFormacion::find($año->id_prog_form);
+$carrera = ProgFormacion::find($ano->id_prog_form);
 if (!$carrera) {
     return response()->json(['error' => 'Carrera null'], 500);
 }
@@ -150,14 +150,14 @@ if (!$profesor) {
     return response()->json(['error' => 'Profesor null'], 500);
 }
 $profesor = Profesor::find($request->id_profesor);
-$carrera = ProgFormacion::find($año->id_prog_form);
+$carrera = ProgFormacion::find($ano->id_prog_form);
 
 if (!$profesor || !$carrera) {
     return response()->json([
         'error' => 'Datos insuficientes para registrar log'
     ], 400);
 }
-$descripcion = "Se designó a {$profesor->nombre} {$profesor->apellidos} como PPA en la carrera {$carrera->nombre}, {$año->identificador}";
+$descripcion = "Se designó a {$profesor->nombre} {$profesor->apellidos} como PPA en la carrera {$carrera->nombre}, {$ano->identificador}";
 
 $usuario = $request->header('X-User') ?? 'desconocido';
 
@@ -182,11 +182,11 @@ return response()->json($ppa);
     ]);
 
     // 🔥 MOVER TODO ESTO ARRIBA
-    $año = AñoAcademico::find($request->id_a_academico);
+    $ano = AnoAcademico::find($request->id_a_academico);
     $profesor = Profesor::find($request->id_profesor);
-    $carrera = ProgFormacion::find($año->id_prog_form);
+    $carrera = ProgFormacion::find($ano->id_prog_form);
 
-    $descripcion = "Se ratificó a {$profesor->nombre} {$profesor->apellidos} como PPA en la carrera {$carrera->nombre}, {$año->identificador}";
+    $descripcion = "Se ratificó a {$profesor->nombre} {$profesor->apellidos} como PPA en la carrera {$carrera->nombre}, {$ano->identificador}";
 
     $usuario = $request->header('X-User') ?? 'desconocido';
 
@@ -225,11 +225,11 @@ return response()->json($ppa);
     ]);
 
     // 🔥 LOG ANTES DEL RETURN
-    $año = AñoAcademico::find($request->id_a_academico);
+    $ano = AnoAcademico::find($request->id_a_academico);
     $profesor = Profesor::find($request->id_profesor);
-    $carrera = ProgFormacion::find($año->id_prog_form);
+    $carrera = ProgFormacion::find($ano->id_prog_form);
 
-    $descripcion = "Se eliminó a {$profesor->nombre} {$profesor->apellidos} como PPA en la carrera {$carrera->nombre}, {$año->identificador}";
+    $descripcion = "Se eliminó a {$profesor->nombre} {$profesor->apellidos} como PPA en la carrera {$carrera->nombre}, {$ano->identificador}";
 
     $usuario = $request->header('X-User') ?? 'desconocido';
 
@@ -253,8 +253,8 @@ public function index()
     return response()->json(
         $ppa->map(function ($item) {
 
-            // 🔥 OBTENER AÑO
-            $anio = \App\Models\AñoAcademico::find($item->id_a_academico);
+            // 🔥 OBTENER ANO
+            $anio = \App\Models\AnoAcademico::find($item->id_a_academico);
 
             // 🔥 OBTENER CARRERA
             $carrera = $anio

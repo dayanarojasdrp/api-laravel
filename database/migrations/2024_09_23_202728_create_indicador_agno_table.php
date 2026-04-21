@@ -16,12 +16,12 @@ return new class extends Migration
             $table->primary('id');
             $table->unsignedBigInteger('idCurso');
             $table->unsignedBigInteger('idIndicador');
-            $table->unsignedBigInteger('idAñoAcademico');
+            $table->unsignedBigInteger('idAnoAcademico');
             $table->string('valor');
             $table->timestamps();
             $table->foreign('idCurso')->references('id')->on('curso')->onDelete('cascade');
             $table->foreign('idIndicador')->references('id')->on('indicador')->onDelete('cascade');
-            $table->foreign('idAñoAcademico')->references('id')->on('a_academico')->onDelete('cascade');
+            $table->foreign('idAnoAcademico')->references('id')->on('a_academico')->onDelete('cascade');
 
         });
     }

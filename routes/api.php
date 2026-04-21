@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\asignaturaController;
-use App\Http\Controllers\API\añoAcademicoController;
+use App\Http\Controllers\API\anoAcademicoController;
 use App\Http\Controllers\API\cursoController;
 use App\Http\Controllers\API\departamentoController;
 use App\Http\Controllers\API\FacultadController;
@@ -96,14 +96,14 @@ Route::get('/progForm/{id}',[progFormController::class, 'show']);
 Route::put('/progForm/{id}',[progFormController::class, 'update']);
 Route::delete('/progForm/{id}', [progFormController::class, 'destroy']);
 
-//Rutas Año Academico
-Route::get('/a_academico', [añoAcademicoController::class, 'index']);
-Route::post('/a_academico', [añoAcademicoController::class, 'store']);
-Route::get('/a_academico/{id}',[añoAcademicoController::class, 'show']);
-Route::put('/a_academico/{id}',[añoAcademicoController::class, 'update']);
-Route::delete('/a_academico/{id}', [añoAcademicoController::class, 'destroy']);
+//Rutas Ano Academico
+Route::get('/a_academico', [anoAcademicoController::class, 'index']);
+Route::post('/a_academico', [anoAcademicoController::class, 'store']);
+Route::get('/a_academico/{id}',[anoAcademicoController::class, 'show']);
+Route::put('/a_academico/{id}',[anoAcademicoController::class, 'update']);
+Route::delete('/a_academico/{id}', [anoAcademicoController::class, 'destroy']);
 
-//Rutas Asignatura Año Academico
+//Rutas Asignatura Ano Academico
 Route::get('/asignatura_a_academico', [asignaturaAgnoController::class, 'index']);
 Route::delete('/asignatura_a_academico', [asignaturaAgnoController::class, 'destroy']);
 
@@ -162,13 +162,13 @@ Route::get('/asignaturaAgno', [asignaturaAgnoController::class, 'index']);
 /*
 Estas son las rutas para los registros de los indicadores osea para intruducirle
 los valores, no tienen nada de el otro mundo, salvo que para el put y el delete
-se dividen entre los indicadores de año y los indicadores de asignatura:
-    los de asignatura son los que tienen 4 parametros y los de año son los que tienen 3
+se dividen entre los indicadores de ano y los indicadores de asignatura:
+    los de asignatura son los que tienen 4 parametros y los de ano son los que tienen 3
 
     ademas las siglas:
     idC = idCurso
     idI = idIndicador osea el indicador al cual pertenecen
-    idAA = idAñoAcademico
+    idAA = idAnoAcademico
     idA = idAsignatura
 */
 // Rutas existentes
@@ -263,8 +263,8 @@ Route::get('/ppa', [PPAController::class, 'index']);
 
 Route::get('/facultad/{id}/departamentos', [historialFacDepController::class, 'departamentosPorFacultad']);
 Route::get('/departamento/{id}/carreras', [historialDepProgFormController::class, 'carrerasPorDepartamento']);
-Route::get('/programa/{id}/anios', [añoAcademicoController::class, 'aniosPorPrograma']);
-Route::get('/anio/{id}/curso', [añoAcademicoController::class, 'cursoPorAnio']);
+Route::get('/programa/{id}/anios', [anoAcademicoController::class, 'aniosPorPrograma']);
+Route::get('/anio/{id}/curso', [anoAcademicoController::class, 'cursoPorAnio']);
 
 
 Route::get('/logs', [LogController::class, 'index']);

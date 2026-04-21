@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API\HistorialsC;
 use App\Http\Controllers\Controller;
 use App\Models\Asignatura_Agno;
 use App\Models\Asignatura;
-use App\Models\AñoAcademico;
+use App\Models\AnoAcademico;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 

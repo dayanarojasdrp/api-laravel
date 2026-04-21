@@ -5,16 +5,16 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ProgFormacion;
-use App\Models\AñoAcademico;
+use App\Models\AnoAcademico;
 use App\Models\Asignatura;
 use App\Models\Asignatura_Agno;
 use Illuminate\Support\Facades\Validator;
 
-class añoAcademicoController extends Controller
+class anoAcademicoController extends Controller
 {
     public function index()
     {
-        $aA = AñoAcademico::all();
+        $aA = AnoAcademico::all();
         return response()->json([
             'res'=> true,
             'data'=> $aA
@@ -47,7 +47,7 @@ class añoAcademicoController extends Controller
             }
             $data['id_prog_form'] = $request->id_prog_form;
         }
-        $aA = AñoAcademico::create ($data);
+        $aA = AnoAcademico::create ($data);
         if(!$aA) {
             return response()->json([
                 'res'=> false,
@@ -69,7 +69,7 @@ class añoAcademicoController extends Controller
         }
         return response()->json([
             'res'=> true,
-            'message'=> 'Año academico Guardado Correctamente ',
+            'message'=> 'Ano academico Guardado Correctamente ',
         ], 200);
     }
 
@@ -78,11 +78,11 @@ class añoAcademicoController extends Controller
      */
     public function show(string $id)
     {
-        $aA = AñoAcademico::find($id);
+        $aA = AnoAcademico::find($id);
         if(!$aA){
             return response()->json([
                 'res'=> false,
-                'message'=> 'No se encontro el año academico'
+                'message'=> 'No se encontro el ano academico'
             ], 400);
         }
 
@@ -97,11 +97,11 @@ class añoAcademicoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $aA = AñoAcademico::find($id);
+        $aA = AnoAcademico::find($id);
         if(!$aA){
             return response()->json([
                 'res'=>false,
-                'message'=> 'No se encontro el año academico'
+                'message'=> 'No se encontro el ano academico'
             ], 400);
         }
         $validator = Validator::make($request->all(), [
@@ -147,7 +147,7 @@ class añoAcademicoController extends Controller
         }
         return response()->json([
             'res' => true,
-            'message' => 'año academico actualizado'
+            'message' => 'ano academico actualizado'
         ], 200);
     }
 
@@ -156,11 +156,11 @@ class añoAcademicoController extends Controller
      */
     public function destroy(string $id)
     {
-        $aA = AñoAcademico::find($id);
+        $aA = AnoAcademico::find($id);
         if(!$aA){
             return response()->json([
                 'res'=>false,
-                'message'=>'No se encontro el año academico a eliminar'
+                'message'=>'No se encontro el ano academico a eliminar'
             ], 400);
         }
         Asignatura_Agno::where('id_a_academico', $id)->delete();
@@ -168,7 +168,7 @@ class añoAcademicoController extends Controller
 
         return response()->json([
             'res'=>true,
-            'message'=>'Año academico eliminado satisfactoriamente'
+            'message'=>'Ano academico eliminado satisfactoriamente'
         ], 200);
     }
     public function aniosPorPrograma($id)

@@ -15,7 +15,7 @@ use App\Models\Facultad;
 use App\Models\Curso;
 use App\Models\Departamento;
 use App\Models\ProgFormacion;
-use App\Models\AñoAcademico;
+use App\Models\AnoAcademico;
 use App\Models\IndicadorAsignatura;
 use App\Models\IndicadorFacultad;
 use App\Models\IndicadorUniversidad;
@@ -51,7 +51,7 @@ class indicadorController extends Controller
 
     public function show($id) {
         $ind = Indicador::find($id);
-        if(!$ind) return response()->json(['res'=> false, 'message'=> 'No se encontro el año academico'], 400);
+        if(!$ind) return response()->json(['res'=> false, 'message'=> 'No se encontro el ano academico'], 400);
         return response()->json(['res'=> true, 'data'=> $ind], 200);
     }
 
@@ -80,7 +80,7 @@ class indicadorController extends Controller
     }
     public function multiAgno($id) {
         $data = DB::table('indicador_agno')->where('idIndicador', '=', $id)->join('curso', 'indicador_agno.idCurso', '=', 'curso.id')
-            ->join('a-academico', 'indicador_agno.idAñoAcademico', '=', 'a-academico.id')
+            ->join('a-academico', 'indicador_agno.idAnoAcademico', '=', 'a-academico.id')
             ->join('programa-de-formacion', 'a-academico.id_prog_form', '=', 'programa-de-formacion.id')
             ->select('indicador_agno.valor as valor', 'programa-de-formacion.nombre as carrera',
             'a-academico.identificador as agno', 'curso.curso as curso')->get();
@@ -88,7 +88,7 @@ class indicadorController extends Controller
     }
     public function multiAsig($id) {
         $data = DB::table('indicador_asignatura')->where('idIndicador', '=', $id)->join('curso', 'indicador_asignatura.idCurso', '=', 'curso.id')
-            ->join('a-academico', 'indicador_asignatura.idAñoAcademico', '=', 'a-academico.id')
+            ->join('a-academico', 'indicador_asignatura.idAnoAcademico', '=', 'a-academico.id')
             ->join('programa-de-formacion', 'a-academico.id_prog_form', '=', 'programa-de-formacion.id')
             ->join('asignatura', 'indicador_asignatura.idAsignatura', '=', 'asignatura.id')
             ->select('indicador_asignatura.valor as valor', 'programa-de-formacion.nombre as carrera',
@@ -147,7 +147,7 @@ public function getValores($id, Request $request)
             break;
 
         case 'agno':
-            $valores = AñoAcademico::with(['indicadores' => function($query) use ($id) {
+            $valores = AnoAcademico::with(['indicadores' => function($query) use ($id) {
                 $query->where('indicador_agno.idIndicador', $id);
             }])
             ->get()

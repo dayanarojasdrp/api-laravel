@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API\indicadores;
 
 use App\Http\Controllers\Controller;
 use App\Models\Asignatura;
-use App\Models\AñoAcademico;
+use App\Models\AnoAcademico;
 use App\Models\Curso;
 use App\Models\Departamento;
 use App\Models\Universidad;
@@ -54,11 +54,11 @@ class indicadorRegistroController extends Controller
         if ($ind->asociado === 'asignatura') {
             $rules['idAsignatura'] = 'required';
             $rules['idCurso'] = 'required';
-            $rules['idAñoAcademico'] = 'required';
+            $rules['idAnoAcademico'] = 'required';
         }
         elseif ($ind->asociado === 'agno') {
             $rules['idCurso'] = 'required';
-            $rules['idAñoAcademico'] = 'required';
+            $rules['idAnoAcademico'] = 'required';
         }
         elseif ($ind->asociado === 'departamento') {
             $rules['idDepartamento'] = 'required';
@@ -106,11 +106,11 @@ elseif ($ind->asociado === 'progformacion') {
                     ], 400);
                 }
 
-                $aA = AñoAcademico::find($request->idAñoAcademico);
+                $aA = AnoAcademico::find($request->idAnoAcademico);
                 if (!$aA) {
                     return response()->json([
                         'res' => false,
-                        'message' => 'No es valido el id del año academico',
+                        'message' => 'No es valido el id del ano academico',
                         'status' => 400
                     ], 400);
                 }
@@ -119,11 +119,11 @@ elseif ($ind->asociado === 'progformacion') {
                 break;
 
             case 'agno':
-                $aA = AñoAcademico::find($request->idAñoAcademico);
+                $aA = AnoAcademico::find($request->idAnoAcademico);
                 if (!$aA) {
                     return response()->json([
                         'res' => false,
-                        'message' => 'No es valido el id del año academico',
+                        'message' => 'No es valido el id del ano academico',
                         'status' => 400
                     ], 400);
                 }
@@ -241,7 +241,7 @@ case 'progformacion':
         $rules = ['valor' => 'required'];
 
         if ($register instanceof IndicadorAgno || $register instanceof IndicadorAsignatura) {
-            $rules['idAñoAcademico'] = 'required';
+            $rules['idAnoAcademico'] = 'required';
         }
 
         if ($register instanceof IndicadorAgno || $register instanceof IndicadorAsignatura || $register instanceof IndicadorDepartamento) {
@@ -263,9 +263,9 @@ case 'progformacion':
             $data['idCurso'] = $request->idCurso;
         }
 
-        // Para registros que requieren año académico
-        if (($register instanceof IndicadorAgno || $register instanceof IndicadorAsignatura) && $request->has('idAñoAcademico')) {
-            $data['idAñoAcademico'] = $request->idAñoAcademico;
+        // Para registros que requieren ano académico
+        if (($register instanceof IndicadorAgno || $register instanceof IndicadorAsignatura) && $request->has('idAnoAcademico')) {
+            $data['idAnoAcademico'] = $request->idAnoAcademico;
         }
 
         $register->update($data);
@@ -277,11 +277,11 @@ case 'progformacion':
         ], 200);
     }
 
-    // Métodos para año académico
+    // Métodos para ano académico
     public function updateAA(Request $request, $idC, $idI, $idAA) {
         $register = IndicadorAgno::where('idCurso', $idC)
             ->where('idIndicador', $idI)
-            ->where('idAñoAcademico', $idAA)
+            ->where('idAnoAcademico', $idAA)
             ->first();
 
         return $this->update($register, $request);
@@ -290,7 +290,7 @@ case 'progformacion':
     public function destroyAA($idC, $idI, $idAA) {
         $register = IndicadorAgno::where('idCurso', $idC)
             ->where('idIndicador', $idI)
-            ->where('idAñoAcademico', $idAA)
+            ->where('idAnoAcademico', $idAA)
             ->first();
 
         if (!$register) {
@@ -313,7 +313,7 @@ case 'progformacion':
     public function updateA(Request $request, $idC, $idI, $idAA, $idA) {
         $register = IndicadorAsignatura::where('idCurso', $idC)
             ->where('idIndicador', $idI)
-            ->where('idAñoAcademico', $idAA)
+            ->where('idAnoAcademico', $idAA)
             ->where('idAsignatura', $idA)
             ->first();
 
@@ -323,7 +323,7 @@ case 'progformacion':
     public function destroyA($idC, $idI, $idAA, $idA) {
         $register = IndicadorAsignatura::where('idCurso', $idC)
             ->where('idIndicador', $idI)
-            ->where('idAñoAcademico', $idAA)
+            ->where('idAnoAcademico', $idAA)
             ->where('idAsignatura', $idA)
             ->first();
 

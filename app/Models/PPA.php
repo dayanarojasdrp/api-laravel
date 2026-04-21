@@ -28,8 +28,8 @@ class PPA extends Model
 {
     return $this->belongsTo(Profesor::class, 'id_profesor');
 }
-public function añoAcademico()
+public function anoAcademico()
 {
-    return $this->belongsTo(AñoAcademico::class, 'id_a_academico');
+    return $this->belongsTo(AnoAcademico::class, 'id_a_academico');
 }
 }

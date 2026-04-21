@@ -19,7 +19,7 @@ class IndicadorAsignatura extends Model
         'valor',
         'idIndicador',
         'idAsignatura',
-        'idAñoAcademico'
+        'idAnoAcademico'
     ];
     protected $hidden = [
         'created_at',
