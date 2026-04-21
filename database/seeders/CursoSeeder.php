@@ -63,6 +63,10 @@ class CursoSeeder extends Seeder
                 'curso'=> '2023'
             ],[
                 'curso'=> '2024'
+            ],[
+                'curso'=> '2025'
+            ],[
+                'curso'=> '2026'
             ]
         ]);
     }

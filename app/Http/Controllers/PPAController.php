@@ -13,6 +13,15 @@ use App\Models\CatDocente;
 use App\Models\CatCientifica;
 use App\Models\ProgFormacion;
 use App\Http\Controllers\LogController;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Response;
+use PhpOffice\PhpWord\Shared\Html;
+use Carbon\Carbon;
+use App\Models\Decano;
+
+
 class PPAController extends Controller
 {
     // 🟢 DESIGNAR
@@ -288,4 +297,185 @@ $departamento = DB::table('departamento_prog_d_form')
         })
     );
 }
+public function exportPDF()
+{
+    $data = $this->getPPAData();
+
+    $pdf = Pdf::loadView('exports.ppa', ['data' => $data]);
+
+    return $pdf->download('ppa.pdf');
+}
+
+public function exportWord()
+{
+    $data = $this->getPPAData();
+
+    $phpWord = new PhpWord();
+    $section = $phpWord->addSection();
+
+    $section->addText("Listado de PPA", ['bold' => true]);
+
+    foreach ($data as $item) {
+        $section->addText(
+            "{$item['nombre']} {$item['apellidos']} | {$item['carrera']} | {$item['anio']}"
+        );
+    }
+
+    $file = storage_path('app/ppa.docx');
+
+    IOFactory::createWriter($phpWord, 'Word2007')->save($file);
+
+    return response()->download($file)->deleteFileAfterSend(true);
+}
+private function getPPAData()
+{
+    $ppa = PPA::with([
+        'profesor.catDocente',
+        'profesor.catCientifica'
+    ])->get();
+
+    return $ppa->map(function ($item) {
+
+        $anio = \App\Models\AnoAcademico::find($item->id_a_academico);
+
+        $carrera = $anio
+            ? \App\Models\ProgFormacion::find($anio->id_prog_form)
+            : null;
+
+        $departamento = DB::table('departamento_prog_d_form')
+            ->join('departamento', 'departamento_prog_d_form.id_departamento', '=', 'departamento.id')
+            ->where('departamento_prog_d_form.id_prog_form', $carrera->id)
+            ->select('departamento.nombre')
+            ->first();
+
+        return [
+            'nombre' => $item->profesor->nombre,
+            'apellidos' => $item->profesor->apellidos,
+            'catDocente' => $item->profesor->catDocente->nombre ?? '',
+            'catCientifica' => $item->profesor->catCientifica->nombre ?? '',
+            'departamento' => $departamento->nombre ?? '',
+            'carrera' => $carrera->nombre ?? '',
+            'anio' => $anio->identificador ?? ''
+        ];
+    });
+}
+
+public function getDataResolucion()
+{
+    $ppa = PPA::with([
+        'profesor.catDocente',
+        'profesor.catCientifica'
+    ])->get();
+
+    return $ppa->map(function ($item) {
+
+        $anio = AnoAcademico::find($item->id_a_academico);
+        $carrera = $anio
+            ? ProgFormacion::find($anio->id_prog_form)
+            : null;
+
+        $departamento = DB::table('departamento_prog_d_form')
+            ->join('departamento', 'departamento_prog_d_form.id_departamento', '=', 'departamento.id')
+            ->where('departamento_prog_d_form.id_prog_form', $carrera->id ?? 0)
+            ->select('departamento.nombre')
+            ->first();
+
+        return [
+            'nombre' => $item->profesor->nombre . ' ' . $item->profesor->apellidos,
+            'carrera' => $carrera->nombre ?? '',
+            'anio' => $anio->identificador ?? '',
+            'catDocente' => $item->profesor->catDocente->nombre ?? '',
+            'catCientifica' => $item->profesor->catCientifica->nombre ?? '',
+            'departamento' => $departamento->nombre ?? ''
+        ];
+    });
+}
+
+
+public function exportResolucionPDF()
+{
+    Carbon::setLocale('es');
+    $fecha = Carbon::now();
+
+    $dia = $fecha->day;
+    $mes = $fecha->translatedFormat('F');
+    $anio = $fecha->year;
+    $revolucion = $anio - 1958;
+
+    // 🔹 DECANO (igual que ya te funciona)
+    $decano = Decano::where('id_facultad', 1)->first();
+    $profesor = $decano ? Profesor::find($decano->id_profesor) : null;
+
+    $nombreDecano = $profesor
+        ? $profesor->nombre . ' ' . $profesor->apellidos
+        : '';
+
+    // 🔥 NUEVO: HISTORIAL FILTRADO POR AÑO
+    $historial = PpaHistorial::whereYear('fecha_accion', $anio)
+        ->with(['profesor.catDocente', 'profesor.catCientifica'])
+        ->get();
+
+    // 🔥 SEPARAR ACCIONES
+    $ratificados = $historial->where('accion', 'ratificado');
+    $desnombrados = $historial->where('accion', 'desnombrado');
+    $designados = $historial->where('accion', 'designado');
+
+    // 🔥 MAPEAR (MISMO FORMATO QUE YA USABAS)
+    $mapear = function ($items) {
+        return $items->map(function ($item) {
+
+            $anio = \App\Models\AnoAcademico::find($item->id_a_academico);
+            $carrera = $anio
+                ? \App\Models\ProgFormacion::find($anio->id_prog_form)
+                : null;
+
+            return [
+                'carrera' => $carrera->nombre ?? '',
+                'anio' => $anio->identificador ?? '',
+                'nombre' => $item->profesor->nombre . ' ' . $item->profesor->apellidos,
+                'catDocente' => $item->profesor->catDocente->nombre ?? '',
+                'catCientifica' => $item->profesor->catCientifica->nombre ?? '',
+            ];
+        });
+    };
+
+    $ratificados = $mapear($ratificados);
+    $desnombrados = $mapear($desnombrados);
+    $designados = $mapear($designados);
+
+    // 🔴 IMPORTANTE: quitamos $data, ahora mandamos listas separadas
+    $pdf = Pdf::loadView('resolucion', compact(
+        'ratificados',
+        'desnombrados',
+        'designados',
+        'dia',
+        'mes',
+        'anio',
+        'revolucion',
+        'nombreDecano'
+    ));
+
+    return $pdf->download('resolucion.pdf');
+}
+public function exportResolucionWord()
+{
+    $data = $this->getDataResolucion();
+
+    $phpWord = new PhpWord();
+
+    // 🔥 IMPORTANTE: usar HTML
+    $section = $phpWord->addSection();
+
+    $html = view('resolucion_word', compact('data'))->render();
+
+    \PhpOffice\PhpWord\Shared\Html::addHtml($section, $html);
+
+    $file = storage_path('resolucion.docx');
+
+    $writer = IOFactory::createWriter($phpWord, 'Word2007');
+    $writer->save($file);
+
+    return response()->download($file)->deleteFileAfterSend();
+}
+
 }

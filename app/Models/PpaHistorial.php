@@ -16,4 +16,8 @@ class PpaHistorial extends Model
         'accion',
         'fecha_accion'
     ];
+    public function profesor()
+{
+    return $this->belongsTo(Profesor::class, 'id_profesor');
+}
 }

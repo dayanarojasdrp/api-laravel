@@ -268,3 +268,8 @@ Route::get('/anio/{id}/curso', [anoAcademicoController::class, 'cursoPorAnio']);
 
 
 Route::get('/logs', [LogController::class, 'index']);
+
+Route::get('/export/ppa/pdf', [PPAController::class, 'exportPDF']);
+Route::get('/export/ppa/word', [PPAController::class, 'exportWord']);
+Route::get('/export/resolucion/pdf', [PPAController::class, 'exportResolucionPDF']);
+Route::get('/export/resolucion/word', [PPAController::class, 'exportResolucionWord']);

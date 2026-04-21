@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
         FacultadDepartamentoSeeder::class,
         AgnoAcademicoCursoSeeder::class,
         DepartamentoProgFormSeeder::class,
+        DecanoSeeder::class,
     ]);
     }
 }
