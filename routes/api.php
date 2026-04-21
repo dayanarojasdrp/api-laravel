@@ -37,6 +37,7 @@ use App\Models\Version;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PPAController;
+use App\Http\Controllers\LogController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -264,3 +265,6 @@ Route::get('/facultad/{id}/departamentos', [historialFacDepController::class, 'd
 Route::get('/departamento/{id}/carreras', [historialDepProgFormController::class, 'carrerasPorDepartamento']);
 Route::get('/programa/{id}/anios', [añoAcademicoController::class, 'aniosPorPrograma']);
 Route::get('/anio/{id}/curso', [añoAcademicoController::class, 'cursoPorAnio']);
+
+
+Route::get('/logs', [LogController::class, 'index']);

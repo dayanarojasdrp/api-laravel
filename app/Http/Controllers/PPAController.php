@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\PPA;
 use App\Models\PpaHistorial;
@@ -252,12 +252,38 @@ public function index()
 
     return response()->json(
         $ppa->map(function ($item) {
+
+            // 🔥 OBTENER AÑO
+            $anio = \App\Models\AñoAcademico::find($item->id_a_academico);
+
+            // 🔥 OBTENER CARRERA
+            $carrera = $anio
+                ? \App\Models\ProgFormacion::find($anio->id_prog_form)
+                : null;
+
+            // 🔥 OBTENER DEPARTAMENTO
+
+$departamento = DB::table('departamento_prog_d_form')
+    ->join('departamento', 'departamento_prog_d_form.id_departamento', '=', 'departamento.id')
+    ->where('departamento_prog_d_form.id_prog_form', $carrera->id)
+    ->select('departamento.nombre')
+    ->first();
+
             return [
                 'id' => $item->profesor->id,
                 'nombre' => $item->profesor->nombre,
                 'apellidos' => $item->profesor->apellidos,
                 'catDocente' => $item->profesor->catDocente->nombre ?? 'No definida',
-                'catCientifica' => $item->profesor->catCientifica->nombre ?? 'No definida'
+                'catCientifica' => $item->profesor->catCientifica->nombre ?? 'No definida',
+
+                // 🔥 ESTO YA LO TENÍAS (NO SE TOCA)
+                'id_curso' => $item->id_curso,
+                'id_a_academico' => $item->id_a_academico,
+
+                // ✅ NUEVO (LO QUE QUIERES MOSTRAR)
+                'departamento' => $departamento->nombre ?? null,
+                'carrera' => $carrera->nombre ?? '',
+                'anio' => $anio->identificador ?? ''
             ];
         })
     );
