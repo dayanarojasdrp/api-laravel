@@ -5,7 +5,7 @@
 
 <style>
 body {
-    font-family: Helvetica, Arial, sans-serif;
+    font-family:  Arial, sans-serif;
     font-size: 12pt;
     line-height: 1.4;
 }
@@ -57,8 +57,9 @@ body {
 
 .table th, .table td {
     border: 1px solid black;
-    padding: 4px;
-    font-size: 11px;
+    padding: 6px;
+    font-size: 12pt;
+    font-family: Arial, sans-serif;
 }
 
 .table th {
@@ -74,6 +75,77 @@ body {
 .firma {
     margin-top: 40px;
 }
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 25%;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    width: 10%;
+    text-align: center;
+}
+
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    width: 35%;
+}
+
+.table th:nth-child(4),
+.table td:nth-child(4),
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    width: 15%;
+    text-align: center;
+}
+.header-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.header-table td {
+    border: none;
+    vertical-align: middle;
+}
+
+/* LOGOS */
+.logo {
+    width: 20%;
+    text-align: center;
+}
+
+.logo img {
+    width: 60px;
+}
+
+/* TEXTO */
+.header-text {
+    width: 60%;
+    text-align: center;
+    font-size: 12pt;
+    font-family: Arial, sans-serif;
+    white-space: nowrap;
+}
+.titulo-bloque {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.decano {
+    font-weight: bold;
+    margin-bottom: 2px; /* 🔥 controla separación */
+}
+
+.resolucion {
+    font-weight: bold;
+}
+.linea-header {
+    border: none;
+    border-top: 2px solid black; /* 🔥 grosor y color */
+    margin-top: 8px;
+    margin-bottom: 12px;
+}
 </style>
 
 </head>
@@ -81,15 +153,32 @@ body {
 <body>
 
 <!-- 🟣 ENCABEZADO -->
-<div class="header">
-    <div>UNIVERSIDAD CENTRAL “MARTA ABREU” DE LAS VILLAS</div>
-    <div>FACULTAD DE MATEMÁTICA, FÍSICA Y COMPUTACIÓN</div>
-    <div>EL DECANO</div>
-</div>
+<!-- 🟣 ENCABEZADO NUEVO -->
+<table class="header-table">
+    <tr>
+        <td class="logo">
+            <img src="{{ public_path('images/logo_izq.png') }}">
+        </td>
+
+        <td class="header-text">
+            <div>UNIVERSIDAD CENTRAL “MARTA ABREU” DE LAS VILLAS</div>
+            <div><strong>FACULTAD DE MATEMÁTICA, FÍSICA Y COMPUTACIÓN</strong></div>
+
+        </td>
+
+        <td class="logo">
+            <img src="{{ public_path('images/logo_der.png') }}">
+        </td>
+    </tr>
+</table>
+
+<hr class="linea-header">
 
 <!-- 🟣 TITULO -->
-<p class="titulo"><strong>Resolución Decanal /{{ $anio }}</strong></p>
-
+ <div class="titulo-bloque">
+    <div class="decano">EL DECANO</div>
+    <div class="resolucion">Resolución Decanal /{{ $anio }}</div>
+</div>
 <!-- 🟣 POR CUANTO -->
 <p class="parrafo">
 <strong>POR CUANTO:</strong> La Resolución Ministerial 47/2022 dictada por el Ministro de Educación Superior con fecha 27 de mayo de 2022 establece en su Capítulo IX las normas y procedimientos para el trabajo metodológico.
@@ -134,7 +223,7 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 </thead>
 
 <tbody>
-@foreach($data as $item)
+@foreach($ratificados as $item)
 <tr>
 <td>{{ $item['carrera'] }}</td>
 <td class="center">{{ $item['anio'] }}</td>
@@ -165,7 +254,7 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 </thead>
 
 <tbody>
-@foreach($data as $item)
+@foreach($desnombrados as $item)
 <tr>
 <td>{{ $item['carrera'] }}</td>
 <td class="center">{{ $item['anio'] }}</td>
@@ -195,7 +284,7 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 </thead>
 
 <tbody>
-@foreach($data as $item)
+@foreach($designados as $item)
 <tr>
 <td>{{ $item['carrera'] }}</td>
 <td class="center">{{ $item['anio'] }}</td>

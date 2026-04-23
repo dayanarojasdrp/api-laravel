@@ -27,6 +27,9 @@ class Curso extends Model
     {
         return $this->belongsTo(Cohorte::class, 'cohorte_id');
     }
-
+public function edicionCursos()
+{
+    return $this->hasMany(EdicionCurso::class);
+}
 
 }

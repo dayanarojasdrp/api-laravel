@@ -41,6 +41,12 @@ class DatabaseSeeder extends Seeder
         AgnoAcademicoCursoSeeder::class,
         DepartamentoProgFormSeeder::class,
         DecanoSeeder::class,
+        EstudianteSeeder::class,
+        TipoSeeder::class,
+        EdicionSeeder::class,
+        ManifestacionSeeder::class,
+        EdicionCursoSeeder::class,
+        EstudianteManifestacionSeeder::class,
     ]);
     }
 }

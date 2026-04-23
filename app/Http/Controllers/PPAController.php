@@ -22,6 +22,9 @@ use Carbon\Carbon;
 use App\Models\Decano;
 
 
+
+
+
 class PPAController extends Controller
 {
     // 🟢 DESIGNAR
@@ -457,18 +460,228 @@ public function exportResolucionPDF()
 
     return $pdf->download('resolucion.pdf');
 }
+
+
 public function exportResolucionWord()
 {
-    $data = $this->getDataResolucion();
+    Carbon::setLocale('es');
+    $fecha = Carbon::now();
 
+    $dia = $fecha->day;
+    $mes = $fecha->translatedFormat('F');
+    $anio = $fecha->year;
+    $revolucion = $anio - 1958;
+
+    // 🔹 DECANO
+    $decano = Decano::where('id_facultad', 1)->first();
+    $profesor = $decano ? Profesor::find($decano->id_profesor) : null;
+
+    $nombreDecano = $profesor
+        ? $profesor->nombre . ' ' . $profesor->apellidos
+        : '';
+
+    // 🔥 HISTORIAL
+    $historial = PpaHistorial::whereYear('fecha_accion', $anio)
+        ->with(['profesor.catDocente', 'profesor.catCientifica'])
+        ->get();
+
+    $ratificados = $historial->where('accion', 'ratificado');
+    $desnombrados = $historial->where('accion', 'desnombrado');
+    $designados = $historial->where('accion', 'designado');
+
+    // 🔥 MAPEAR (NO TOCAR)
+    $mapear = function ($items) {
+        return $items->map(function ($item) {
+
+            $anio = \App\Models\AnoAcademico::find($item->id_a_academico);
+            $carrera = $anio
+                ? \App\Models\ProgFormacion::find($anio->id_prog_form)
+                : null;
+
+            return [
+                'carrera' => $carrera->nombre ?? '',
+                'anio' => $anio->identificador ?? '',
+                'nombre' => $item->profesor->nombre . ' ' . $item->profesor->apellidos,
+                'catDocente' => $item->profesor->catDocente->nombre ?? '',
+                'catCientifica' => $item->profesor->catCientifica->nombre ?? '',
+            ];
+        });
+    };
+
+    $ratificados = $mapear($ratificados);
+    $desnombrados = $mapear($desnombrados);
+    $designados = $mapear($designados);
+
+    // 🔥 CREAR WORD
     $phpWord = new PhpWord();
-
-    // 🔥 IMPORTANTE: usar HTML
     $section = $phpWord->addSection();
 
-    $html = view('resolucion_word', compact('data'))->render();
+    // ============================
+    // ✅ HEADER BIEN HECHO (CLAVE)
+    // ============================
 
-    \PhpOffice\PhpWord\Shared\Html::addHtml($section, $html);
+    $table = $section->addTable();
+
+    $table->addRow();
+
+    // Logo izquierdo
+    $table->addCell(2000)->addImage(
+        public_path('images/logo_izq.png'),
+        ['width' => 60]
+    );
+
+    // Texto central
+    $cellText = $table->addCell(8000, ['valign' => 'center']);
+
+$textrun = $cellText->addTextRun([
+    'alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER,
+    'spaceBefore' => 300 // 👈 ESTE es el que baja TODO el bloque
+]);
+    $cellText->addText(
+    'UNIVERSIDAD CENTRAL “MARTA ABREU” DE LAS VILLAS',
+    ['bold' => false, 'name' => 'Arial', 'size' => 10], // 👈 sin negrita + más pequeño
+    ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+);
+
+    $cellText->addText(
+        'FACULTAD DE MATEMÁTICA, FÍSICA Y COMPUTACIÓN',
+        ['bold' => true, 'name' => 'Arial', 'size' => 10],
+        ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+    );
+
+    // Logo derecho
+    $table->addCell(2000)->addImage(
+        public_path('images/logo_der.png'),
+        ['width' => 60]
+    );
+
+    // Línea
+
+
+    // ============================
+    // ✅ TU HTML (NO LO ROMPEMOS)
+    // ============================
+
+    $html = view('resolucion_word', compact(
+        'ratificados',
+        'desnombrados',
+        'designados',
+        'dia',
+        'mes',
+        'anio',
+        'revolucion',
+        'nombreDecano'
+    ))->render();
+
+    // limpiar etiquetas que rompen PhpWord
+    $html = preg_replace('/<!DOCTYPE.*?>/', '', $html);
+    $html = str_replace(['<html>', '</html>', '<body>', '</body>'], '', $html);
+
+   // ============================
+// PARTIR HTML
+// ============================
+
+$partes1 = explode('__TABLA_RATIFICADOS__', $html);
+
+// PRIMER BLOQUE (ANTES DE PRIMERO TABLA)
+Html::addHtml($section, $partes1[0], false, false);
+
+// ============================
+// TABLA RATIFICADOS
+// ============================
+
+$table = $section->addTable([
+    'borderSize' => 6,
+    'borderColor' => '000000',
+    'cellMargin' => 50
+]);
+
+$table->addRow();
+$table->addCell(3500)->addText('Carrera', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(1200)->addText('Año', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(5000)->addText('Nombre', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(3500)->addText('Cat. Docente', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(3500)->addText('Cat. Científica', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+
+foreach ($ratificados as $item) {
+    $table->addRow();
+
+    $table->addCell(3500)->addText($item['carrera'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(1200)->addText($item['anio'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(5000)->addText($item['nombre'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(3500)->addText($item['catDocente'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(3500)->addText($item['catCientifica'], ['name' => 'Arial', 'size' => 12]);
+}
+
+// ============================
+// SEGUNDA PARTE
+// ============================
+
+$partes2 = explode('__TABLA_DESNOMBRADOS__', $partes1[1]);
+
+Html::addHtml($section, $partes2[0]);
+
+// ============================
+// TABLA DESNOMBRADOS ✅
+// ============================
+
+$table = $section->addTable([
+    'borderSize' => 6,
+    'borderColor' => '000000',
+    'cellMargin' => 50
+]);
+
+$table->addRow();
+$table->addCell(3500)->addText('Carrera', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(1200)->addText('Año', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(5000)->addText('Nombre', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(3500)->addText('Cat. Docente', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(3500)->addText('Cat. Científica', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+
+foreach ($desnombrados as $item) {
+    $table->addRow();
+
+    $table->addCell(3500)->addText($item['carrera'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(1200)->addText($item['anio'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(5000)->addText($item['nombre'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(3500)->addText($item['catDocente'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(3500)->addText($item['catCientifica'], ['name' => 'Arial', 'size' => 12]);
+}
+
+$partes3 = explode('__TABLA_DESIGNADOS__', $partes2[1]);
+
+Html::addHtml($section, $partes3[0]);
+
+// ============================
+// TABLA DESIGNADOS
+// ============================
+
+$table = $section->addTable([
+    'borderSize' => 6,
+    'borderColor' => '000000',
+    'cellMargin' => 50
+]);
+
+$table->addRow();
+$table->addCell(3500)->addText('Carrera', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(1200)->addText('Año', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(5000)->addText('Nombre', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(3500)->addText('Cat. Docente', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+$table->addCell(3500)->addText('Cat. Científica', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+
+foreach ($designados as $item) {
+    $table->addRow();
+
+    $table->addCell(3500)->addText($item['carrera'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(1200)->addText($item['anio'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(5000)->addText($item['nombre'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(3500)->addText($item['catDocente'], ['name' => 'Arial', 'size' => 12]);
+    $table->addCell(3500)->addText($item['catCientifica'], ['name' => 'Arial', 'size' => 12]);
+}
+Html::addHtml($section, $partes3[1]);
+    // ============================
+    // DESCARGA
+    // ============================
 
     $file = storage_path('resolucion.docx');
 
@@ -477,5 +690,4 @@ public function exportResolucionWord()
 
     return response()->download($file)->deleteFileAfterSend();
 }
-
 }

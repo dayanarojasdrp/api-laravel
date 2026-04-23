@@ -38,6 +38,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PPAController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\EstudianteController;
+use App\Http\Controllers\EdicionController;
+use App\Http\Controllers\TipoController;
+use App\Http\Controllers\ManifestacionController;
+use App\Http\Controllers\EdicionCursoController;
+use App\Http\Controllers\EstudianteManifestacionController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -273,3 +279,17 @@ Route::get('/export/ppa/pdf', [PPAController::class, 'exportPDF']);
 Route::get('/export/ppa/word', [PPAController::class, 'exportWord']);
 Route::get('/export/resolucion/pdf', [PPAController::class, 'exportResolucionPDF']);
 Route::get('/export/resolucion/word', [PPAController::class, 'exportResolucionWord']);
+
+
+Route::get('/estudiante', [EstudianteController::class, 'index']);
+Route::post('/estudiante', [EstudianteController::class, 'store']);
+
+Route::apiResource('tipos', TipoController::class);
+
+Route::apiResource('ediciones', EdicionController::class);
+
+Route::apiResource('manifestaciones', ManifestacionController::class);
+
+Route::apiResource('edicion-curso', EdicionCursoController::class);
+
+Route::apiResource('estudiante-manifestacion', EstudianteManifestacionController::class);
