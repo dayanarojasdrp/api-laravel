@@ -15,4 +15,12 @@ public function manifestaciones()
 {
     return $this->hasMany(EstudianteManifestacion::class);
 }
+public function grupos()
+{
+    return $this->hasMany(EstudianteGrupo::class);
+}
+public function tdpps()
+{
+    return $this->hasMany(EstudianteTDPP::class);
+}
 }

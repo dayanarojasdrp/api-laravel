@@ -17,4 +17,8 @@ class AnoAcademico extends Model
         'created_at',
         'updated_at'
     ];
+    public function grupos()
+{
+    return $this->hasMany(AnoGrupo::class, 'ano_academico_id');
+}
 }

@@ -44,6 +44,18 @@ use App\Http\Controllers\TipoController;
 use App\Http\Controllers\ManifestacionController;
 use App\Http\Controllers\EdicionCursoController;
 use App\Http\Controllers\EstudianteManifestacionController;
+use App\Http\Controllers\GrupoController;
+use App\Http\Controllers\AnoGrupoController;
+use App\Http\Controllers\EstudianteGrupoController;
+use App\Http\Controllers\SectorEstrategicoController;
+use App\Http\Controllers\TDPPController;
+use App\Http\Controllers\EstudianteTDPPController;
+use App\Http\Controllers\GradoTituloController;
+use App\Http\Controllers\DecanoController;
+use App\Http\Controllers\JefeDepartamentoController;
+use App\Http\Controllers\MiembroDepartamentoController;
+use App\Http\Controllers\CoordinadorCarreraController;
+use App\Http\Controllers\ProfesorGuiaController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -293,3 +305,45 @@ Route::apiResource('manifestaciones', ManifestacionController::class);
 Route::apiResource('edicion-curso', EdicionCursoController::class);
 
 Route::apiResource('estudiante-manifestacion', EstudianteManifestacionController::class);
+
+Route::apiResource('grupos', GrupoController::class);
+
+Route::apiResource('ano-grupo', AnoGrupoController::class);
+
+
+Route::apiResource('estudiante-grupo', EstudianteGrupoController::class);
+Route::apiResource('sector-estrategico', SectorEstrategicoController::class);
+Route::apiResource('td-pp', TDPPController::class);
+Route::apiResource('estudiante-tdpp', EstudianteTDPPController::class);
+Route::apiResource('grado-titulo', GradoTituloController::class);
+
+
+Route::apiResource('decano', DecanoController::class);
+
+// 🔥 extras
+Route::get('decano/actual/{facultad}', [DecanoController::class, 'actual']);
+Route::get('decano/historial/{facultad}', [DecanoController::class, 'historial']);
+
+Route::apiResource('jefe-departamento', JefeDepartamentoController::class);
+
+// 🔥 extras
+Route::get('jefe-departamento/actual/{departamento}', [JefeDepartamentoController::class, 'actual']);
+Route::get('jefe-departamento/historial/{departamento}', [JefeDepartamentoController::class, 'historial']);
+
+
+Route::apiResource('miembro-departamento', MiembroDepartamentoController::class);
+
+// extras
+Route::get('miembro-departamento/activos/{departamento}', [MiembroDepartamentoController::class, 'activos']);
+Route::get('miembro-departamento/historial/{profesor}', [MiembroDepartamentoController::class, 'historialProfesor']);
+
+
+Route::apiResource('coordinador-carrera', CoordinadorCarreraController::class);
+
+Route::get('coordinador-carrera/actual/{programa}', [CoordinadorCarreraController::class, 'actual']);
+Route::get('coordinador-carrera/historial/{programa}', [CoordinadorCarreraController::class, 'historial']);
+
+Route::apiResource('profesor-guia', ProfesorGuiaController::class);
+
+Route::get('profesor-guia/actual/{grupo}', [ProfesorGuiaController::class, 'actual']);
+Route::get('profesor-guia/historial/{grupo}', [ProfesorGuiaController::class, 'historial']);

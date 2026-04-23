@@ -14,14 +14,24 @@ class Decano extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $fillable = [
-        'id_facultad',
-        'id_profesor',
-        'id_curso',
-        'finished_at'
-    ];
+  protected $fillable = [
+    'id_facultad',
+    'id_profesor',
+    'fecha_inicio',
+    'fecha_fin',
+    'habilitado'
+];
     protected $hidden = [
         'uuid',
         'updated_at'
     ];
+    public function profesor()
+{
+    return $this->belongsTo(Profesor::class, 'id_profesor');
+}
+
+public function facultad()
+{
+    return $this->belongsTo(Facultad::class, 'id_facultad');
+}
 }

@@ -14,7 +14,8 @@ class Profesor extends Model
         'nombre',
         'apellidos',
         'idCatDocente',
-        'idCatCientifica'
+        'idCatCientifica',
+        'grado_titulo_id'
     ];
     protected $hidden = [
         'created_at',
@@ -28,5 +29,9 @@ class Profesor extends Model
 public function catCientifica()
 {
     return $this->belongsTo(CatCientifica::class, 'idCatCientifica');
+}
+public function gradoTitulo()
+{
+    return $this->belongsTo(GradoTitulo::class, 'grado_titulo_id');
 }
 }

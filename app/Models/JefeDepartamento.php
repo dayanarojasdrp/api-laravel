@@ -14,14 +14,24 @@ class JefeDepartamento extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $fillable = [
-        'id_departamento',
-        'id_profesor',
-        'id_curso',
-        'finished_at'
-    ];
+   protected $fillable = [
+    'id_departamento',
+    'id_profesor',
+    'fecha_inicio',
+    'fecha_fin',
+    'habilitado'
+];
     protected $hidden = [
         'uuid',
         'updated_at'
     ];
+    public function profesor()
+{
+    return $this->belongsTo(Profesor::class, 'id_profesor');
+}
+
+public function departamento()
+{
+    return $this->belongsTo(Departamento::class, 'id_departamento');
+}
 }
