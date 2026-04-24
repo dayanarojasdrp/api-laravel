@@ -56,6 +56,7 @@ use App\Http\Controllers\JefeDepartamentoController;
 use App\Http\Controllers\MiembroDepartamentoController;
 use App\Http\Controllers\CoordinadorCarreraController;
 use App\Http\Controllers\ProfesorGuiaController;
+use App\Http\Controllers\AlumnoAyudanteController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -347,3 +348,14 @@ Route::apiResource('profesor-guia', ProfesorGuiaController::class);
 
 Route::get('profesor-guia/actual/{grupo}', [ProfesorGuiaController::class, 'actual']);
 Route::get('profesor-guia/historial/{grupo}', [ProfesorGuiaController::class, 'historial']);
+
+
+
+Route::get('alumno-ayudante', [AlumnoAyudanteController::class, 'index']);
+
+Route::post('alumno-ayudante/designar', [AlumnoAyudanteController::class, 'designar']);
+Route::post('alumno-ayudante/ratificar/{id}', [AlumnoAyudanteController::class, 'ratificar']);
+Route::post('alumno-ayudante/desnombrar/{id}', [AlumnoAyudanteController::class, 'desnombrar']);
+
+Route::get('alumno-ayudante/actual/{estudiante}', [AlumnoAyudanteController::class, 'actual']);
+Route::get('alumno-ayudante/historial/{estudiante}', [AlumnoAyudanteController::class, 'historial']);
