@@ -290,8 +290,8 @@ Route::get('/logs', [LogController::class, 'index']);
 
 Route::get('/export/ppa/pdf', [PPAController::class, 'exportPDF']);
 Route::get('/export/ppa/word', [PPAController::class, 'exportWord']);
-Route::get('/export/resolucion/pdf', [PPAController::class, 'exportResolucionPDF']);
-Route::get('/export/resolucion/word', [PPAController::class, 'exportResolucionWord']);
+Route::get('/export/resolucion/ppa/pdf', [PPAController::class, 'exportResolucionPDF']);
+Route::get('/export/resolucion/ppa/word', [PPAController::class, 'exportResolucionWord']);
 
 
 Route::get('/estudiante', [EstudianteController::class, 'index']);
@@ -359,3 +359,8 @@ Route::post('alumno-ayudante/desnombrar/{id}', [AlumnoAyudanteController::class,
 
 Route::get('alumno-ayudante/actual/{estudiante}', [AlumnoAyudanteController::class, 'actual']);
 Route::get('alumno-ayudante/historial/{estudiante}', [AlumnoAyudanteController::class, 'historial']);
+Route::get('alumno-ayudante/activos', [AlumnoAyudanteController::class, 'activos']);
+
+
+Route::get('/export/resolucion/aa/pdf', [AlumnoAyudanteController::class, 'aaPdf']);
+Route::get('/export/resolucion/aa/word', [AlumnoAyudanteController::class, 'aaWord']);

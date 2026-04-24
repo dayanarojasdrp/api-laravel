@@ -16,6 +16,7 @@ class AlumnoAyudante extends Model
         'etapa',
         'fecha_inicio',
         'fecha_fin',
+        'tipo',
         'habilitado'
     ];
 

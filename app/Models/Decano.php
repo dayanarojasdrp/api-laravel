@@ -34,4 +34,5 @@ public function facultad()
 {
     return $this->belongsTo(Facultad::class, 'id_facultad');
 }
+
 }

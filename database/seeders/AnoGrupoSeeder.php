@@ -11,38 +11,59 @@ use App\Models\AnoAcademico;
 use App\Models\Grupo;
 
 
+use Illuminate\Support\Facades\DB;
+
 class AnoGrupoSeeder extends Seeder
 {
     public function run(): void
     {
-        $anos = AnoAcademico::all();
-        $grupos = Grupo::all();
+        DB::table('ano_grupo')->truncate();
 
-        // 🔥 seguridad
-        if ($anos->isEmpty() || $grupos->isEmpty()) {
-            return;
-        }
+        DB::table('ano_grupo')->insert([
+            // 🔹 Grupo 1 → Año 1ro
+            [
+                'ano_academico_id' => 1,
+                'grupo_id' => 1,
+                'fecha' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
-        foreach ($anos as $ano) {
+            // 🔹 Grupo 2 → Año 2do
+            [
+                'ano_academico_id' => 2,
+                'grupo_id' => 2,
+                'fecha' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
-            // 🔥 cantidad segura (1 o 2)
-            $cantidad = min(2, $grupos->count());
+            // 🔹 Grupo 3 → Año 3ro
+            [
+                'ano_academico_id' => 3,
+                'grupo_id' => 3,
+                'fecha' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
-            $seleccionados = $grupos->random($cantidad);
+            // 🔹 Grupo 4 → Año 4to
+            [
+                'ano_academico_id' => 4,
+                'grupo_id' => 4,
+                'fecha' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
-            // 🔥 asegurar colección SIEMPRE
-            if (!($seleccionados instanceof \Illuminate\Support\Collection)) {
-                $seleccionados = collect([$seleccionados]);
-            }
-
-            foreach ($seleccionados as $grupo) {
-
-                AnoGrupo::create([
-                    'ano_academico_id' => $ano->id,
-                    'grupo_id' => $grupo->id,
-                    'fecha' => now()->subDays(rand(0, 200))
-                ]);
-            }
-        }
+            // 🔹 Grupo 5 → Año 1ro (otro programa por ejemplo)
+            [
+                'ano_academico_id' => 1,
+                'grupo_id' => 5,
+                'fecha' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 }
