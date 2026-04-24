@@ -10,6 +10,7 @@ use App\Models\AnoGrupo;
 use App\Models\AnoAcademico;
 use App\Models\Grupo;
 
+
 class AnoGrupoSeeder extends Seeder
 {
     public function run(): void
@@ -17,21 +18,30 @@ class AnoGrupoSeeder extends Seeder
         $anos = AnoAcademico::all();
         $grupos = Grupo::all();
 
+        // 🔥 seguridad
+        if ($anos->isEmpty() || $grupos->isEmpty()) {
+            return;
+        }
+
         foreach ($anos as $ano) {
 
-            // 🔥 solo 1 o 2 grupos por año (EVITA EXPLOSIÓN)
-            $gruposRandom = $grupos->random(
-                min(2, $grupos->count())
-            );
+            // 🔥 cantidad segura (1 o 2)
+            $cantidad = min(2, $grupos->count());
 
-            foreach ($gruposRandom as $grupo) {
+            $seleccionados = $grupos->random($cantidad);
+
+            // 🔥 asegurar colección SIEMPRE
+            if (!($seleccionados instanceof \Illuminate\Support\Collection)) {
+                $seleccionados = collect([$seleccionados]);
+            }
+
+            foreach ($seleccionados as $grupo) {
 
                 AnoGrupo::create([
                     'ano_academico_id' => $ano->id,
                     'grupo_id' => $grupo->id,
                     'fecha' => now()->subDays(rand(0, 200))
                 ]);
-
             }
         }
     }

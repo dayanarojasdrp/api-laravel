@@ -10,6 +10,8 @@ use App\Models\EstudianteTDPP;
 use App\Models\Estudiante;
 use App\Models\TD_PP;
 
+
+
 class EstudianteTDPPSeeder extends Seeder
 {
     public function run(): void
@@ -17,9 +19,13 @@ class EstudianteTDPPSeeder extends Seeder
         $estudiantes = Estudiante::all();
         $tdpps = TD_PP::all();
 
+        if ($estudiantes->isEmpty() || $tdpps->isEmpty()) {
+            return;
+        }
+
         foreach ($estudiantes as $estudiante) {
 
-            // 🔥 cada estudiante tiene 1 TD_PP
+            // 🔥 actual
             $tdpp = $tdpps->random();
 
             EstudianteTDPP::create([
@@ -28,15 +34,20 @@ class EstudianteTDPPSeeder extends Seeder
                 'fecha' => now()->subDays(rand(0, 200))
             ]);
 
-            // 🔥 OPCIONAL: historial (participó en otro TD_PP antes)
-            if (rand(0, 1)) {
-                $otro = $tdpps->where('id', '!=', $tdpp->id)->random();
+            // 🔥 historial opcional
+            if ($tdpps->count() > 1 && rand(0, 1)) {
 
-                EstudianteTDPP::create([
-                    'estudiante_id' => $estudiante->id,
-                    'td_pp_id' => $otro->id,
-                    'fecha' => now()->subDays(rand(201, 400))
-                ]);
+                $otro = $tdpps->where('id', '!=', $tdpp->id);
+
+                if ($otro->isNotEmpty()) {
+                    $otro = $otro->random();
+
+                    EstudianteTDPP::create([
+                        'estudiante_id' => $estudiante->id,
+                        'td_pp_id' => $otro->id,
+                        'fecha' => now()->subDays(rand(201, 400))
+                    ]);
+                }
             }
         }
     }
