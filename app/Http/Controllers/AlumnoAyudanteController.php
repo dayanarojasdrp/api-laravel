@@ -14,6 +14,10 @@ use App\Models\EstudianteGrupo;
 use App\Models\Grupo;
 use App\Models\AnoGrupo;
 use App\Models\AnoAcademico;
+use PhpOffice\PhpWord\Shared\Html;
+use PhpOffice\PhpWord\IOFactory;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Http\Controllers\LogController;
 class AlumnoAyudanteController extends Controller
 {
     // 🔹 listar
@@ -42,21 +46,34 @@ class AlumnoAyudanteController extends Controller
             ]);
 
         // 🔥 crear nuevo
-        return AlumnoAyudante::create([
-            'id_estudiante' => $request->id_estudiante,
-            'nombre_tutor' => $request->nombre_tutor,
-            'etapa' => $request->etapa,
-            'fecha_inicio' => now(),
-            'fecha_fin' => null,
-            'habilitado' => true,
-            'tipo' => 'designado'
-        ]);
+       $aa = AlumnoAyudante::create([
+    'id_estudiante' => $request->id_estudiante,
+    'nombre_tutor' => $request->nombre_tutor,
+    'etapa' => $request->etapa,
+    'fecha_inicio' => now(),
+    'fecha_fin' => null,
+     'tipo' => 'designado',
+    'habilitado' => true
+]);
+$usuario = $request->header('X-User') ?? 'desconocido';
+// 🔥 LOG ANTES DEL RETURN
+$estudiante = $aa->estudiante;
+
+\App\Http\Controllers\LogController::registrar(
+    $usuario,
+    'designar_aa',
+    'Se designó a ' . $estudiante->nombre . ' ' . $estudiante->apellidos .
+    ' como Alumno Ayudante (Tutor: ' . $aa->nombre_tutor .
+    ', Etapa: ' . $aa->etapa . ')'
+);
+
+return $aa;
     }
 
     // =====================================
     // 🔥 RATIFICAR
     // =====================================
-  public function ratificar($id)
+public function ratificar(Request $request, $id)
 {
     $registro = AlumnoAyudante::findOrFail($id);
 
@@ -72,8 +89,8 @@ class AlumnoAyudanteController extends Controller
         'fecha_fin' => now()
     ]);
 
-    // 🔥 crear nuevo registro (ratificación)
-    return AlumnoAyudante::create([
+    // 🔥 crear nuevo registro
+    $nuevo = AlumnoAyudante::create([
         'id_estudiante' => $registro->id_estudiante,
         'nombre_tutor' => $registro->nombre_tutor,
         'etapa' => $registro->etapa,
@@ -82,27 +99,47 @@ class AlumnoAyudanteController extends Controller
         'habilitado' => true,
         'tipo' => 'ratificado'
     ]);
+
+    // 🔥 obtener estudiante
+    $estudiante = $nuevo->estudiante;
+
+    // 🔥 usuario (igual que designar)
+    $usuario = $request->header('X-User') ?? 'desconocido';
+
+    // 🔥 log
+    LogController::registrar(
+        $usuario,
+        'ratificar_aa',
+        'Se ratificó a ' . $estudiante->nombre . ' ' . $estudiante->apellidos . ' como Alumno Ayudante'
+    );
+
+    return response()->json([
+        'message' => 'Ratificado',
+        'data' => $nuevo
+    ]);
 }
 
     // =====================================
     // 🔥 DESNOMBRAR
     // =====================================
-  public function desnombrar($id)
+public function desnombrar(Request $request, $id)
 {
     $registro = AlumnoAyudante::findOrFail($id);
 
     if (!$registro->habilitado) {
-        return response()->json(['error' => 'Ya está desnombrado'], 400);
+        return response()->json([
+            'error' => 'Ya está desnombrado'
+        ], 400);
     }
 
-    // cerrar actual
+    // 🔥 cerrar actual
     $registro->update([
         'habilitado' => false,
         'fecha_fin' => now()
     ]);
 
     // 🔥 crear evento de desnombramiento
-    return AlumnoAyudante::create([
+    $nuevo = AlumnoAyudante::create([
         'id_estudiante' => $registro->id_estudiante,
         'nombre_tutor' => $registro->nombre_tutor,
         'etapa' => $registro->etapa,
@@ -110,6 +147,24 @@ class AlumnoAyudanteController extends Controller
         'fecha_fin' => now(),
         'habilitado' => false,
         'tipo' => 'desnombrado'
+    ]);
+
+    // 🔥 obtener estudiante
+    $estudiante = $nuevo->estudiante;
+
+    // 🔥 usuario (igual que designar)
+    $usuario = $request->header('X-User') ?? 'desconocido';
+
+    // 🔥 log
+    LogController::registrar(
+        $usuario,
+        'desnombrar_aa',
+        'Se desnombró a ' . $estudiante->nombre . ' ' . $estudiante->apellidos . ' como Alumno Ayudante'
+    );
+
+    return response()->json([
+        'message' => 'Desnombrado',
+        'data' => $nuevo
     ]);
 }
 
@@ -249,30 +304,168 @@ $pdf = Pdf::loadView('aa_pdf', compact(
 
 public function aaWord()
 {
-   $datos = AlumnoAyudante::with('estudiante')->get();
+    // =====================================
+    // 🔥 FECHA (igual que PDF)
+    // =====================================
+    Carbon::setLocale('es');
+    $fecha = Carbon::now();
 
-    $phpWord = new PhpWord();
-    $section = $phpWord->addSection();
+    $dia = $fecha->day;
+    $mes = $fecha->translatedFormat('F');
+    $anio = $fecha->year;
+    $revolucion = $anio - 1958;
 
-    $section->addText('Resolución de Alumnos Ayudantes', ['bold' => true, 'size' => 16]);
+    // =====================================
+    // 🔥 DECANO (igual que PDF)
+    // =====================================
+    $decano = Decano::with('profesor')
+        ->where('id_facultad', 1)
+        ->first();
 
-    foreach ($datos as $index => $aa) {
+    $nombreDecano = $decano && $decano->profesor
+        ? $decano->profesor->nombre . ' ' . $decano->profesor->apellidos
+        : '';
 
-        $ano = 'N/A'; // luego lo conectas igual que en PDF
+    // =====================================
+    // 🔥 DATOS (SIN FILTRAR POR habilitado)
+    // =====================================
+    $datos = AlumnoAyudante::with('estudiante')->get();
 
-        $section->addText("No: " . ($index + 1));
-        $section->addText("Carnet: " . $aa->estudiante->numero_carnet);
-        $section->addText("Nombre: " . $aa->estudiante->nombre . ' ' . $aa->estudiante->apellidos);
-        $section->addText("Año académico: " . $ano);
-        $section->addText("Tutor: " . $aa->nombre_tutor);
-        $section->addText("Etapa: " . $aa->etapa);
+    $designados = $datos->where('tipo', 'designado');
+    $ratificados = $datos->where('tipo', 'ratificado');
+    $desnombrados = $datos->where('tipo', 'desnombrado');
 
-        $section->addTextBreak(1);
+    // =====================================
+    // 🔥 TABLA (IGUAL QUE PDF)
+    // =====================================
+  $tabla = function ($coleccion) {
+
+    $html = '
+    <table border="1" cellpadding="4" cellspacing="0" width="100%"
+    style="border-collapse: collapse; font-family: Arial; font-size: 12pt;">
+
+        <tr>
+            <th style="font-family: Arial; font-size: 12pt;">No</th>
+            <th style="font-family: Arial; font-size: 12pt;">Carnet</th>
+            <th style="font-family: Arial; font-size: 12pt;">Nombre</th>
+            <th style="font-family: Arial; font-size: 12pt;">Año Académico</th>
+            <th style="font-family: Arial; font-size: 12pt;">Tutor</th>
+            <th style="font-family: Arial; font-size: 12pt;">Etapa</th>
+        </tr>';
+
+    $i = 1;
+
+    foreach ($coleccion as $aa) {
+
+        $anoNombre = 'N/A';
+
+        $estGrupo = \App\Models\EstudianteGrupo::where('estudiante_id', $aa->id_estudiante)->first();
+
+        if ($estGrupo) {
+            $grupo = \App\Models\Grupo::find($estGrupo->grupo_id);
+
+            if ($grupo) {
+                $anoGrupo = \App\Models\AnoGrupo::where('grupo_id', $grupo->id)->first();
+
+                if ($anoGrupo) {
+                    $ano = \App\Models\AnoAcademico::find($anoGrupo->ano_academico_id);
+
+                    if ($ano) {
+                        $anoNombre = $ano->identificador;
+                    }
+                }
+            }
+        }
+
+        $html .= '
+        <tr>
+            <td style="font-family: Arial; font-size: 12pt; text-align:center;">'.$i++.'</td>
+            <td style="font-family: Arial; font-size: 12pt; text-align:center;">'.$aa->estudiante->numero_carnet.'</td>
+            <td style="font-family: Arial; font-size: 12pt;">'.$aa->estudiante->nombre.' '.$aa->estudiante->apellidos.'</td>
+            <td style="font-family: Arial; font-size: 12pt; text-align:center;">'.$anoNombre.'</td>
+            <td style="font-family: Arial; font-size: 12pt;">'.$aa->nombre_tutor.'</td>
+            <td style="font-family: Arial; font-size: 12pt; text-align:center;">'.$aa->etapa.'</td>
+        </tr>';
     }
 
-    $file = storage_path('resolucion_aa.docx');
-    $phpWord->save($file);
+    $html .= '</table>';
 
-    return response()->download($file)->deleteFileAfterSend(true);
+    return $html;
+};
+
+    // =====================================
+    // 🔥 RENDERIZAR BLADE (IGUAL QUE PDF)
+    // =====================================
+    $html = view('aa_word', compact(
+        'anio',
+        'dia',
+        'mes',
+        'revolucion',
+        'nombreDecano'
+    ))->render();
+
+    // =====================================
+    // 🔥 REEMPLAZAR TABLAS
+    // =====================================
+    $html = str_replace('__TABLA_RATIFICADOS__', $tabla($ratificados), $html);
+    $html = str_replace('__TABLA_DESNOMBRADOS__', $tabla($desnombrados), $html);
+    $html = str_replace('__TABLA_DESIGNADOS__', $tabla($designados), $html);
+
+    // =====================================
+    // 🔥 CREAR WORD
+    // =====================================
+    $phpWord = new PhpWord();
+    $section = $phpWord->addSection();
+// ============================
+    // ✅ HEADER BIEN HECHO (CLAVE)
+    // ============================
+
+    $table = $section->addTable();
+
+    $table->addRow();
+
+    // Logo izquierdo
+    $table->addCell(2000)->addImage(
+        public_path('images/logo_izq.png'),
+        ['width' => 60]
+    );
+
+    // Texto central
+    $cellText = $table->addCell(8000, ['valign' => 'center']);
+
+$textrun = $cellText->addTextRun([
+    'alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER,
+    'spaceBefore' => 300 // 👈 ESTE es el que baja TODO el bloque
+]);
+    $cellText->addText(
+    'UNIVERSIDAD CENTRAL “MARTA ABREU” DE LAS VILLAS',
+    ['bold' => false, 'name' => 'Arial', 'size' => 10], // 👈 sin negrita + más pequeño
+    ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+);
+
+    $cellText->addText(
+        'FACULTAD DE MATEMÁTICA, FÍSICA Y COMPUTACIÓN',
+        ['bold' => true, 'name' => 'Arial', 'size' => 10],
+        ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+    );
+
+    // Logo derecho
+    $table->addCell(2000)->addImage(
+        public_path('images/logo_der.png'),
+        ['width' => 60]
+    );
+
+    Html::addHtml($section, $html);
+
+    // =====================================
+    // 🔥 DESCARGA
+    // =====================================
+    return new StreamedResponse(function () use ($phpWord) {
+        $writer = IOFactory::createWriter($phpWord, 'Word2007');
+        $writer->save('php://output');
+    }, 200, [
+        "Content-Type" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "Content-Disposition" => "attachment;filename=Resolucion_AA.docx",
+    ]);
 }
 }

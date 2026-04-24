@@ -19,13 +19,20 @@ class LogController extends Controller
             \Log::error('Error guardando log: ' . $e->getMessage());
         }
     }
-    public function index(Request $request)
+public function index(Request $request)
 {
     $usuario = $request->query('usuario');
 
-    $logs = Log::where('usuario', $usuario)
+    $query = Log::query();
+
+    // 🔥 SOLO filtra si te mandan usuario
+    if ($usuario) {
+        $query->where('usuario', $usuario);
+    }
+
+    $logs = $query
         ->orderBy('created_at', 'desc')
-        ->limit(10)
+        ->limit(10) // 🔥 siempre 10
         ->get(['accion', 'descripcion', 'created_at']);
 
     return response()->json($logs);
