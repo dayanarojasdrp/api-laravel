@@ -20,9 +20,8 @@ use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpWord\Shared\Html;
 use Carbon\Carbon;
 use App\Models\Decano;
-
-
-
+use App\Models\Documento;
+use Illuminate\Support\Facades\Storage;
 
 
 class PPAController extends Controller
@@ -300,15 +299,35 @@ $departamento = DB::table('departamento_prog_d_form')
         })
     );
 }
+
+
+
 public function exportPDF()
 {
     $data = $this->getPPAData();
 
     $pdf = Pdf::loadView('exports.ppa', ['data' => $data]);
 
-    return $pdf->download('ppa.pdf');
-}
+    // 🔥 nombre bonito
+    $fecha = now()->format('Y-m-d_H-i-s');
+    $nombreArchivo = "Listado_PPA_{$fecha}.pdf";
+    $ruta = "documentos/{$nombreArchivo}";
 
+    // 🔥 🔥 🔥 FIX CLAVE
+    Storage::disk('public')->put($ruta, $pdf->output());
+
+    // 🔥 guardar en BD
+    Documento::create([
+        'nombre' => "Listado PPA {$fecha}",
+        'tipo' => 'ppa',
+        'tipo_documento' => 'listado',
+        'periodo' => now()->year,
+        'ruta' => $ruta
+    ]);
+
+    // 🔥 descarga
+    return $pdf->download($nombreArchivo);
+}
 public function exportWord()
 {
     $data = $this->getPPAData();
@@ -316,19 +335,66 @@ public function exportWord()
     $phpWord = new PhpWord();
     $section = $phpWord->addSection();
 
-    $section->addText("Listado de PPA", ['bold' => true]);
+    // 🔹 Título
+    $section->addText(
+        'Listado de PPA',
+        ['name' => 'Arial', 'size' => 14, 'bold' => true]
+    );
+
+    // 🔹 Tabla
+    $table = $section->addTable([
+        'borderSize' => 6,
+        'borderColor' => '000000',
+        'cellMargin' => 50
+    ]);
+
+    // HEADER
+    $table->addRow();
+
+    $table->addCell(4000)->addText('Profesor', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(2000)->addText('Cat Docente', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(2000)->addText('Cat Científica', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(3000)->addText('Departamento', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(3000)->addText('Carrera', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(1500)->addText('Año', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
 
     foreach ($data as $item) {
-        $section->addText(
-            "{$item['nombre']} {$item['apellidos']} | {$item['carrera']} | {$item['anio']}"
+        $table->addRow();
+
+        $table->addCell(4000)->addText(
+            $item['nombre'].' '.$item['apellidos'],
+            ['name' => 'Arial', 'size' => 12]
         );
+
+        $table->addCell(2000)->addText($item['catDocente'], ['name' => 'Arial', 'size' => 12]);
+        $table->addCell(2000)->addText($item['catCientifica'], ['name' => 'Arial', 'size' => 12]);
+        $table->addCell(3000)->addText($item['departamento'], ['name' => 'Arial', 'size' => 12]);
+        $table->addCell(3000)->addText($item['carrera'], ['name' => 'Arial', 'size' => 12]);
+        $table->addCell(1500)->addText($item['anio'], ['name' => 'Arial', 'size' => 12]);
     }
 
-    $file = storage_path('app/ppa.docx');
+    // 🔥 nombre dinámico
+    $fecha = now()->format('Y-m-d_H-i-s');
+    $nombreArchivo = "Listado_PPA_{$fecha}.docx";
 
+    // 🔥 ruta física
+  $ruta = "documentos/{$nombreArchivo}";
+$file = storage_path("app/public/{$ruta}");
+
+    // 🔥 guardar archivo
     IOFactory::createWriter($phpWord, 'Word2007')->save($file);
 
-    return response()->download($file)->deleteFileAfterSend(true);
+    // 🔥 🔥 🔥 AQUI ESTA LO QUE TE FALTABA
+    \App\Models\Documento::create([
+        'nombre' => "Listado PPA {$fecha}",
+        'tipo' => 'ppa',
+        'tipo_documento' => 'listado',
+        'periodo' => now()->year,
+        'ruta' => "public/{$nombreArchivo}"
+    ]);
+
+    // 🔥 descarga normal (NO TOCAR)
+   return response()->download($file, $nombreArchivo);
 }
 private function getPPAData()
 {
@@ -457,8 +523,35 @@ public function exportResolucionPDF()
         'revolucion',
         'nombreDecano'
     ));
+$fechaTexto = $fecha->format('d-m-Y');
 
-    return $pdf->download('resolucion.pdf');
+// 🔥 nombre correcto
+$nombreArchivo = "Resolucion_PPA_{$fechaTexto}.pdf";
+
+// 🔥 asegurar carpeta
+$directorio = storage_path('app/public/documentos');
+if (!file_exists($directorio)) {
+    mkdir($directorio, 0777, true);
+}
+
+// 🔥 rutas
+$ruta = "documentos/{$nombreArchivo}";
+$rutaCompleta = storage_path("app/public/{$ruta}");
+
+// 🔥 guardar archivo
+file_put_contents($rutaCompleta, $pdf->output());
+
+// 🔥 guardar en BD
+\App\Models\Documento::create([
+    'nombre' => "Resolución PPA {$fechaTexto}",
+    'tipo' => 'ppa',
+    'tipo_documento' => 'resolucion',
+    'periodo' => $anio, // 👈 usa tu variable ya calculada
+    'ruta' => $ruta
+]);
+
+// 🔥 descargar
+return response()->download($rutaCompleta, $nombreArchivo);
 }
 
 
@@ -683,11 +776,110 @@ Html::addHtml($section, $partes3[1]);
     // DESCARGA
     // ============================
 
-    $file = storage_path('resolucion.docx');
+   // 🔥 nombre dinámico
+   $fecha = now();
+$fechaTexto = $fecha->format('d-m-Y');
+$nombreArchivo = "Resolucion_PPA_{$fechaTexto}.docx";
 
-    $writer = IOFactory::createWriter($phpWord, 'Word2007');
-    $writer->save($file);
+// 🔥 asegurar carpeta
+$directorio = storage_path('app/public/documentos');
+if (!file_exists($directorio)) {
+    mkdir($directorio, 0777, true);
+}
 
-    return response()->download($file)->deleteFileAfterSend();
+// 🔥 rutas
+$ruta = "documentos/{$nombreArchivo}";
+$rutaCompleta = storage_path("app/public/{$ruta}");
+
+// 🔥 guardar archivo
+$writer = IOFactory::createWriter($phpWord, 'Word2007');
+$writer->save($rutaCompleta);
+
+// 🔥 guardar en BD
+\App\Models\Documento::create([
+    'nombre' => "Resolución PPA {$anio}",
+    'tipo' => 'ppa',
+    'tipo_documento' => 'resolucion',
+    'periodo' => $anio,
+    'ruta' => $ruta
+]);
+
+// 🔥 descargar
+return response()->download($rutaCompleta, $nombreArchivo);
+}
+
+public function historial(Request $request)
+{
+    $desde = $request->desde;
+    $hasta = $request->hasta;
+
+    // 🔥 SOLO designados (evita duplicados basura)
+    $historial = \App\Models\PpaHistorial::with([
+            'profesor.catDocente',
+            'profesor.catCientifica',
+            'profesor.departamento' // 👈 IMPORTANTE (si tienes relación)
+        ])
+        ->where('accion', 'designado')
+        ->whereYear('fecha_accion', '>=', $desde)
+        ->whereYear('fecha_accion', '<=', $hasta)
+        ->get()
+        ->unique('id_profesor'); // 🔥 evita repetidos por profesor
+
+    // 🔥 años y carreras
+    $anos = \App\Models\AnoAcademico::whereIn(
+        'id',
+        $historial->pluck('id_a_academico')
+    )->get()->keyBy('id');
+
+    $progForms = \App\Models\ProgFormacion::whereIn(
+        'id',
+        $anos->pluck('id_prog_form')
+    )->get()->keyBy('id');
+
+    // 🔥 MAP LIMPIO
+   $data = $historial->map(function ($item) use ($anos, $progForms) {
+
+    $profesor = $item->profesor;
+
+    if (!$profesor) return null;
+
+    $anio = $anos[$item->id_a_academico] ?? null;
+    $carrera = $anio ? ($progForms[$anio->id_prog_form] ?? null) : null;
+
+    return [
+        'nombre' => trim(($profesor->nombre ?? '') . ' ' . ($profesor->apellidos ?? '')),
+        'catDocente' => optional($profesor->catDocente)->nombre ?? '',
+        'catCientifica' => optional($profesor->catCientifica)->nombre ?? '',
+        'departamento' => '',
+        'carrera' => $carrera->nombre ?? '',
+        'anio' => $anio->identificador ?? ''
+    ];
+})->filter(); // 🔥 elimina nulls
+
+
+    // 🔥 NUEVA VISTA (historial)
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+        'exports.historial_ppa',
+        [
+            'data' => $data,
+            'desde' => $desde,
+            'hasta' => $hasta
+        ]
+    );
+
+    $nombreArchivo = "Historial_PPA_{$desde}_{$hasta}.pdf";
+    $ruta = "documentos/{$nombreArchivo}";
+
+    \Illuminate\Support\Facades\Storage::disk('public')->put($ruta, $pdf->output());
+
+    \App\Models\Documento::create([
+        'nombre' => "Historial PPA {$desde}-{$hasta}",
+        'tipo' => 'ppa',
+        'tipo_documento' => 'historial',
+        'periodo' => $hasta,
+        'ruta' => $ruta
+    ]);
+
+    return $pdf->download($nombreArchivo);
 }
 }

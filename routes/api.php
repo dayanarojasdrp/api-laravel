@@ -57,6 +57,7 @@ use App\Http\Controllers\MiembroDepartamentoController;
 use App\Http\Controllers\CoordinadorCarreraController;
 use App\Http\Controllers\ProfesorGuiaController;
 use App\Http\Controllers\AlumnoAyudanteController;
+use App\Http\Controllers\DocumentoController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -364,3 +365,11 @@ Route::get('alumno-ayudante/activos', [AlumnoAyudanteController::class, 'activos
 
 Route::get('/export/resolucion/aa/pdf', [AlumnoAyudanteController::class, 'aaPdf']);
 Route::get('/export/resolucion/aa/word', [AlumnoAyudanteController::class, 'aaWord']);
+Route::get('/export/aa/pdf', [AlumnoAyudanteController::class, 'exportPDF']);
+Route::get('/export/aa/word', [AlumnoAyudanteController::class, 'exportWord']);
+
+
+Route::get('/documentos', [DocumentoController::class, 'index']);
+Route::get('/cursos', [cursoController::class, 'index']);
+
+Route::post('/documentos/historial', [PPAController::class, 'historial']);

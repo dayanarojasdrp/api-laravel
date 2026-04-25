@@ -298,7 +298,36 @@ $pdf = Pdf::loadView('aa_pdf', compact(
     'nombreDecano'
 ));
 
-    return $pdf->download('resolucion_aa.pdf');
+    // 🔥 fecha completa
+$fechaTexto = $fecha->format('d-m-Y');
+
+// 🔥 nombre correcto
+$nombreArchivo = "Resolucion_AA_{$fechaTexto}.pdf";
+
+// 🔥 asegurar carpeta
+$directorio = storage_path('app/public/documentos');
+if (!file_exists($directorio)) {
+    mkdir($directorio, 0777, true);
+}
+
+// 🔥 rutas
+$ruta = "documentos/{$nombreArchivo}";
+$rutaCompleta = storage_path("app/public/{$ruta}");
+
+// 🔥 guardar archivo
+file_put_contents($rutaCompleta, $pdf->output());
+
+// 🔥 guardar en BD
+\App\Models\Documento::create([
+    'nombre' => "Resolución AA {$fechaTexto}",
+    'tipo' => 'aa',
+    'tipo_documento' => 'resolucion',
+    'periodo' => $ano, // 👈 usa tu variable ya calculada
+    'ruta' => $ruta
+]);
+
+// 🔥 descargar
+return response()->download($rutaCompleta, $nombreArchivo);
 }
 
 
@@ -460,12 +489,192 @@ $textrun = $cellText->addTextRun([
     // =====================================
     // 🔥 DESCARGA
     // =====================================
-    return new StreamedResponse(function () use ($phpWord) {
-        $writer = IOFactory::createWriter($phpWord, 'Word2007');
-        $writer->save('php://output');
-    }, 200, [
-        "Content-Type" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "Content-Disposition" => "attachment;filename=Resolucion_AA.docx",
+    // 🔥 fecha
+$fecha = now();
+$fechaTexto = $fecha->format('d-m-Y');
+
+// 🔥 nombre correcto
+$nombreArchivo = "Resolucion_AA_{$fechaTexto}.docx";
+
+// 🔥 asegurar carpeta
+$directorio = storage_path('app/public/documentos');
+if (!file_exists($directorio)) {
+    mkdir($directorio, 0777, true);
+}
+
+// 🔥 rutas
+$ruta = "documentos/{$nombreArchivo}";
+$rutaCompleta = storage_path("app/public/{$ruta}");
+
+// 🔥 guardar archivo REAL
+$writer = IOFactory::createWriter($phpWord, 'Word2007');
+$writer->save($rutaCompleta);
+
+// 🔥 guardar en BD
+\App\Models\Documento::create([
+    'nombre' => "Resolución AA {$fechaTexto}",
+    'tipo' => 'aa',
+    'tipo_documento' => 'resolucion',
+    'periodo' => $fecha->year,
+    'ruta' => $ruta
+]);
+
+// 🔥 descargar
+return response()->download($rutaCompleta, $nombreArchivo);
+}
+public function exportPDF()
+{
+    $data = $this->getAAData();
+
+    $pdf = Pdf::loadView('exports.aa', ['data' => $data]);
+
+   // 🔥 fecha completa
+$fecha = now();
+$fechaTexto = $fecha->format('d-m-Y');
+
+// 🔥 nombre dinámico
+$nombreArchivo = "Listado_AA_{$fechaTexto}.pdf";
+
+// 🔥 asegurar carpeta
+$directorio = storage_path('app/public/documentos');
+if (!file_exists($directorio)) {
+    mkdir($directorio, 0777, true);
+}
+
+// 🔥 rutas
+$ruta = "documentos/{$nombreArchivo}";
+$rutaCompleta = storage_path("app/public/{$ruta}");
+
+// 🔥 guardar archivo
+file_put_contents($rutaCompleta, $pdf->output());
+
+// 🔥 guardar en BD
+\App\Models\Documento::create([
+    'nombre' => "Listado AA {$fechaTexto}",
+    'tipo' => 'aa',
+    'tipo_documento' => 'listado',
+    'periodo' => $fecha->year,
+    'ruta' => $ruta
+]);
+
+// 🔥 descargar
+return response()->download($rutaCompleta, $nombreArchivo);
+}
+public function exportWord()
+{
+    $data = $this->getAAData();
+
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $section = $phpWord->addSection();
+
+    // 🔹 Título
+    $section->addText(
+        'Listado de Alumnos Ayudantes',
+        ['name' => 'Arial', 'size' => 14, 'bold' => true]
+    );
+
+    // 🔹 Tabla
+    $table = $section->addTable([
+        'borderSize' => 6,
+        'borderColor' => '000000',
+        'cellMargin' => 50
     ]);
+
+    // 🔹 HEADER
+    $table->addRow();
+
+    $table->addCell(2000)->addText('Carnet', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(4000)->addText('Nombre', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(2000)->addText('Año Académico', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(3000)->addText('Tutor', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(1500)->addText('Etapa', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+
+    // 🔹 DATA
+    foreach ($data as $item) {
+        $table->addRow();
+
+        $table->addCell(2000)->addText($item['carnet'], ['name' => 'Arial', 'size' => 12]);
+
+        $table->addCell(4000)->addText(
+            $item['nombre'],
+            ['name' => 'Arial', 'size' => 12]
+        );
+
+        $table->addCell(2000)->addText($item['anio'], ['name' => 'Arial', 'size' => 12]);
+
+        $table->addCell(3000)->addText($item['tutor'], ['name' => 'Arial', 'size' => 12]);
+
+        $table->addCell(1500)->addText($item['etapa'], ['name' => 'Arial', 'size' => 12]);
+    }
+
+   // 🔥 fecha completa
+$fecha = now();
+$fechaTexto = $fecha->format('d-m-Y');
+
+// 🔥 nombre dinámico
+$nombreArchivo = "Listado_AA_{$fechaTexto}.docx";
+
+// 🔥 asegurar carpeta
+$directorio = storage_path('app/public/documentos');
+if (!file_exists($directorio)) {
+    mkdir($directorio, 0777, true);
+}
+
+// 🔥 rutas
+$ruta = "documentos/{$nombreArchivo}";
+$rutaCompleta = storage_path("app/public/{$ruta}");
+
+// 🔥 guardar archivo
+\PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007')->save($rutaCompleta);
+
+// 🔥 guardar en BD
+\App\Models\Documento::create([
+    'nombre' => "Listado AA {$fechaTexto}",
+    'tipo' => 'aa',
+    'tipo_documento' => 'listado',
+    'periodo' => $fecha->year,
+    'ruta' => $ruta
+]);
+
+// 🔥 descargar
+return response()->download($rutaCompleta, $nombreArchivo);
+}
+private function getAAData()
+{
+    $aa = \App\Models\AlumnoAyudante::with('estudiante')
+        ->where('habilitado', true)
+        ->get();
+
+    return $aa->map(function ($item) {
+
+        // 🔥 MISMA LÓGICA QUE YA USASTE
+        $estGrupo = \App\Models\EstudianteGrupo::where('estudiante_id', $item->id_estudiante)->first();
+
+        $anioNombre = 'N/A';
+
+        if ($estGrupo) {
+            $grupo = \App\Models\Grupo::find($estGrupo->grupo_id);
+
+            if ($grupo) {
+                $anoGrupo = \App\Models\AnoGrupo::where('grupo_id', $grupo->id)->first();
+
+                if ($anoGrupo) {
+                    $ano = \App\Models\AnoAcademico::find($anoGrupo->ano_academico_id);
+
+                    if ($ano) {
+                        $anioNombre = $ano->identificador;
+                    }
+                }
+            }
+        }
+
+        return [
+            'carnet' => $item->estudiante->numero_carnet,
+            'nombre' => $item->estudiante->nombre . ' ' . $item->estudiante->apellidos,
+            'anio' => $anioNombre,
+            'tutor' => $item->nombre_tutor,
+            'etapa' => $item->etapa
+        ];
+    });
 }
 }
