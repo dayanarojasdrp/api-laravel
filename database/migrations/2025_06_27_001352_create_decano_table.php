@@ -11,24 +11,33 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('decano', function (Blueprint $table) {
-            $table->uuid('uuid');
-            $table->unsignedBigInteger('id_facultad');
-            $table->unsignedBigInteger('id_profesor');
-            $table->unsignedBigInteger('id_curso');
-            $table->timestamps();
-            $table->primary('uuid');
-            $table->foreign('id_profesor')->references('id')->on('profesor')->onDelete('cascade');
-            $table->foreign('id_facultad')->references('id')->on('facultad')->onDelete('cascade');
-            $table->foreign('id_curso')->references('id')->on('curso')->onDelete('cascade');
-        });
+      Schema::create('decano', function (Blueprint $table) {
+    $table->uuid('uuid');
+    $table->unsignedBigInteger('id_facultad');
+    $table->unsignedBigInteger('id_profesor');
+    $table->timestamps();
+
+    $table->primary('uuid');
+
+    $table->foreign('id_profesor')
+        ->references('id')->on('profesor')
+        ->onDelete('cascade');
+
+    $table->foreign('id_facultad')
+        ->references('id')->on('facultad')
+        ->onDelete('cascade');
+
+    // 🔥 ESTO ES LO IMPORTANTE
+    $table->unique('id_facultad'); // 1 decano por facultad
+    $table->unique('id_profesor'); // 1 profesor solo puede ser decano una vez
+});
 
     }
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
-        Schema::dropIfExists('decano');
-    }
+  public function down(): void
+{
+    Schema::dropIfExists('decano');
+}
 };

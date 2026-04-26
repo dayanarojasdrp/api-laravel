@@ -16,21 +16,30 @@ class MiembroDepartamentoController extends Controller
 
     // 🔹 agregar miembro
     public function store(Request $request)
-    {
-        $request->validate([
-            'id_profesor' => 'required|exists:profesor,id',
-            'id_departamento' => 'required|exists:departamento,id',
-            'fecha_inicio' => 'nullable|date'
+{
+    $request->validate([
+        'id_profesor' => 'required|exists:profesor,id',
+        'id_departamento' => 'required|exists:departamento,id',
+        'fecha_inicio' => 'nullable|date'
+    ]);
+
+    // 🔥 desactivar cualquier departamento activo anterior
+    MiembroDepartamento::where('id_profesor', $request->id_profesor)
+        ->where('habilitado', true)
+        ->update([
+            'habilitado' => false,
+            'fecha_fin' => now()
         ]);
 
-        return MiembroDepartamento::create([
-            'id_profesor' => $request->id_profesor,
-            'id_departamento' => $request->id_departamento,
-            'fecha_inicio' => $request->fecha_inicio ?? now(),
-            'fecha_fin' => null,
-            'habilitado' => true
-        ]);
-    }
+    // 🔥 crear nuevo
+    return MiembroDepartamento::create([
+        'id_profesor' => $request->id_profesor,
+        'id_departamento' => $request->id_departamento,
+        'fecha_inicio' => $request->fecha_inicio ?? now(),
+        'fecha_fin' => null,
+        'habilitado' => true
+    ]);
+}
 
     // 🔹 ver uno
     public function show($id)

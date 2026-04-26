@@ -24,7 +24,7 @@ class FacultadDepartamentoSeeder extends Seeder
             'uuid' => Str::uuid(),
             'id_facultad' => $matematica->id,
             'id_departamento' => $depMat->id,
-            'id_curso' => 1,
+
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -33,7 +33,7 @@ class FacultadDepartamentoSeeder extends Seeder
             'uuid' => Str::uuid(),
             'id_facultad' => $matematica->id,
             'id_departamento' => $depFis->id,
-            'id_curso' => 2,
+
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -43,7 +43,7 @@ class FacultadDepartamentoSeeder extends Seeder
             'uuid' => Str::uuid(),
             'id_facultad' => $quimica->id,
             'id_departamento' => $depQui->id,
-            'id_curso' => 1,
+
             'created_at' => now(),
             'updated_at' => now(),
         ]);

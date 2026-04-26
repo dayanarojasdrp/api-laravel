@@ -11,9 +11,8 @@ return new class extends Migration
     {
         Schema::table('jefe_de_departamento', function (Blueprint $table) {
 
-            // ❌ eliminar id_curso
-            $table->dropForeign(['id_curso']);
-            $table->dropColumn('id_curso');
+
+
 
             // ✅ nuevos campos de historial
             $table->timestamp('fecha_inicio')->nullable();
@@ -26,8 +25,6 @@ return new class extends Migration
     {
         Schema::table('jefe_de_departamento', function (Blueprint $table) {
 
-            // restaurar id_curso
-            $table->unsignedBigInteger('id_curso')->nullable();
 
             // eliminar nuevos campos
             $table->dropColumn([

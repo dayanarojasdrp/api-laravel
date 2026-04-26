@@ -17,7 +17,7 @@ class DepartamentoProgFormSeeder extends Seeder
                 'uuid' => Str::uuid(),
                 'id_departamento' => 1, // Matemática
                 'id_prog_form' => 5,    // Licenciatura Matemática
-                'id_curso' => 1,
+
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -26,14 +26,14 @@ class DepartamentoProgFormSeeder extends Seeder
                 'uuid' => Str::uuid(),
                 'id_departamento' => 3, // Química
                 'id_prog_form' => 10,    // Licenciatura Química
-                'id_curso' => 1,
+
                 'created_at' => now(),
                 'updated_at' => now(),
             ],[
                 'uuid' => Str::uuid(),
                 'id_departamento' => 2, // Fisica
                 'id_prog_form' => 4,    // Fisica
-                'id_curso' => 1,
+
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

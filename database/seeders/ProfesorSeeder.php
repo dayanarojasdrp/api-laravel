@@ -9,33 +9,83 @@ use App\Models\CatDocente;
 use App\Models\CatCientifica;
 use App\Models\GradoTitulo;
 
+
+
 class ProfesorSeeder extends Seeder
 {
     public function run(): void
     {
-        $catDocentes = CatDocente::all();
-        $catCientificas = CatCientifica::all();
-        $grados = GradoTitulo::all();
-
-        $nombres = [
-            'Juan', 'María', 'Carlos', 'Ana', 'Luis',
-            'Pedro', 'Laura', 'Miguel', 'Sofía', 'José'
-        ];
-
-        $apellidos = [
-            'Pérez', 'González', 'Rodríguez', 'López', 'Martínez',
-            'Hernández', 'Díaz', 'Torres', 'Ramírez', 'Castro'
-        ];
-
-        for ($i = 0; $i < 20; $i++) {
-
-            Profesor::create([
-                'nombre' => $nombres[array_rand($nombres)],
-                'apellidos' => $apellidos[array_rand($apellidos)],
-                'idCatDocente' => $catDocentes->random()->id,
-                'idCatCientifica' => $catCientificas->random()->id,
-                'grado_titulo_id' => $grados->random()->id
-            ]);
-        }
+        Profesor::insert([
+            [
+                'nombre' => 'Juan',
+                'apellidos' => 'Pérez García',
+                'idCatDocente' => 1,
+                'idCatCientifica' => 2,
+                'grado_titulo_id' => 1
+            ],
+            [
+                'nombre' => 'María',
+                'apellidos' => 'González López',
+                'idCatDocente' => 2,
+                'idCatCientifica' => 1,
+                'grado_titulo_id' => 2
+            ],
+            [
+                'nombre' => 'Carlos',
+                'apellidos' => 'Rodríguez Díaz',
+                'idCatDocente' => 1,
+                'idCatCientifica' => 3,
+                'grado_titulo_id' => 3
+            ],
+            [
+                'nombre' => 'Ana',
+                'apellidos' => 'Martínez Torres',
+                'idCatDocente' => 3,
+                'idCatCientifica' => 2,
+                'grado_titulo_id' => 1
+            ],
+            [
+                'nombre' => 'Luis',
+                'apellidos' => 'Hernández Castro',
+                'idCatDocente' => 2,
+                'idCatCientifica' => 1,
+                'grado_titulo_id' => 2
+            ],
+            [
+                'nombre' => 'Sofía',
+                'apellidos' => 'Ramírez Peña',
+                'idCatDocente' => 1,
+                'idCatCientifica' => 2,
+                'grado_titulo_id' => 3
+            ],
+            [
+                'nombre' => 'Miguel',
+                'apellidos' => 'Torres León',
+                'idCatDocente' => 3,
+                'idCatCientifica' => 1,
+                'grado_titulo_id' => 1
+            ],
+            [
+                'nombre' => 'Laura',
+                'apellidos' => 'Díaz Morales',
+                'idCatDocente' => 2,
+                'idCatCientifica' => 3,
+                'grado_titulo_id' => 2
+            ],
+            [
+                'nombre' => 'Pedro',
+                'apellidos' => 'Castro Ruiz',
+                'idCatDocente' => 1,
+                'idCatCientifica' => 2,
+                'grado_titulo_id' => 3
+            ],
+            [
+                'nombre' => 'Elena',
+                'apellidos' => 'Suárez Navarro',
+                'idCatDocente' => 3,
+                'idCatCientifica' => 1,
+                'grado_titulo_id' => 1
+            ],
+        ]);
     }
 }

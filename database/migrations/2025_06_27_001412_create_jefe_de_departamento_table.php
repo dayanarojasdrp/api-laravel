@@ -12,16 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('jefe_de_departamento', function (Blueprint $table) {
-            $table->uuid('uuid');
-            $table->unsignedBigInteger('id_departamento');
-            $table->unsignedBigInteger('id_profesor');
-            $table->unsignedBigInteger('id_curso');
-            $table->timestamps();
-            $table->primary('uuid');
-            $table->foreign('id_profesor')->references('id')->on('profesor')->onDelete('cascade');
-            $table->foreign('id_departamento')->references('id')->on('departamento')->onDelete('cascade');
-            $table->foreign('id_curso')->references('id')->on('curso')->onDelete('cascade');
-        });
+    $table->uuid('uuid');
+    $table->unsignedBigInteger('id_departamento');
+    $table->unsignedBigInteger('id_profesor');
+    $table->timestamps();
+
+    $table->primary('uuid');
+
+    $table->foreign('id_profesor')
+        ->references('id')->on('profesor')
+        ->onDelete('cascade');
+
+    $table->foreign('id_departamento')
+        ->references('id')->on('departamento')
+        ->onDelete('cascade');
+
+    // 🔥 REGLAS CLAVE
+    $table->unique('id_departamento'); // 1 jefe por departamento
+    $table->unique('id_profesor');     // 1 profesor solo puede ser jefe una vez
+});
     }
 
     /**

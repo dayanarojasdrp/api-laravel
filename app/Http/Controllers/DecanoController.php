@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
-
+use App\Models\Departamento;
+use Illuminate\Support\Facades\DB;
 use App\Models\Decano;
 
 class DecanoController extends Controller
@@ -17,30 +17,46 @@ class DecanoController extends Controller
 
     // 🔹 CREAR NUEVO DECANO (CLAVE 🔥)
     public function store(Request $request)
-    {
-        $request->validate([
-            'id_facultad' => 'required|exists:facultad,id',
-            'id_profesor' => 'required|exists:profesor,id',
-            'fecha_inicio' => 'nullable|date'
-        ]);
+{
+    $request->validate([
+        'id_facultad' => 'required|exists:facultad,id',
+        'id_profesor' => 'required|exists:profesor,id',
+        'fecha_inicio' => 'nullable|date'
+    ]);
 
-        // 🔥 DESACTIVAR DECANO ACTUAL DE ESA FACULTAD
-        Decano::where('id_facultad', $request->id_facultad)
-            ->where('habilitado', true)
-            ->update([
-                'habilitado' => false,
-                'fecha_fin' => now()
-            ]);
+    // 🔥 VALIDACIÓN IMPORTANTE
+    $pertenece = \App\Models\MiembroDepartamento::where('id_profesor', $request->id_profesor)
+    ->where('habilitado', true)
+    ->whereIn('id_departamento', function ($query) use ($request) {
+        $query->select('id_departamento')
+            ->from('facultad_departamento')
+            ->where('id_facultad', $request->id_facultad);
+    })
+    ->exists();
 
-        // 🔥 CREAR NUEVO DECANO
-        return Decano::create([
-            'id_facultad' => $request->id_facultad,
-            'id_profesor' => $request->id_profesor,
-            'fecha_inicio' => $request->fecha_inicio ?? now(),
-            'fecha_fin' => null,
-            'habilitado' => true
-        ]);
+    if (!$pertenece) {
+        return response()->json([
+            'error' => 'El profesor no pertenece a ningún departamento de esta facultad'
+        ], 400);
     }
+
+    // 🔥 DESACTIVAR DECANO ACTUAL
+    Decano::where('id_facultad', $request->id_facultad)
+        ->where('habilitado', true)
+        ->update([
+            'habilitado' => false,
+            'fecha_fin' => now()
+        ]);
+
+    // 🔥 CREAR NUEVO DECANO
+    return Decano::create([
+        'id_facultad' => $request->id_facultad,
+        'id_profesor' => $request->id_profesor,
+        'fecha_inicio' => $request->fecha_inicio ?? now(),
+        'fecha_fin' => null,
+        'habilitado' => true
+    ]);
+}
 
     // 🔹 VER UNO
     public function show($uuid)

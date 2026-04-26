@@ -14,41 +14,86 @@ class MiembroDepartamentoSeeder extends Seeder
 {
     public function run(): void
     {
-        $profesores = Profesor::all();
-        $departamentos = Departamento::all();
+        MiembroDepartamento::insert([
 
-        foreach ($departamentos as $departamento) {
+            // 🔵 MATEMÁTICA (id = 1)
+            [
+                'id_profesor' => 1,
+                'id_departamento' => 1,
+                'fecha_inicio' => now()->subYears(2),
+                'fecha_fin' => null,
+                'habilitado' => true
+            ],
+            [
+                'id_profesor' => 2,
+                'id_departamento' => 1,
+                'fecha_inicio' => now()->subYears(1),
+                'fecha_fin' => null,
+                'habilitado' => true
+            ],
+            [
+                'id_profesor' => 3,
+                'id_departamento' => 1,
+                'fecha_inicio' => now()->subMonths(8),
+                'fecha_fin' => null,
+                'habilitado' => true
+            ],
 
-            // 🔥 elegir 3 a 5 profesores por departamento
-            $miembros = $profesores->random(min(5, $profesores->count()));
+            // 🔵 FÍSICA (id = 2)
+            [
+                'id_profesor' => 4,
+                'id_departamento' => 2,
+                'fecha_inicio' => now()->subYears(3),
+                'fecha_fin' => null,
+                'habilitado' => true
+            ],
+            [
+                'id_profesor' => 5,
+                'id_departamento' => 2,
+                'fecha_inicio' => now()->subYears(2),
+                'fecha_fin' => null,
+                'habilitado' => true
+            ],
+            [
+                'id_profesor' => 6,
+                'id_departamento' => 2,
+                'fecha_inicio' => now()->subMonths(6),
+                'fecha_fin' => null,
+                'habilitado' => true
+            ],
 
-            foreach ($miembros as $profesor) {
+            // 🔵 QUÍMICA (id = 3)
+            [
+                'id_profesor' => 7,
+                'id_departamento' => 3,
+                'fecha_inicio' => now()->subYears(1),
+                'fecha_fin' => null,
+                'habilitado' => true
+            ],
+            [
+                'id_profesor' => 8,
+                'id_departamento' => 3,
+                'fecha_inicio' => now()->subMonths(10),
+                'fecha_fin' => null,
+                'habilitado' => true
+            ],
+            [
+                'id_profesor' => 9,
+                'id_departamento' => 3,
+                'fecha_inicio' => now()->subMonths(4),
+                'fecha_fin' => null,
+                'habilitado' => true
+            ],
 
-                // 🔹 miembro actual
-                MiembroDepartamento::create([
-                    'id_profesor' => $profesor->id,
-                    'id_departamento' => $departamento->id,
-                    'fecha_inicio' => now()->subMonths(rand(1, 24)),
-                    'fecha_fin' => null,
-                    'habilitado' => true
-                ]);
 
-                // 🔥 OPCIONAL: historial (estuvo antes en otro depto)
-                if (rand(0, 1)) {
+            [
+                'id_profesor' => 10,
+                'id_departamento' => 3,
+                'fecha_inicio' => now()->subYears(4),
+                'fecha_fin' => null,
+                'habilitado' => false
+            ],
 
-                    $otroDepto = $departamentos
-                        ->where('id', '!=', $departamento->id)
-                        ->random();
-
-                    MiembroDepartamento::create([
-                        'id_profesor' => $profesor->id,
-                        'id_departamento' => $otroDepto->id,
-                        'fecha_inicio' => now()->subYears(3),
-                        'fecha_fin' => now()->subYear(),
-                        'habilitado' => false
-                    ]);
-                }
-            }
-        }
+        ]);
     }
 }

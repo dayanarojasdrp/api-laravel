@@ -53,8 +53,8 @@ class DatabaseSeeder extends Seeder
         EstudianteTDPPSeeder::class,
         GradoTituloSeeder::class,
         ProfesorSeeder::class,
+       MiembroDepartamentoSeeder::class,
         DecanoSeeder::class,
-        MiembroDepartamentoSeeder::class,
         JefeDepartamentoSeeder::class,
         ProfesorGuiaSeeder::class,
     ]);

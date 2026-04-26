@@ -10,9 +10,7 @@ return new class extends Migration
     {
         Schema::table('decano', function (Blueprint $table) {
 
-            // ❌ eliminar lo que ya no sirve
-            $table->dropForeign(['id_curso']);
-            $table->dropColumn('id_curso');
+
 
             // ✅ nuevos campos
             $table->timestamp('fecha_inicio')->nullable();
@@ -26,7 +24,7 @@ return new class extends Migration
     {
         Schema::table('decano', function (Blueprint $table) {
 
-            $table->unsignedBigInteger('id_curso')->nullable();
+
 
             $table->dropColumn([
                 'fecha_inicio',
