@@ -230,7 +230,11 @@ public function activos()
 
 public function aaPdf()
 {
-    $datos = AlumnoAyudante::with('estudiante')->get();
+    $anioActual = date('Y');
+
+$datos = AlumnoAyudante::with('estudiante')
+    ->whereYear('fecha_inicio', $anioActual)
+    ->get();
     $designados = $datos->where('tipo', 'designado');
 $ratificados = $datos->where('tipo', 'ratificado');
 $desnombrados = $datos->where('tipo', 'desnombrado');
@@ -358,7 +362,11 @@ public function aaWord()
     // =====================================
     // 🔥 DATOS (SIN FILTRAR POR habilitado)
     // =====================================
-    $datos = AlumnoAyudante::with('estudiante')->get();
+    $anioActual = date('Y');
+
+$datos = AlumnoAyudante::with('estudiante')
+    ->whereYear('fecha_inicio', $anioActual)
+    ->get();
 
     $designados = $datos->where('tipo', 'designado');
     $ratificados = $datos->where('tipo', 'ratificado');
@@ -676,5 +684,88 @@ private function getAAData()
             'etapa' => $item->etapa
         ];
     });
+}
+public function historialAA(Request $request)
+{
+    $desde = $request->desde;
+    $hasta = $request->hasta;
+
+    // 🔥 traer AA en rango de años
+    $aa = \App\Models\AlumnoAyudante::with([
+            'estudiante',
+        ])
+        ->whereNotNull('fecha_inicio')
+        ->whereYear('fecha_inicio', '>=', $desde)
+        ->whereYear('fecha_inicio', '<=', $hasta)
+        ->where('tipo', 'designado') // opcional según tu lógica
+        ->get()
+        ->unique(function ($item) {
+            // 🔥 evita repetir mismo estudiante en el mismo año
+            return $item->id_estudiante . '-' . date('Y', strtotime($item->fecha_inicio));
+        });
+
+    // 🔥 departamentos (igual que hiciste en PPA)
+    $miembros = \App\Models\MiembroDepartamento::whereIn(
+        'id_profesor',
+        $aa->pluck('id_tutor') // 👈 tutor es profesor
+    )->get()->keyBy('id_profesor');
+
+    $departamentos = \App\Models\Departamento::whereIn(
+        'id',
+        $miembros->pluck('id_departamento')
+    )->get()->keyBy('id');
+
+    // 🔥 MAP FINAL
+    $data = $aa->map(function ($item) use ($miembros, $departamentos) {
+
+        $est = $item->estudiante;
+        if (!$est) return null;
+
+        // 🔥 departamento del tutor
+        $miembro = $miembros[$item->id_tutor] ?? null;
+        $departamento = $miembro
+            ? ($departamentos[$miembro->id_departamento]->nombre ?? '')
+            : '';
+
+        return [
+            'carnet' => $est->numero_carnet ?? '',
+            'nombre' => trim(($est->nombre ?? '') . ' ' . ($est->apellidos ?? '')),
+            'tutor' => $item->nombre_tutor ?? '',
+            'departamento' => $departamento,
+            'anio' => date('Y', strtotime($item->fecha_inicio)) // 🔥 AÑO REAL
+        ];
+    })->filter();
+
+    // 🔥 validación
+    if ($data->isEmpty()) {
+        return response()->json(['error' => 'No hay datos'], 400);
+    }
+
+    // 🔥 PDF
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+        'exports.historial_aa',
+        [
+            'data' => $data,
+            'desde' => $desde,
+            'hasta' => $hasta
+        ]
+    );
+
+    $nombreArchivo = "Historial_AA_{$desde}_{$hasta}.pdf";
+    $ruta = "documentos/{$nombreArchivo}";
+
+    // 🔥 guardar
+    \Illuminate\Support\Facades\Storage::disk('public')->put($ruta, $pdf->output());
+
+    // 🔥 guardar en BD
+    \App\Models\Documento::create([
+        'nombre' => "Historial AA {$desde}-{$hasta}",
+        'tipo' => 'aa',
+        'tipo_documento' => 'historial',
+        'periodo' => $hasta,
+        'ruta' => $ruta
+    ]);
+
+    return $pdf->download($nombreArchivo);
 }
 }

@@ -34,4 +34,5 @@ public function gradoTitulo()
 {
     return $this->belongsTo(GradoTitulo::class, 'grado_titulo_id');
 }
+
 }

@@ -373,3 +373,4 @@ Route::get('/documentos', [DocumentoController::class, 'index']);
 Route::get('/cursos', [cursoController::class, 'index']);
 
 Route::post('/documentos/historial', [PPAController::class, 'historial']);
+Route::post('/documentos/historial-aa', [AlumnoAyudanteController::class, 'historialAA']);

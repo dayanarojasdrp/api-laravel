@@ -22,8 +22,8 @@ use Carbon\Carbon;
 use App\Models\Decano;
 use App\Models\Documento;
 use Illuminate\Support\Facades\Storage;
-
-
+use app\Models\Departamento;
+use app\Models\MiembroDepartamento;
 class PPAController extends Controller
 {
     // 🟢 DESIGNAR
@@ -807,25 +807,36 @@ $writer->save($rutaCompleta);
 // 🔥 descargar
 return response()->download($rutaCompleta, $nombreArchivo);
 }
-
 public function historial(Request $request)
 {
     $desde = $request->desde;
     $hasta = $request->hasta;
 
-    // 🔥 SOLO designados (evita duplicados basura)
     $historial = \App\Models\PpaHistorial::with([
             'profesor.catDocente',
-            'profesor.catCientifica',
-            'profesor.departamento' // 👈 IMPORTANTE (si tienes relación)
+            'profesor.catCientifica'
         ])
-        ->where('accion', 'designado')
+        ->whereIn('accion', ['designado', 'ratificado']) // 🔥 FIX
+        ->whereNotNull('fecha_accion')
         ->whereYear('fecha_accion', '>=', $desde)
         ->whereYear('fecha_accion', '<=', $hasta)
         ->get()
-        ->unique('id_profesor'); // 🔥 evita repetidos por profesor
+        ->unique(function ($item) {
+            return $item->id_profesor . '-' . date('Y', strtotime($item->fecha_accion)); // 🔥 FIX CLAVE
+        });
 
-    // 🔥 años y carreras
+    // 🔥 departamentos
+    $miembros = \App\Models\MiembroDepartamento::whereIn(
+        'id_profesor',
+        $historial->pluck('id_profesor')
+    )->get()->keyBy('id_profesor');
+
+    $departamentos = \App\Models\Departamento::whereIn(
+        'id',
+        $miembros->pluck('id_departamento')
+    )->get()->keyBy('id');
+
+    // 🔥 años y carreras (si quieres mantenerlos)
     $anos = \App\Models\AnoAcademico::whereIn(
         'id',
         $historial->pluck('id_a_academico')
@@ -836,28 +847,36 @@ public function historial(Request $request)
         $anos->pluck('id_prog_form')
     )->get()->keyBy('id');
 
-    // 🔥 MAP LIMPIO
-   $data = $historial->map(function ($item) use ($anos, $progForms) {
+   $data = $historial->map(function ($item) use ($anos, $progForms, $miembros, $departamentos) {
 
     $profesor = $item->profesor;
-
     if (!$profesor) return null;
 
     $anio = $anos[$item->id_a_academico] ?? null;
     $carrera = $anio ? ($progForms[$anio->id_prog_form] ?? null) : null;
 
+    $miembro = $miembros[$item->id_profesor] ?? null;
+    $departamento = $miembro
+        ? ($departamentos[$miembro->id_departamento]->nombre ?? '')
+        : '';
+
     return [
-        'nombre' => trim(($profesor->nombre ?? '') . ' ' . ($profesor->apellidos ?? '')),
+        'nombre' => $profesor->nombre ?? '',
+        'apellidos' => $profesor->apellidos ?? '',
         'catDocente' => optional($profesor->catDocente)->nombre ?? '',
         'catCientifica' => optional($profesor->catCientifica)->nombre ?? '',
-        'departamento' => '',
+        'departamento' => $departamento,
         'carrera' => $carrera->nombre ?? '',
-        'anio' => $anio->identificador ?? ''
+        'anio_calendario' => date('Y', strtotime($item->fecha_accion)), // 🔥 año real
+        'anio_academico' => $anio->identificador ?? '' // 🔥 1ro, 2do
     ];
-})->filter(); // 🔥 elimina nulls
+})->filter();
 
 
-    // 🔥 NUEVA VISTA (historial)
+    if ($data->isEmpty()) {
+        return response()->json(['error' => 'No hay datos'], 400);
+    }
+
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
         'exports.historial_ppa',
         [

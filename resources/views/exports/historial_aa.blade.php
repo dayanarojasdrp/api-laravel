@@ -32,32 +32,28 @@
 <body>
 
 <h2>
-    Historial de PPA ({{ $desde }} - {{ $hasta }})
+    Listado de Alumnos Ayudantes
 </h2>
 
 <table>
     <thead>
         <tr>
-            <th>Profesor</th>
-            <th>Cat Docente</th>
-            <th>Cat Científica</th>
+            <th>Carnet</th>
+            <th>Nombre del Estudiante</th>
+            <th>Tutor</th>
             <th>Departamento</th>
-            <th>Carrera</th>
-            <th>Año PPA</th>
-<th>Año Académico</th>
+            <th>Año</th>
         </tr>
     </thead>
 
     <tbody>
         @foreach($data as $item)
             <tr>
-                <td>{{ $item['nombre'] }} {{ $item['apellidos'] }}</td>
-                <td>{{ $item['catDocente'] }}</td>
-                <td>{{ $item['catCientifica'] }}</td>
+                <td>{{ $item['carnet'] }}</td>
+                <td>{{ $item['nombre'] }}</td>
+                <td>{{ $item['tutor'] }}</td>
                 <td>{{ $item['departamento'] }}</td>
-                <td>{{ $item['carrera'] }}</td>
-                <td>{{ $item['anio_calendario'] }}</td>
-<td>{{ $item['anio_academico'] }}</td>
+               <td>{{ $item['anio'] }}</td>
             </tr>
         @endforeach
     </tbody>
