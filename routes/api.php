@@ -58,6 +58,7 @@ use App\Http\Controllers\CoordinadorCarreraController;
 use App\Http\Controllers\ProfesorGuiaController;
 use App\Http\Controllers\AlumnoAyudanteController;
 use App\Http\Controllers\DocumentoController;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -374,3 +375,4 @@ Route::get('/cursos', [cursoController::class, 'index']);
 
 Route::post('/documentos/historial', [PPAController::class, 'historial']);
 Route::post('/documentos/historial-aa', [AlumnoAyudanteController::class, 'historialAA']);
+
