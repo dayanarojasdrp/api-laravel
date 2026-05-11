@@ -42,20 +42,22 @@ class DisciplinaController extends Controller
 
         //  manejar relación con curriculo
         if ($request->has('id_curriculo')) {
+            foreach ($request->id_curriculo as $idCurriculo){
 
-            $curriculo = Curriculo::find($request->id_curriculo);
+                $curriculo = Curriculo::find($idCurriculo);
 
-            if (!$curriculo) {
-                return response()->json([
-                    'res' => false,
-                    'message' => 'El curriculo no existe pero, se creó el curriculo pero no la relación'
-                ], 400);
+                if (!$curriculo) {
+                    return response()->json([
+                        'res' => false,
+                        'message' => 'El curriculo no existe pero, se creó el curriculo pero no la relación'
+                    ], 400);
+                }
+
+                Curriculo_Disciplina::create([
+                    'id_disciplina' => $disciplina->id,
+                    'id_curriculo' => $curriculo->id
+                ]);
             }
-
-            Curriculo_Disciplina::create([
-                'id_disciplina' => $disciplina->id,
-                'id_curriculo' => $curriculo->id
-            ]);
         }
 
         return response()->json([

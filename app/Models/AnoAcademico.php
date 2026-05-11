@@ -21,4 +21,11 @@ class AnoAcademico extends Model
 {
     return $this->hasMany(AnoGrupo::class, 'ano_academico_id');
 }
+public function programaFormacion()
+{
+    return $this->belongsTo(
+        ProgFormacion::class,
+        'id_prog_form'
+    );
+}
 }

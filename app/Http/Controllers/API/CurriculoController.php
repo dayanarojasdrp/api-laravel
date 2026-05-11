@@ -39,20 +39,22 @@ class CurriculoController extends Controller
 
         //  manejar relación con plan de estudio
         if ($request->has('id_plan_estudio')) {
+            foreach($request->id_plan_estudio as $idPlan){
 
-            $plan = PlanEstudio::find($request->id_plan_estudio);
+                $plan = PlanEstudio::find($idPlan);
 
-            if (!$plan) {
-                return response()->json([
-                    'res' => false,
-                    'message' => 'El plan de estudio no existe, se creó el curriculo pero no la relación'
-                ], 400);
+                if (!$plan) {
+                    return response()->json([
+                        'res' => false,
+                        'message' => 'El plan de estudio no existe, se creó el curriculo pero no la relación'
+                    ], 400);
+                }
+
+                PlanEstudio_Curriculo::create([
+                    'id_curriculo' => $curriculo->id,
+                    'id_plan_estudio' => $plan->id
+                ]);
             }
-
-            PlanEstudio_Curriculo::create([
-                'id_curriculo' => $curriculo->id,
-                'id_plan_estudio' => $plan->id
-            ]);
         }
 
         return response()->json([

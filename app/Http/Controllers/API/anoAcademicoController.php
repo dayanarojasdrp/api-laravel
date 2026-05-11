@@ -14,7 +14,10 @@ class anoAcademicoController extends Controller
 {
     public function index()
     {
-        $aA = AnoAcademico::all();
+            $aA = AnoAcademico::with(
+            'programaFormacion'
+        )->get();
+
         return response()->json([
             'res'=> true,
             'data'=> $aA
