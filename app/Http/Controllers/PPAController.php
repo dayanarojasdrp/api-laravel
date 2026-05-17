@@ -322,7 +322,8 @@ public function exportPDF()
         'tipo' => 'ppa',
         'tipo_documento' => 'listado',
         'periodo' => now()->year,
-        'ruta' => $ruta
+        'ruta' => $ruta,
+        'facultad_id' => $this->documentFacultyId(),
     ]);
 
     // 🔥 descarga
@@ -390,7 +391,8 @@ $file = storage_path("app/public/{$ruta}");
         'tipo' => 'ppa',
         'tipo_documento' => 'listado',
         'periodo' => now()->year,
-        'ruta' => "public/{$nombreArchivo}"
+        'ruta' => "public/{$nombreArchivo}",
+        'facultad_id' => $this->documentFacultyId(),
     ]);
 
     // 🔥 descarga normal (NO TOCAR)
@@ -547,7 +549,8 @@ file_put_contents($rutaCompleta, $pdf->output());
     'tipo' => 'ppa',
     'tipo_documento' => 'resolucion',
     'periodo' => $anio, // 👈 usa tu variable ya calculada
-    'ruta' => $ruta
+    'ruta' => $ruta,
+    'facultad_id' => $this->documentFacultyId(),
 ]);
 
 // 🔥 descargar
@@ -801,7 +804,8 @@ $writer->save($rutaCompleta);
     'tipo' => 'ppa',
     'tipo_documento' => 'resolucion',
     'periodo' => $anio,
-    'ruta' => $ruta
+    'ruta' => $ruta,
+    'facultad_id' => $this->documentFacultyId(),
 ]);
 
 // 🔥 descargar
@@ -896,7 +900,8 @@ public function historial(Request $request)
         'tipo' => 'ppa',
         'tipo_documento' => 'historial',
         'periodo' => $hasta,
-        'ruta' => $ruta
+        'ruta' => $ruta,
+        'facultad_id' => $this->documentFacultyId(),
     ]);
 
     return $pdf->download($nombreArchivo);

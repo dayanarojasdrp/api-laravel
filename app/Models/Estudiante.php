@@ -9,7 +9,9 @@ class Estudiante extends Model
 {
     use HasFactory;
     protected $fillable = [
-    'nombre'
+    'nombre',
+    'apellidos',
+    'numero_carnet',
 ];
 public function manifestaciones()
 {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Log;
+use App\Services\ExternalUserService;
 use Illuminate\Http\Request;
 
 class LogController extends Controller
@@ -9,6 +10,8 @@ class LogController extends Controller
     public static function registrar($usuario, $accion, $descripcion)
     {
         try {
+            $usuario = app(ExternalUserService::class)->resolveLogUsername($usuario);
+
             Log::create([
                 'usuario' => $usuario,
                 'accion' => $accion,

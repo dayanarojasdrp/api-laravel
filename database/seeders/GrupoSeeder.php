@@ -15,10 +15,12 @@ class GrupoSeeder extends Seeder
 {
     public function run(): void
     {
-        for ($i = 0; $i < 5; $i++) {
+        $gruposNecesarios = 5;
+        $gruposActuales = Grupo::count();
 
+        for ($i = $gruposActuales; $i < $gruposNecesarios; $i++) {
             $grupo = new Grupo();
-            $grupo->save(); // 👈 esto SIEMPRE funciona
+            $grupo->save();
         }
     }
 }

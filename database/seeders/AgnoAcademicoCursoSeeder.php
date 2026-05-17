@@ -45,5 +45,26 @@ class AgnoAcademicoCursoSeeder extends Seeder
             'id_cohorte' => 1
 
         ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 6,
+            'id_a_academico' => 11,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 5,
+            'id_a_academico' => 10,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 9,
+            'id_cohorte' => 1
+
+        ]);
     }
 }

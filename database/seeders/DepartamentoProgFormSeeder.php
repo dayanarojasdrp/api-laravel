@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Departamento;
+use App\Models\ProgFormacion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -11,33 +13,36 @@ class DepartamentoProgFormSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('departamento_prog_d_form')->insert([
+        $departamentos = Departamento::whereIn('abreviatura', ['DMAT', 'DQUI', 'DFIS'])
+            ->pluck('id', 'abreviatura');
 
-            [
-                'uuid' => Str::uuid(),
-                'id_departamento' => 1, // Matemática
-                'id_prog_form' => 5,    // Licenciatura Matemática
+        $programas = ProgFormacion::whereIn('abreviatura', ['M', 'LQ', 'F'])
+            ->pluck('id', 'abreviatura');
 
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        $relaciones = [
+            ['departamento' => 'DMAT', 'programa' => 'M'],
+            ['departamento' => 'DQUI', 'programa' => 'LQ'],
+            ['departamento' => 'DFIS', 'programa' => 'F'],
+        ];
 
-            [
-                'uuid' => Str::uuid(),
-                'id_departamento' => 3, // Química
-                'id_prog_form' => 10,    // Licenciatura Química
+        foreach ($relaciones as $relacion) {
+            $departamentoId = $departamentos[$relacion['departamento']] ?? null;
+            $programaId = $programas[$relacion['programa']] ?? null;
 
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],[
-                'uuid' => Str::uuid(),
-                'id_departamento' => 2, // Fisica
-                'id_prog_form' => 4,    // Fisica
+            if (!$departamentoId || !$programaId) {
+                continue;
+            }
 
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-        ]);
+            DB::table('departamento_prog_d_form')->updateOrInsert(
+                ['id_prog_form' => $programaId],
+                [
+                    'uuid' => Str::uuid(),
+                    'id_departamento' => $departamentoId,
+                    'id_prog_form' => $programaId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
     }
 }

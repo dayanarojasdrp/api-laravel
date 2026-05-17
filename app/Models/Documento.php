@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
         'tipo',
         'tipo_documento',
         'periodo',
-        'ruta'
+        'ruta',
+        'facultad_id',
     ];
 }
-

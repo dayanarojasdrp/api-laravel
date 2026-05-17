@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Documento;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
@@ -25,7 +26,8 @@ private function guardarDocumento($nombre, $tipo, $tipoDoc, $contenido, $extensi
         'tipo' => $tipo,
         'tipo_documento' => $tipoDoc,
         'periodo' => now()->year,
-        'ruta' => $ruta
+        'ruta' => $ruta,
+        'facultad_id' => $this->documentFacultyId(),
     ]);
 
     return $ruta;
@@ -42,6 +44,14 @@ public function index(Request $request)
     // 🔹 filtro por periodo (año)
     if ($request->periodo && $request->periodo !== 'todos') {
         $query->where('periodo', $request->periodo);
+    }
+
+    $facultadId = $request->query('facultad_id')
+        ?? $request->query('id_facultad')
+        ?? $request->header('X-Facultad');
+
+    if ($facultadId) {
+        $query->where('facultad_id', $facultadId);
     }
 
     $docs = $query->orderBy('created_at', 'desc')->get();

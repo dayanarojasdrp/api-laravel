@@ -19,33 +19,27 @@ class FacultadDepartamentoSeeder extends Seeder
         $depMat = Departamento::where('abreviatura', 'DMAT')->first();
         $depQui = Departamento::where('abreviatura', 'DQUI')->first();
         $depFis = Departamento::where('abreviatura', 'DFIS')->first();
-        // 🔵 Matemática → Departamento Matemática → Curso 1
-        DB::table('facultad_departamento')->insert([
-            'uuid' => Str::uuid(),
-            'id_facultad' => $matematica->id,
-            'id_departamento' => $depMat->id,
+        $relaciones = [
+            ['facultad' => $matematica, 'departamento' => $depMat],
+            ['facultad' => $matematica, 'departamento' => $depFis],
+            ['facultad' => $quimica, 'departamento' => $depQui],
+        ];
 
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-        // 🔵 Matemática → Departamento de fisica → Curso 2
-        DB::table('facultad_departamento')->insert([
-            'uuid' => Str::uuid(),
-            'id_facultad' => $matematica->id,
-            'id_departamento' => $depFis->id,
+        foreach ($relaciones as $relacion) {
+            if (!$relacion['facultad'] || !$relacion['departamento']) {
+                continue;
+            }
 
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // 🔵 Química → Departamento Química → Curso 1
-        DB::table('facultad_departamento')->insert([
-            'uuid' => Str::uuid(),
-            'id_facultad' => $quimica->id,
-            'id_departamento' => $depQui->id,
-
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            DB::table('facultad_departamento')->updateOrInsert(
+                ['id_departamento' => $relacion['departamento']->id],
+                [
+                    'uuid' => Str::uuid(),
+                    'id_facultad' => $relacion['facultad']->id,
+                    'id_departamento' => $relacion['departamento']->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
     }
 }

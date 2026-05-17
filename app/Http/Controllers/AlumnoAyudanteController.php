@@ -327,7 +327,8 @@ file_put_contents($rutaCompleta, $pdf->output());
     'tipo' => 'aa',
     'tipo_documento' => 'resolucion',
     'periodo' => $ano, // 👈 usa tu variable ya calculada
-    'ruta' => $ruta
+    'ruta' => $ruta,
+    'facultad_id' => $this->documentFacultyId(),
 ]);
 
 // 🔥 descargar
@@ -524,7 +525,8 @@ $writer->save($rutaCompleta);
     'tipo' => 'aa',
     'tipo_documento' => 'resolucion',
     'periodo' => $fecha->year,
-    'ruta' => $ruta
+    'ruta' => $ruta,
+    'facultad_id' => $this->documentFacultyId(),
 ]);
 
 // 🔥 descargar
@@ -562,7 +564,8 @@ file_put_contents($rutaCompleta, $pdf->output());
     'tipo' => 'aa',
     'tipo_documento' => 'listado',
     'periodo' => $fecha->year,
-    'ruta' => $ruta
+    'ruta' => $ruta,
+    'facultad_id' => $this->documentFacultyId(),
 ]);
 
 // 🔥 descargar
@@ -641,7 +644,8 @@ $rutaCompleta = storage_path("app/public/{$ruta}");
     'tipo' => 'aa',
     'tipo_documento' => 'listado',
     'periodo' => $fecha->year,
-    'ruta' => $ruta
+    'ruta' => $ruta,
+    'facultad_id' => $this->documentFacultyId(),
 ]);
 
 // 🔥 descargar
@@ -763,7 +767,8 @@ public function historialAA(Request $request)
         'tipo' => 'aa',
         'tipo_documento' => 'historial',
         'periodo' => $hasta,
-        'ruta' => $ruta
+        'ruta' => $ruta,
+        'facultad_id' => $this->documentFacultyId(),
     ]);
 
     return $pdf->download($nombreArchivo);

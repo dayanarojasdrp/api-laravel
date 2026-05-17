@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Models\ProgFormacion;
 
 class AgnoAcademicoSeeder extends Seeder
 {
@@ -13,44 +14,22 @@ class AgnoAcademicoSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('a_academico')->insert([
-            [
-                'identificador' => '1ro',
-                'id_prog_form' => 1
-            ],[
-                'identificador' => '2do',
-                'id_prog_form' => 1
-            ],[
-                'identificador' => '3ro',
-                'id_prog_form' => 1
-            ],[
-                'identificador' => '4to',
-                'id_prog_form' => 1
-            ],[
-                'identificador' => '1ro',
-                'id_prog_form' => 5
-            ],[
-                'identificador' => '2do',
-                'id_prog_form' => 5
-            ],[
-                'identificador' => '3ro',
-                'id_prog_form' => 5
-            ],[
-                'identificador' => '4to',
-                'id_prog_form' => 5
-            ],[
-                'identificador' => '1ro',
-                'id_prog_form' => 2
-            ],[
-                'identificador' => '2do',
-                'id_prog_form' => 2
-            ],[
-                'identificador' => '3ro',
-                'id_prog_form' => 2
-            ],[
-                'identificador' => '4to',
-                'id_prog_form' => 2
-            ]
-        ]);
+        $programas = ProgFormacion::whereIn('abreviatura', ['II', 'M', 'CC', 'LQ'])
+            ->pluck('id', 'abreviatura');
+
+        foreach ($programas as $programaId) {
+            foreach (['1ro', '2do', '3ro', '4to'] as $identificador) {
+                DB::table('a_academico')->updateOrInsert(
+                    [
+                        'identificador' => $identificador,
+                        'id_prog_form' => $programaId,
+                    ],
+                    [
+                        'identificador' => $identificador,
+                        'id_prog_form' => $programaId,
+                    ]
+                );
+            }
+        }
     }
 }

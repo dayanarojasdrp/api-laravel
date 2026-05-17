@@ -9,6 +9,7 @@ use Illuminate\Database\Seeder;
 use App\Models\AnoGrupo;
 use App\Models\AnoAcademico;
 use App\Models\Grupo;
+use App\Models\ProgFormacion;
 
 
 use Illuminate\Support\Facades\DB;
@@ -17,53 +18,63 @@ class AnoGrupoSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('ano_grupo')->truncate();
+        $gruposNecesarios = 5;
 
-        DB::table('ano_grupo')->insert([
-            // 🔹 Grupo 1 → Año 1ro
-            [
-                'ano_academico_id' => 1,
-                'grupo_id' => 1,
-                'fecha' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        while (Grupo::count() < $gruposNecesarios) {
+            Grupo::create([]);
+        }
 
-            // 🔹 Grupo 2 → Año 2do
-            [
-                'ano_academico_id' => 2,
-                'grupo_id' => 2,
-                'fecha' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        $grupos = Grupo::orderBy('id')->take($gruposNecesarios)->get();
 
-            // 🔹 Grupo 3 → Año 3ro
-            [
-                'ano_academico_id' => 3,
-                'grupo_id' => 3,
-                'fecha' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        $matematicaId = ProgFormacion::where('abreviatura', 'M')->value('id');
+        $quimicaId = ProgFormacion::where('abreviatura', 'LQ')->value('id');
 
-            // 🔹 Grupo 4 → Año 4to
-            [
-                'ano_academico_id' => 4,
-                'grupo_id' => 4,
-                'fecha' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        $asignaciones = [
+            ['identificador' => '1ro', 'id_prog_form' => $matematicaId],
+            ['identificador' => '2do', 'id_prog_form' => $matematicaId],
+            ['identificador' => '3ro', 'id_prog_form' => $matematicaId],
+            ['identificador' => '1ro', 'id_prog_form' => $quimicaId],
+            ['identificador' => '2do', 'id_prog_form' => $quimicaId],
+        ];
 
-            // 🔹 Grupo 5 → Año 1ro (otro programa por ejemplo)
-            [
-                'ano_academico_id' => 1,
-                'grupo_id' => 5,
-                'fecha' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        foreach ($asignaciones as $index => $asignacion) {
+            $anoAcademicoId = AnoAcademico::where($asignacion)->value('id');
+
+            if (!$anoAcademicoId || !isset($grupos[$index])) {
+                continue;
+            }
+
+            DB::table('ano_grupo')->updateOrInsert(
+
+                [
+                    'ano_academico_id' => 9,
+                    'grupo_id' => 1,
+                    'fecha' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'ano_academico_id' => 10,
+                    'grupo_id' => 2,
+                    'fecha' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'ano_academico_id' => 11,
+                    'grupo_id' => 3,
+                    'fecha' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'ano_academico_id' => 13,
+                    'grupo_id' => 4,
+                    'fecha' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
     }
 }
