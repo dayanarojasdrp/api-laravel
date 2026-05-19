@@ -49,7 +49,7 @@ public function index(Request $request)
     $logs = $query
         ->orderBy('created_at', 'desc')
         ->limit(10) // 🔥 siempre 10
-        ->get(['accion', 'descripcion', 'facultad_id', 'created_at']);
+        ->get(['usuario', 'accion', 'descripcion', 'facultad_id', 'created_at']);
 
     return response()->json($logs);
 }
