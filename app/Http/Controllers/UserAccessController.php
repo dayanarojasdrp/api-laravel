@@ -13,7 +13,7 @@ class UserAccessController extends Controller
     public function userAccess(Request $request, string $username)
     {
         $request->validate([
-            'application' => ['nullable', Rule::in([UserAppAccess::APPLICATION_GESTION_ROLES])],
+            'application' => ['nullable', Rule::in(UserAppAccess::applications())],
         ]);
 
         $applicationCode = $request->query('application', UserAppAccess::APPLICATION_GESTION_ROLES);
@@ -36,16 +36,18 @@ class UserAccessController extends Controller
     public function index(Request $request)
     {
         $data = $request->validate([
-            'application' => ['nullable', Rule::in([UserAppAccess::APPLICATION_GESTION_ROLES])],
-            'facultad_id' => ['required', 'integer', 'exists:facultad,id'],
+            'application' => ['nullable', Rule::in(UserAppAccess::applications())],
+            'facultad_id' => ['nullable', 'integer', 'exists:facultad,id'],
         ]);
 
         $applicationCode = $data['application'] ?? UserAppAccess::APPLICATION_GESTION_ROLES;
 
         return UserAppAccess::query()
             ->where('application_code', $applicationCode)
-            ->where('facultad_id', $data['facultad_id'])
             ->where('active', true)
+            ->when(isset($data['facultad_id']), function ($query) use ($data) {
+                $query->where('facultad_id', $data['facultad_id']);
+            })
             ->orderBy('role')
             ->orderBy('username')
             ->get(['username', 'role', 'facultad_id', 'departamento_id', 'active']);
@@ -54,12 +56,24 @@ class UserAccessController extends Controller
     public function assign(Request $request)
     {
         $data = $request->validate([
-            'application_code' => ['required', Rule::in([UserAppAccess::APPLICATION_GESTION_ROLES])],
+            'application_code' => ['required', Rule::in(UserAppAccess::applications())],
             'username' => ['required', 'string'],
-            'role' => ['required', Rule::in(['vicedecano_docente', 'decano', 'jefe_departamento'])],
-            'facultad_id' => ['required', 'integer', 'exists:facultad,id'],
+            'role' => ['required', 'string'],
+            'facultad_id' => ['nullable', 'integer', 'exists:facultad,id'],
             'departamento_id' => ['nullable', 'integer', 'exists:departamento,id'],
         ]);
+
+        if (!in_array($data['role'], UserAppAccess::rolesForApplication($data['application_code']), true)) {
+            return response()->json([
+                'message' => 'El rol no pertenece a la aplicación indicada.',
+            ], 422);
+        }
+
+        if ($data['role'] === 'admin') {
+            return response()->json([
+                'message' => 'El rol admin debe asignarse desde /api/access/admin/transfer.',
+            ], 422);
+        }
 
         $userValidation = $this->validateExternalUsername($data['username']);
 
@@ -67,20 +81,10 @@ class UserAccessController extends Controller
             return $userValidation;
         }
 
-        if ($data['role'] === 'jefe_departamento') {
-            if (!$data['departamento_id']) {
-                return response()->json([
-                    'message' => 'El jefe_departamento requiere departamento_id.',
-                ], 422);
-            }
+        $roleValidation = $this->validateRoleScope($data);
 
-            if (!$this->departamentoPerteneceAFacultad($data['departamento_id'], $data['facultad_id'])) {
-                return response()->json([
-                    'message' => 'El departamento no pertenece a la facultad indicada.',
-                ], 422);
-            }
-        } else {
-            $data['departamento_id'] = null;
+        if ($roleValidation) {
+            return $roleValidation;
         }
 
         $access = DB::transaction(function () use ($data) {
@@ -102,7 +106,7 @@ class UserAccessController extends Controller
     public function transferAdmin(Request $request)
     {
         $data = $request->validate([
-            'application_code' => ['required', Rule::in([UserAppAccess::APPLICATION_GESTION_ROLES])],
+            'application_code' => ['required', Rule::in(UserAppAccess::applications())],
             'username' => ['required', 'string'],
         ]);
 
@@ -148,6 +152,44 @@ class UserAccessController extends Controller
         }
 
         $query->update(['active' => false]);
+    }
+
+    private function validateRoleScope(array &$data)
+    {
+        if ($data['role'] === 'jefe_departamento') {
+            if (empty($data['facultad_id']) || empty($data['departamento_id'])) {
+                return response()->json([
+                    'message' => 'El jefe_departamento requiere facultad_id y departamento_id.',
+                ], 422);
+            }
+
+            if (!$this->departamentoPerteneceAFacultad($data['departamento_id'], $data['facultad_id'])) {
+                return response()->json([
+                    'message' => 'El departamento no pertenece a la facultad indicada.',
+                ], 422);
+            }
+
+            return null;
+        }
+
+        if (in_array($data['role'], ['vicedecano_docente', 'decano'], true)) {
+            if (empty($data['facultad_id'])) {
+                return response()->json([
+                    'message' => "El rol {$data['role']} requiere facultad_id.",
+                ], 422);
+            }
+
+            $data['departamento_id'] = null;
+
+            return null;
+        }
+
+        if ($data['role'] === 'rector') {
+            $data['facultad_id'] = null;
+            $data['departamento_id'] = null;
+        }
+
+        return null;
     }
 
     private function validateExternalUsername(string $username)

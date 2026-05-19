@@ -9,8 +9,14 @@ class UserAppAccessSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->seedAdmin(UserAppAccess::APPLICATION_GESTION_ROLES);
+        $this->seedAdmin(UserAppAccess::APPLICATION_GESTION_PLAN_ESTUDIO);
+    }
+
+    private function seedAdmin(string $applicationCode): void
+    {
         $alreadyActive = UserAppAccess::where('username', 'usuario01')
-            ->where('application_code', UserAppAccess::APPLICATION_GESTION_ROLES)
+            ->where('application_code', $applicationCode)
             ->where('role', 'admin')
             ->where('active', true)
             ->exists();
@@ -19,14 +25,14 @@ class UserAppAccessSeeder extends Seeder
             return;
         }
 
-        UserAppAccess::where('application_code', UserAppAccess::APPLICATION_GESTION_ROLES)
+        UserAppAccess::where('application_code', $applicationCode)
             ->where('role', 'admin')
             ->where('active', true)
             ->update(['active' => false]);
 
         UserAppAccess::create([
             'username' => 'usuario01',
-            'application_code' => UserAppAccess::APPLICATION_GESTION_ROLES,
+            'application_code' => $applicationCode,
             'role' => 'admin',
             'facultad_id' => null,
             'departamento_id' => null,

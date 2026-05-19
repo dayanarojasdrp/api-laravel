@@ -17,6 +17,7 @@ return new class extends Migration
                 'vicedecano_docente',
                 'decano',
                 'jefe_departamento',
+                'rector',
             ]);
             $table->unsignedBigInteger('facultad_id')->nullable();
             $table->unsignedBigInteger('departamento_id')->nullable();
