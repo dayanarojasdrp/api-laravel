@@ -7,13 +7,16 @@ use Illuminate\Http\Request;
 use App\Models\Disciplina;
 use App\Models\Curriculo;
 use App\Models\Curriculo_Disciplina;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class DisciplinaController extends Controller
 {
     public function index()
     {
-        $disciplina = Disciplina::all();
+        $disciplina = Disciplina::with(
+            'curriculos'
+        )->get();
 
         return response()->json([
             'res' => true,
@@ -97,22 +100,31 @@ class DisciplinaController extends Controller
         //  manejar relación con curriculo
         if ($request->has('id_curriculo')) {
 
-            $curriculo = Curriculo::find($request->id_curriculo);
+            // eliminar relaciones actuales
 
-            if (!$curriculo) {
-                return response()->json([
-                    'res' => false,
-                    'message' => 'Curriculo no encontrado'
-                ], 400);
-            }
+            Curriculo_Disciplina::where(
+                'id_disciplina',
+                $disciplina->id
+            )->delete();
 
-            $rel = Curriculo_Disciplina::where('id_disciplina', $disciplina->id)
-                ->where('id_curriculo', $curriculo->id)
-                ->first();
+            // crear nuevas relaciones
 
-            if (!$rel) {
+            foreach($request->id_curriculo as $idCurriculo){
+
+                $curriculo = Curriculo::find($idCurriculo);
+
+                if (!$curriculo) {
+
+                    return response()->json([
+                        'res' => false,
+                        'message' => 'Currículo no encontrado'
+                    ], 400);
+                }
+
                 Curriculo_Disciplina::create([
+
                     'id_disciplina' => $disciplina->id,
+
                     'id_curriculo' => $curriculo->id
                 ]);
             }
@@ -145,7 +157,22 @@ class DisciplinaController extends Controller
             ], 400);
         }
 
-        $disciplina->delete();
+        try {
+            DB::beginTransaction();
+
+            Curriculo_Disciplina::where('id_disciplina', $disciplina->id)->delete();
+            $disciplina->delete();
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'res' => false,
+                'message' => 'Error al eliminar la disciplina',
+                'error' => $e->getMessage()
+            ], 500);
+        }
 
         return response()->json([
             'res' => true,

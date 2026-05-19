@@ -7,12 +7,15 @@ use Illuminate\Http\Request;
 use App\Models\Curriculo;
 use App\Models\PlanEstudio;
 use App\Models\PlanEstudio_Curriculo;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 class CurriculoController extends Controller
 {
     public function index()
     {
-        $curriculo = Curriculo::all();
+        $curriculo = Curriculo::with(
+            'planesEstudio'
+        )->get();
 
         return response()->json([
             'res' => true,
@@ -82,46 +85,68 @@ class CurriculoController extends Controller
 
     public function update(Request $request, string $id)
     {
+        
         $curriculo = Curriculo::find($id);
 
+        // verificar si existe
+
         if (!$curriculo) {
+
             return response()->json([
                 'res' => false,
                 'message' => 'No se encontró el curriculo'
             ], 400);
         }
 
-        //  manejar relación con plan de estudio
+        // actualizar campos normales
+
+        $data = [];
+
+        if ($request->has('nombre')) {
+
+            $data['nombre'] = $request->nombre;
+        }
+
+        $curriculo->update($data);
+
+        // manejar relación muchos a muchos
+        // con plan de estudio
+
         if ($request->has('id_plan_estudio')) {
 
-            $plan = PlanEstudio::find($request->id_plan_estudio);
+            // eliminar relaciones actuales
 
-            if (!$plan) {
-                return response()->json([
-                    'res' => false,
-                    'message' => 'Plan no encontrado'
-                ], 400);
-            }
+            PlanEstudio_Curriculo::where(
+                'id_curriculo',
+                $curriculo->id
+            )->delete();
 
-            $rel = PlanEstudio_Curriculo::where('id_curriculo', $curriculo->id)
-                ->where('id_plan_estudio', $plan->id)
-                ->first();
+            // crear nuevas relaciones
 
-            if (!$rel) {
+            foreach($request->id_plan_estudio as $idPlan){
+
+                $plan = PlanEstudio::find($idPlan);
+
+                // validar si existe
+
+                if (!$plan) {
+
+                    return response()->json([
+                        'res' => false,
+                        'message' => 'Plan no encontrado'
+                    ], 400);
+                }
+
+                // crear relación
+
                 PlanEstudio_Curriculo::create([
+
                     'id_curriculo' => $curriculo->id,
+
                     'id_plan_estudio' => $plan->id
                 ]);
             }
         }
-
-        // actualizar campos 
-        $data = [];
-
-        
-        if($request->has('nombre')) $data['nombre'] = $request->nombre;
-
-        $curriculo->update($data);
 
         return response()->json([
             'res' => true,
@@ -140,7 +165,22 @@ class CurriculoController extends Controller
             ], 400);
         }
 
-        $curriculo->delete();
+        try {
+            DB::beginTransaction();
+
+            PlanEstudio_Curriculo::where('id_curriculo', $curriculo->id)->delete();
+            $curriculo->delete();
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'res' => false,
+                'message' => 'Error al eliminar el curriculo',
+                'error' => $e->getMessage()
+            ], 500);
+        }
 
         return response()->json([
             'res' => true,

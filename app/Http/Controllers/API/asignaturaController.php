@@ -7,6 +7,7 @@ use App\Models\Asignatura;
 use Illuminate\Http\Request;
 use App\Models\Disciplina;
 use App\Models\Disciplina_Asignatura;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Asignatura_Agno;
 use App\Models\AnoAcademico;
@@ -15,11 +16,14 @@ class asignaturaController extends Controller
 {
    public function index()
     {
-        $asignatura = Asignatura::all();
+        $asignaturas = Asignatura::with([
+            'disciplinas',
+            'aniosAcademicos.programaFormacion'
+        ])->get();
 
         return response()->json([
             'res' => true,
-            'data' => $asignatura
+            'data' => $asignaturas
         ], 200);
     }
 
@@ -114,50 +118,96 @@ class asignaturaController extends Controller
         $asignatura = Asignatura::find($id);
 
         if (!$asignatura) {
+
             return response()->json([
                 'res' => false,
                 'message' => 'No se encontró la asignatura'
             ], 400);
         }
 
-        //  manejar relación con disciplina
+        // actualizar datos básicos
+
+        $data = [];
+
+        if ($request->has('nombre')) {
+            $data['nombre'] = $request->nombre;
+        }
+
+        if ($request->has('fondo_tiempo')) {
+            $data['fondo_tiempo'] = $request->fondo_tiempo;
+        }
+
+        $asignatura->update($data);
+
+       
+        // DISCIPLINAS
+       
+
         if ($request->has('id_disciplina')) {
 
-            $disciplina = Disciplina::find($request->id_disciplina);
+            Disciplina_Asignatura::where(
+                'id_asignatura',
+                $asignatura->id
+            )->delete();
 
-            if (!$disciplina) {
-                return response()->json([
-                    'res' => false,
-                    'message' => 'Disciplina no encontrada'
-                ], 400);
-            }
+            foreach($request->id_disciplina as $idDisciplina){
 
-            $rel = Disciplina_Asignatura::where('id_asignatura', $asignatura->id)
-                ->where('id_disciplina', $disciplina->id)
-                ->first();
+                $disciplina = Disciplina::find($idDisciplina);
 
-            if (!$rel) {
+                if (!$disciplina) {
+
+                    return response()->json([
+                        'res' => false,
+                        'message' => 'Disciplina no encontrada'
+                    ], 400);
+                }
+
                 Disciplina_Asignatura::create([
+
                     'id_asignatura' => $asignatura->id,
+
                     'id_disciplina' => $disciplina->id
                 ]);
             }
         }
 
-        // actualizar campos 
-        $data = [];
-
         
-        if($request->has('nombre')) $data['nombre'] = $request->nombre;
-        if ($request->has('fondo_tiempo')) $data['fondo_tiempo'] = $request->fondo_tiempo;
-    
+        // AÑOS ACADÉMICOS
+        
 
-        $asignatura->update($data);
+        if ($request->has('id_a_academico')) {
+
+            Asignatura_Agno::where(
+                'id_asignatura',
+                $asignatura->id
+            )->delete();
+
+            foreach($request->id_a_academico as $idAno){
+
+                $ano = AnoAcademico::find($idAno);
+
+                if (!$ano) {
+
+                    return response()->json([
+                        'res' => false,
+                        'message' => 'Año académico no encontrado'
+                    ], 400);
+                }
+
+                Asignatura_Agno::create([
+
+                    'id_asignatura' => $asignatura->id,
+
+                    'id_a_academico' => $ano->id
+                ]);
+            }
+        }
 
         return response()->json([
             'res' => true,
-            'message' => 'Asignatura actualizada'
+            'message' => 'Asignatura actualizada correctamente'
         ], 200);
+       
     }
 
     public function destroy(string $id)
@@ -171,7 +221,24 @@ class asignaturaController extends Controller
             ], 400);
         }
 
-        $asignatura->delete();
+        try {
+            DB::beginTransaction();
+
+            Disciplina_Asignatura::where('id_asignatura', $asignatura->id)->delete();
+            Asignatura_Agno::where('id_asignatura', $asignatura->id)->delete();
+
+            $asignatura->delete();
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'res' => false,
+                'message' => 'Error al eliminar la asignatura',
+                'error' => $e->getMessage()
+            ], 500);
+        }
 
         return response()->json([
             'res' => true,
