@@ -14,8 +14,8 @@ class AgnoAcademicoSeeder extends Seeder
      */
     public function run(): void
     {
-        $programas = ProgFormacion::whereIn('abreviatura', ['II', 'M', 'CC', 'LQ'])
-            ->pluck('id', 'abreviatura');
+        $programas = ProgFormacion::whereIn('abreviatura', ['II', 'CC', 'F', 'M', 'LQ'])
+            ->pluck('id');
 
         foreach ($programas as $programaId) {
             foreach (['1ro', '2do', '3ro', '4to'] as $identificador) {

@@ -20,25 +20,46 @@ class AgnoAcademicoCursoSeeder extends Seeder
         AgnoAcademico_Curso::create([
             'id' => Str::uuid(),
             'id_curso' => 1,
-            'id_a_academico' => 5,
+            'id_a_academico' => 2,
             'id_cohorte' => 1
 
         ]);
         AgnoAcademico_Curso::create([
             'id' => Str::uuid(),
             'id_curso' => 2,
-            'id_a_academico' => 6,
+            'id_a_academico' => 3,
             'id_cohorte' => 1
 
         ]);
         AgnoAcademico_Curso::create([
             'id' => Str::uuid(),
             'id_curso' => 3,
-            'id_a_academico' => 7,
+            'id_a_academico' => 4,
             'id_cohorte' => 1
 
         ]);
         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 5,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 6,
+            'id_a_academico' => 6,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 5,
+            'id_a_academico' => 7,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
             'id' => Str::uuid(),
             'id_curso' => 4,
             'id_a_academico' => 8,
@@ -47,14 +68,14 @@ class AgnoAcademicoCursoSeeder extends Seeder
         ]);
          AgnoAcademico_Curso::create([
             'id' => Str::uuid(),
-            'id_curso' => 6,
-            'id_a_academico' => 11,
+            'id_curso' => 4,
+            'id_a_academico' => 9,
             'id_cohorte' => 1
 
         ]);
          AgnoAcademico_Curso::create([
             'id' => Str::uuid(),
-            'id_curso' => 5,
+            'id_curso' => 4,
             'id_a_academico' => 10,
             'id_cohorte' => 1
 
@@ -62,7 +83,70 @@ class AgnoAcademicoCursoSeeder extends Seeder
          AgnoAcademico_Curso::create([
             'id' => Str::uuid(),
             'id_curso' => 4,
-            'id_a_academico' => 9,
+            'id_a_academico' => 11,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 12,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 13,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 14,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 15,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 16,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 17,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 18,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 19,
+            'id_cohorte' => 1
+
+        ]);
+         AgnoAcademico_Curso::create([
+            'id' => Str::uuid(),
+            'id_curso' => 4,
+            'id_a_academico' => 20,
             'id_cohorte' => 1
 
         ]);

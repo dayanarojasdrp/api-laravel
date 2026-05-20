@@ -53,13 +53,16 @@ body {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
+    table-layout: fixed;
 }
 
 .table th, .table td {
     border: 1px solid black;
-    padding: 6px;
-    font-size: 12pt;
+    padding: 4px;
+    font-size: 10pt;
     font-family: Arial, sans-serif;
+    vertical-align: middle;
+    word-wrap: break-word;
 }
 
 .table th {
@@ -71,32 +74,14 @@ body {
     text-align: center;
 }
 
+.col-carrera { width: 22%; }
+.col-ano { width: 9%; }
+.col-nombre { width: 34%; }
+.col-cat { width: 17.5%; }
+
 /* FIRMA */
 .firma {
     margin-top: 40px;
-}
-.table th:nth-child(1),
-.table td:nth-child(1) {
-    width: 25%;
-}
-
-.table th:nth-child(2),
-.table td:nth-child(2) {
-    width: 10%;
-    text-align: center;
-}
-
-.table th:nth-child(3),
-.table td:nth-child(3) {
-    width: 35%;
-}
-
-.table th:nth-child(4),
-.table td:nth-child(4),
-.table th:nth-child(5),
-.table td:nth-child(5) {
-    width: 15%;
-    text-align: center;
 }
 .header-table {
     width: 100%;
@@ -162,7 +147,7 @@ body {
 
         <td class="header-text">
             <div>UNIVERSIDAD CENTRAL “MARTA ABREU” DE LAS VILLAS</div>
-            <div><strong>FACULTAD DE MATEMÁTICA, FÍSICA Y COMPUTACIÓN</strong></div>
+            <div><strong>{{ $nombreFacultadMayus }}</strong></div>
 
         </td>
 
@@ -207,30 +192,41 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 
 <!-- 🟣 PRIMERO -->
 <p class="articulo">
-<strong>PRIMERO:</strong> Ratificar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de la Facultad Matemática, Física y Computación para el curso {{ $anio }} en el Curso Diurno.
+<strong>PRIMERO:</strong> Ratificar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de {{ $nombreFacultad }} para el curso {{ $anio }} en el Curso Diurno.
 </p>
 
 <!-- 🟣 TABLA -->
 <table class="table">
+<colgroup>
+<col class="col-carrera">
+<col class="col-ano">
+<col class="col-nombre">
+<col class="col-cat">
+<col class="col-cat">
+</colgroup>
 <thead>
 <tr>
 <th>Carrera</th>
-<th>Año</th>
-<th>Nombre</th>
-<th>Categoría Docente</th>
-<th>Categoría Científica</th>
+<th class="center">Año</th>
+<th>Nombre del PPA</th>
+<th class="center">Categoría Docente</th>
+<th class="center">Categoría Científica</th>
 </tr>
 </thead>
 
 <tbody>
-@foreach($ratificados as $item)
-<tr>
-<td>{{ $item['carrera'] }}</td>
-<td class="center">{{ $item['anio'] }}</td>
-<td>{{ $item['nombre'] }}</td>
-<td>{{ $item['catDocente'] }}</td>
-<td>{{ $item['catCientifica'] }}</td>
-</tr>
+@foreach(collect($ratificados)->groupBy('carrera') as $carrera => $items)
+    @foreach($items->values() as $index => $item)
+    <tr>
+    @if($index === 0)
+    <td rowspan="{{ $items->count() }}">{{ $carrera }}</td>
+    @endif
+    <td class="center">{{ $item['anio'] }}</td>
+    <td>{{ $item['nombre'] }}</td>
+    <td class="center">{{ $item['catDocente'] }}</td>
+    <td class="center">{{ $item['catCientifica'] }}</td>
+    </tr>
+    @endforeach
 @endforeach
 </tbody>
 </table>
@@ -238,60 +234,82 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 
 <!-- 🟣 Segunda -->
 <p class="articulo">
-<strong>SEGUNDO:</strong> Desnombrar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de la Facultad Matemática, Física y Computación para el curso {{ $anio }} en el curso diurno.
+<strong>SEGUNDO:</strong> Desnombrar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de {{ $nombreFacultad }} para el curso {{ $anio }} en el curso diurno.
 </p>
 
 <!-- 🟣 TABLA -->
 <table class="table">
+<colgroup>
+<col class="col-carrera">
+<col class="col-ano">
+<col class="col-nombre">
+<col class="col-cat">
+<col class="col-cat">
+</colgroup>
 <thead>
 <tr>
 <th>Carrera</th>
-<th>Año</th>
-<th>Nombre</th>
-<th>Categoría Docente</th>
-<th>Categoría Científica</th>
+<th class="center">Año</th>
+<th>Nombre del PPA</th>
+<th class="center">Categoría Docente</th>
+<th class="center">Categoría Científica</th>
 </tr>
 </thead>
 
 <tbody>
-@foreach($desnombrados as $item)
-<tr>
-<td>{{ $item['carrera'] }}</td>
-<td class="center">{{ $item['anio'] }}</td>
-<td>{{ $item['nombre'] }}</td>
-<td>{{ $item['catDocente'] }}</td>
-<td>{{ $item['catCientifica'] }}</td>
-</tr>
+@foreach(collect($desnombrados)->groupBy('carrera') as $carrera => $items)
+    @foreach($items->values() as $index => $item)
+    <tr>
+    @if($index === 0)
+    <td rowspan="{{ $items->count() }}">{{ $carrera }}</td>
+    @endif
+    <td class="center">{{ $item['anio'] }}</td>
+    <td>{{ $item['nombre'] }}</td>
+    <td class="center">{{ $item['catDocente'] }}</td>
+    <td class="center">{{ $item['catCientifica'] }}</td>
+    </tr>
+    @endforeach
 @endforeach
 </tbody>
 </table>
 
 <!-- 🟣 Tercero -->
 <p class="articulo">
-<strong>TERCERO:</strong> Designar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de la Facultad Matemática, Física y Computación para el curso {{ $anio }} en el Curso Diurno.
+<strong>TERCERO:</strong> Designar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de {{ $nombreFacultad }} para el curso {{ $anio }} en el Curso Diurno.
 </p>
 
 <!-- 🟣 TABLA -->
 <table class="table">
+<colgroup>
+<col class="col-carrera">
+<col class="col-ano">
+<col class="col-nombre">
+<col class="col-cat">
+<col class="col-cat">
+</colgroup>
 <thead>
 <tr>
 <th>Carrera</th>
-<th>Año</th>
-<th>Nombre</th>
-<th>Categoría Docente</th>
-<th>Categoría Científica</th>
+<th class="center">Año</th>
+<th>Nombre del PPA</th>
+<th class="center">Categoría Docente</th>
+<th class="center">Categoría Científica</th>
 </tr>
 </thead>
 
 <tbody>
-@foreach($designados as $item)
-<tr>
-<td>{{ $item['carrera'] }}</td>
-<td class="center">{{ $item['anio'] }}</td>
-<td>{{ $item['nombre'] }}</td>
-<td>{{ $item['catDocente'] }}</td>
-<td>{{ $item['catCientifica'] }}</td>
-</tr>
+@foreach(collect($designados)->groupBy('carrera') as $carrera => $items)
+    @foreach($items->values() as $index => $item)
+    <tr>
+    @if($index === 0)
+    <td rowspan="{{ $items->count() }}">{{ $carrera }}</td>
+    @endif
+    <td class="center">{{ $item['anio'] }}</td>
+    <td>{{ $item['nombre'] }}</td>
+    <td class="center">{{ $item['catDocente'] }}</td>
+    <td class="center">{{ $item['catCientifica'] }}</td>
+    </tr>
+    @endforeach
 @endforeach
 </tbody>
 </table>
@@ -306,7 +324,7 @@ Esta Resolución entra en vigor a partir de su firma.
 </p>
 
 <p class="parrafo">
-<strong>ARCHÍVESE</strong> el original en el protocolo de Disposiciones de la Facultad de Matemática, Física y Computación
+<strong>ARCHÍVESE</strong> el original en el protocolo de Disposiciones de {{ $nombreFacultad }}
 </p>
 
 <p class="parrafo">

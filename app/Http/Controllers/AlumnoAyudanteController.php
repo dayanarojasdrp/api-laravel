@@ -230,6 +230,14 @@ public function activos()
 
 public function aaPdf()
 {
+    $facultadId = $this->documentFacultyId();
+
+    if (!$facultadId) {
+        return response()->json([
+            'error' => 'Debe enviar X-Facultad, facultad_id o id_facultad para generar la resolución.'
+        ], 422);
+    }
+
     $anioActual = date('Y');
 
 $datos = AlumnoAyudante::with('estudiante')
@@ -240,7 +248,7 @@ $ratificados = $datos->where('tipo', 'ratificado');
 $desnombrados = $datos->where('tipo', 'desnombrado');
 
  $decano = Decano::with('profesor')
-    ->where('id_facultad', 1)
+    ->where('id_facultad', $facultadId)
     ->first();
 
 $nombreDecano = $decano && $decano->profesor
@@ -251,41 +259,11 @@ $nombreDecano = $decano && $decano->profesor
     $mes = $fecha->translatedFormat('F');
     $ano = $fecha->year;
     $revolucion = $ano - 1958;
-  function mapear($coleccion) {
-    return $coleccion->values()->map(function ($aa, $index) {
-         $estGrupo = EstudianteGrupo::where('estudiante_id', $aa->id_estudiante)->first();
-
-        $anoNombre = 'N/A';
-
-        if ($estGrupo) {
-            $grupo = Grupo::find($estGrupo->grupo_id);
-
-            if ($grupo) {
-                $anoGrupo = AnoGrupo::where('grupo_id', $grupo->id)->first();
-
-                if ($anoGrupo) {
-                    $ano = AnoAcademico::find($anoGrupo->ano_academico_id);
-
-                    if ($ano) {
-                        $anoNombre = $ano->identificador; // 👈 ejemplo: "1ro", "2do"
-                    }
-                }
-            }
-        }
-        return [
-            'no' => $index + 1,
-            'carnet' => $aa->estudiante->numero_carnet,
-            'nombre' => $aa->estudiante->nombre . ' ' . $aa->estudiante->apellidos,
-            'anio' => $anoNombre,
-            'tutor' => $aa->nombre_tutor,
-            'etapa' => $aa->etapa
-        ];
-    });
-}
-
-$designados = mapear($designados);
-$ratificados = mapear($ratificados);
-$desnombrados = mapear($desnombrados);
+    $nombreFacultad = $this->documentFacultyName($facultadId);
+    $nombreFacultadMayus = $this->documentFacultyNameUpper($facultadId);
+$designados = $this->mapAAResolucionPorDepartamento($designados, $facultadId);
+$ratificados = $this->mapAAResolucionPorDepartamento($ratificados, $facultadId);
+$desnombrados = $this->mapAAResolucionPorDepartamento($desnombrados, $facultadId);
 
     // 🔥 AQUÍ EL FIX
    $anio = date('Y');
@@ -299,14 +277,16 @@ $pdf = Pdf::loadView('aa_pdf', compact(
         'mes',
        'ano',
         'revolucion',
-    'nombreDecano'
+    'nombreDecano',
+    'nombreFacultad',
+    'nombreFacultadMayus'
 ));
 
     // 🔥 fecha completa
-$fechaTexto = $fecha->format('d-m-Y');
+$fechaTexto = $fecha->format('d-m-Y_H-i-s');
 
 // 🔥 nombre correcto
-$nombreArchivo = "Resolucion_AA_{$fechaTexto}.pdf";
+$nombreArchivo = $this->documentFileName('Resolucion_AA', 'pdf');
 
 // 🔥 asegurar carpeta
 $directorio = storage_path('app/public/documentos');
@@ -339,6 +319,14 @@ return response()->download($rutaCompleta, $nombreArchivo);
 
 public function aaWord()
 {
+    $facultadId = $this->documentFacultyId();
+
+    if (!$facultadId) {
+        return response()->json([
+            'error' => 'Debe enviar X-Facultad, facultad_id o id_facultad para generar la resolución.'
+        ], 422);
+    }
+
     // =====================================
     // 🔥 FECHA (igual que PDF)
     // =====================================
@@ -349,12 +337,14 @@ public function aaWord()
     $mes = $fecha->translatedFormat('F');
     $anio = $fecha->year;
     $revolucion = $anio - 1958;
+    $nombreFacultad = $this->documentFacultyName($facultadId);
+    $nombreFacultadMayus = $this->documentFacultyNameUpper($facultadId);
 
     // =====================================
     // 🔥 DECANO (igual que PDF)
     // =====================================
     $decano = Decano::with('profesor')
-        ->where('id_facultad', 1)
+        ->where('id_facultad', $facultadId)
         ->first();
 
     $nombreDecano = $decano && $decano->profesor
@@ -374,63 +364,9 @@ $datos = AlumnoAyudante::with('estudiante')
     $ratificados = $datos->where('tipo', 'ratificado');
     $desnombrados = $datos->where('tipo', 'desnombrado');
 
-    // =====================================
-    // 🔥 TABLA (IGUAL QUE PDF)
-    // =====================================
-  $tabla = function ($coleccion) {
-
-    $html = '
-    <table border="1" cellpadding="4" cellspacing="0" width="100%"
-    style="border-collapse: collapse; font-family: Arial; font-size: 12pt;">
-
-        <tr>
-            <th style="font-family: Arial; font-size: 12pt;">No</th>
-            <th style="font-family: Arial; font-size: 12pt;">Carnet</th>
-            <th style="font-family: Arial; font-size: 12pt;">Nombre</th>
-            <th style="font-family: Arial; font-size: 12pt;">Año Académico</th>
-            <th style="font-family: Arial; font-size: 12pt;">Tutor</th>
-            <th style="font-family: Arial; font-size: 12pt;">Etapa</th>
-        </tr>';
-
-    $i = 1;
-
-    foreach ($coleccion as $aa) {
-
-        $anoNombre = 'N/A';
-
-        $estGrupo = \App\Models\EstudianteGrupo::where('estudiante_id', $aa->id_estudiante)->first();
-
-        if ($estGrupo) {
-            $grupo = \App\Models\Grupo::find($estGrupo->grupo_id);
-
-            if ($grupo) {
-                $anoGrupo = \App\Models\AnoGrupo::where('grupo_id', $grupo->id)->first();
-
-                if ($anoGrupo) {
-                    $ano = \App\Models\AnoAcademico::find($anoGrupo->ano_academico_id);
-
-                    if ($ano) {
-                        $anoNombre = $ano->identificador;
-                    }
-                }
-            }
-        }
-
-        $html .= '
-        <tr>
-            <td style="font-family: Arial; font-size: 12pt; text-align:center;">'.$i++.'</td>
-            <td style="font-family: Arial; font-size: 12pt; text-align:center;">'.$aa->estudiante->numero_carnet.'</td>
-            <td style="font-family: Arial; font-size: 12pt;">'.$aa->estudiante->nombre.' '.$aa->estudiante->apellidos.'</td>
-            <td style="font-family: Arial; font-size: 12pt; text-align:center;">'.$anoNombre.'</td>
-            <td style="font-family: Arial; font-size: 12pt;">'.$aa->nombre_tutor.'</td>
-            <td style="font-family: Arial; font-size: 12pt; text-align:center;">'.$aa->etapa.'</td>
-        </tr>';
-    }
-
-    $html .= '</table>';
-
-    return $html;
-};
+    $designados = $this->mapAAResolucionPorDepartamento($designados, $facultadId);
+    $ratificados = $this->mapAAResolucionPorDepartamento($ratificados, $facultadId);
+    $desnombrados = $this->mapAAResolucionPorDepartamento($desnombrados, $facultadId);
 
     // =====================================
     // 🔥 RENDERIZAR BLADE (IGUAL QUE PDF)
@@ -440,21 +376,19 @@ $datos = AlumnoAyudante::with('estudiante')
         'dia',
         'mes',
         'revolucion',
-        'nombreDecano'
+        'nombreDecano',
+        'nombreFacultad',
+        'nombreFacultadMayus'
     ))->render();
-
-    // =====================================
-    // 🔥 REEMPLAZAR TABLAS
-    // =====================================
-    $html = str_replace('__TABLA_RATIFICADOS__', $tabla($ratificados), $html);
-    $html = str_replace('__TABLA_DESNOMBRADOS__', $tabla($desnombrados), $html);
-    $html = str_replace('__TABLA_DESIGNADOS__', $tabla($designados), $html);
 
     // =====================================
     // 🔥 CREAR WORD
     // =====================================
     $phpWord = new PhpWord();
-    $section = $phpWord->addSection();
+    $section = $phpWord->addSection([
+        'marginLeft' => 720,
+        'marginRight' => 720,
+    ]);
 // ============================
     // ✅ HEADER BIEN HECHO (CLAVE)
     // ============================
@@ -483,7 +417,7 @@ $textrun = $cellText->addTextRun([
 );
 
     $cellText->addText(
-        'FACULTAD DE MATEMÁTICA, FÍSICA Y COMPUTACIÓN',
+        $nombreFacultadMayus,
         ['bold' => true, 'name' => 'Arial', 'size' => 10],
         ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
     );
@@ -494,17 +428,67 @@ $textrun = $cellText->addTextRun([
         ['width' => 60]
     );
 
-    Html::addHtml($section, $html);
+    $addAAResolucionTables = function ($grupos) use ($section) {
+        foreach ($grupos as $grupo) {
+            $section->addText(
+                'Departamento Docente: '.$grupo['departamento'],
+                ['bold' => true, 'name' => 'Arial', 'size' => 10]
+            );
+
+            $table = $section->addTable([
+                'borderSize' => 6,
+                'borderColor' => '000000',
+                'cellMargin' => 50
+            ]);
+
+            $table->addRow();
+            $table->addCell(500)->addText('N°', ['bold' => true, 'name' => 'Arial', 'size' => 9]);
+            $table->addCell(1600)->addText('C. DE IDENTIDAD', ['bold' => true, 'name' => 'Arial', 'size' => 9]);
+            $table->addCell(2700)->addText('NOMBRES Y APELLIDOS', ['bold' => true, 'name' => 'Arial', 'size' => 9]);
+            $table->addCell(800)->addText('AÑO', ['bold' => true, 'name' => 'Arial', 'size' => 9]);
+            $table->addCell(2700)->addText('TUTOR', ['bold' => true, 'name' => 'Arial', 'size' => 9]);
+            $table->addCell(900)->addText('ETAPA', ['bold' => true, 'name' => 'Arial', 'size' => 9]);
+
+            foreach ($grupo['items'] as $fila) {
+                $table->addRow();
+                $table->addCell(500)->addText($fila['no'], ['name' => 'Arial', 'size' => 9]);
+                $table->addCell(1600)->addText($fila['carnet'], ['name' => 'Arial', 'size' => 9]);
+                $table->addCell(2700)->addText($fila['nombre'], ['name' => 'Arial', 'size' => 9]);
+                $table->addCell(800)->addText($fila['anio'], ['name' => 'Arial', 'size' => 9]);
+                $table->addCell(2700)->addText($fila['tutor'], ['name' => 'Arial', 'size' => 9]);
+                $table->addCell(900)->addText($fila['etapa'], ['name' => 'Arial', 'size' => 9]);
+            }
+
+            $section->addTextBreak();
+        }
+    };
+
+    $partes1 = explode('__TABLA_DESIGNADOS__', $html);
+
+    Html::addHtml($section, $partes1[0], false, false);
+
+    if (isset($partes1[1])) {
+        $addAAResolucionTables($designados);
+
+        $partes2 = explode('__TABLA_DESNOMBRADOS__', $partes1[1]);
+
+        Html::addHtml($section, $partes2[0], false, false);
+
+        if (isset($partes2[1])) {
+            $addAAResolucionTables($desnombrados);
+            Html::addHtml($section, $partes2[1], false, false);
+        }
+    }
 
     // =====================================
     // 🔥 DESCARGA
     // =====================================
     // 🔥 fecha
 $fecha = now();
-$fechaTexto = $fecha->format('d-m-Y');
+$fechaTexto = $fecha->format('d-m-Y_H-i-s');
 
 // 🔥 nombre correcto
-$nombreArchivo = "Resolucion_AA_{$fechaTexto}.docx";
+$nombreArchivo = $this->documentFileName('Resolucion_AA', 'docx');
 
 // 🔥 asegurar carpeta
 $directorio = storage_path('app/public/documentos');
@@ -542,10 +526,10 @@ public function exportPDF()
 
    // 🔥 fecha completa
 $fecha = now();
-$fechaTexto = $fecha->format('d-m-Y');
+$fechaTexto = $fecha->format('d-m-Y_H-i-s');
 
 // 🔥 nombre dinámico
-$nombreArchivo = "Listado_AA_{$fechaTexto}.pdf";
+$nombreArchivo = $this->documentFileName('Listado_AA', 'pdf');
 
 // 🔥 asegurar carpeta
 $directorio = storage_path('app/public/documentos');
@@ -579,7 +563,10 @@ public function exportWord()
     $data = $this->getAAData();
 
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
-    $section = $phpWord->addSection();
+    $section = $phpWord->addSection([
+        'marginLeft' => 720,
+        'marginRight' => 720,
+    ]);
 
     // 🔹 Título
     $section->addText(
@@ -597,36 +584,36 @@ public function exportWord()
     // 🔹 HEADER
     $table->addRow();
 
-    $table->addCell(2000)->addText('Carnet', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
-    $table->addCell(4000)->addText('Nombre', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
-    $table->addCell(2000)->addText('Año Académico', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
-    $table->addCell(3000)->addText('Tutor', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
-    $table->addCell(1500)->addText('Etapa', ['bold' => true, 'name' => 'Arial', 'size' => 12]);
+    $table->addCell(1700)->addText('Carnet', ['bold' => true, 'name' => 'Arial', 'size' => 10]);
+    $table->addCell(3100)->addText('Nombre', ['bold' => true, 'name' => 'Arial', 'size' => 10]);
+    $table->addCell(1200)->addText('Año Académico', ['bold' => true, 'name' => 'Arial', 'size' => 10]);
+    $table->addCell(2600)->addText('Tutor', ['bold' => true, 'name' => 'Arial', 'size' => 10]);
+    $table->addCell(800)->addText('Etapa', ['bold' => true, 'name' => 'Arial', 'size' => 10]);
 
     // 🔹 DATA
     foreach ($data as $item) {
         $table->addRow();
 
-        $table->addCell(2000)->addText($item['carnet'], ['name' => 'Arial', 'size' => 12]);
+        $table->addCell(1700)->addText($item['carnet'], ['name' => 'Arial', 'size' => 10]);
 
-        $table->addCell(4000)->addText(
+        $table->addCell(3100)->addText(
             $item['nombre'],
-            ['name' => 'Arial', 'size' => 12]
+            ['name' => 'Arial', 'size' => 10]
         );
 
-        $table->addCell(2000)->addText($item['anio'], ['name' => 'Arial', 'size' => 12]);
+        $table->addCell(1200)->addText($item['anio'], ['name' => 'Arial', 'size' => 10]);
 
-        $table->addCell(3000)->addText($item['tutor'], ['name' => 'Arial', 'size' => 12]);
+        $table->addCell(2600)->addText($item['tutor'], ['name' => 'Arial', 'size' => 10]);
 
-        $table->addCell(1500)->addText($item['etapa'], ['name' => 'Arial', 'size' => 12]);
+        $table->addCell(800)->addText($item['etapa'], ['name' => 'Arial', 'size' => 10]);
     }
 
    // 🔥 fecha completa
 $fecha = now();
-$fechaTexto = $fecha->format('d-m-Y');
+$fechaTexto = $fecha->format('d-m-Y_H-i-s');
 
 // 🔥 nombre dinámico
-$nombreArchivo = "Listado_AA_{$fechaTexto}.docx";
+$nombreArchivo = $this->documentFileName('Listado_AA', 'docx');
 
 // 🔥 asegurar carpeta
 $directorio = storage_path('app/public/documentos');
@@ -657,41 +644,127 @@ return response()->download($rutaCompleta, $nombreArchivo);
 }
 private function getAAData()
 {
+    $facultadId = $this->documentFacultyId();
+    $departamentoId = $this->documentDepartmentId();
+
     $aa = \App\Models\AlumnoAyudante::with('estudiante')
         ->where('habilitado', true)
         ->get();
 
-    return $aa->map(function ($item) {
+    return $aa->map(function ($item) use ($facultadId, $departamentoId) {
+        $ubicacion = $this->ubicacionAcademicaEstudianteExport($item->id_estudiante, $facultadId, $departamentoId);
 
-        // 🔥 MISMA LÓGICA QUE YA USASTE
-        $estGrupo = \App\Models\EstudianteGrupo::where('estudiante_id', $item->id_estudiante)->first();
-
-        $anioNombre = 'N/A';
-
-        if ($estGrupo) {
-            $grupo = \App\Models\Grupo::find($estGrupo->grupo_id);
-
-            if ($grupo) {
-                $anoGrupo = \App\Models\AnoGrupo::where('grupo_id', $grupo->id)->first();
-
-                if ($anoGrupo) {
-                    $ano = \App\Models\AnoAcademico::find($anoGrupo->ano_academico_id);
-
-                    if ($ano) {
-                        $anioNombre = $ano->identificador;
-                    }
-                }
-            }
+        if (($facultadId || $departamentoId) && !$ubicacion) {
+            return null;
         }
 
         return [
             'carnet' => $item->estudiante->numero_carnet,
             'nombre' => $item->estudiante->nombre . ' ' . $item->estudiante->apellidos,
-            'anio' => $anioNombre,
+            'anio' => $ubicacion->anio ?? 'N/A',
             'tutor' => $item->nombre_tutor,
-            'etapa' => $item->etapa
+            'etapa' => $this->formatEtapaDocumento($item->etapa)
         ];
-    });
+    })->filter()->values();
+}
+private function formatEtapaDocumento($etapa): string
+{
+    $valor = trim((string) $etapa);
+    $normalizado = mb_strtolower($valor);
+
+    $mapa = [
+        '1' => '|',
+        'etapa 1' => '|',
+        '2' => '||',
+        'etapa 2' => '||',
+        '3' => '|||',
+        'etapa 3' => '|||',
+    ];
+
+    return $mapa[$normalizado] ?? $valor;
+}
+private function mapAAResolucionPorDepartamento($coleccion, int $facultadId)
+{
+    return $coleccion->values()
+        ->map(function ($aa) use ($facultadId) {
+            $ubicacion = $this->ubicacionAcademicaEstudiante($aa->id_estudiante, $facultadId);
+
+            if (!$ubicacion || !$aa->estudiante) {
+                return null;
+            }
+
+            return [
+                'departamento_id' => $ubicacion->departamento_id,
+                'departamento' => $ubicacion->departamento,
+                'carnet' => $aa->estudiante->numero_carnet,
+                'nombre' => $aa->estudiante->nombre . ' ' . $aa->estudiante->apellidos,
+                'anio' => $ubicacion->anio,
+                'tutor' => $aa->nombre_tutor,
+                'etapa' => $this->formatEtapaDocumento($aa->etapa),
+            ];
+        })
+        ->filter()
+        ->groupBy('departamento_id')
+        ->map(function ($items) {
+            $items = $items->values();
+
+            return [
+                'departamento' => $items->first()['departamento'],
+                'items' => $items->map(function ($item, $index) {
+                    unset($item['departamento_id'], $item['departamento']);
+                    $item['no'] = $index + 1;
+
+                    return $item;
+                })->values(),
+            ];
+        })
+        ->values();
+}
+
+private function ubicacionAcademicaEstudiante(int $estudianteId, int $facultadId)
+{
+    return DB::table('estudiante_grupo as eg')
+        ->join('ano_grupo as ag', 'eg.grupo_id', '=', 'ag.grupo_id')
+        ->join('a_academico as aa', 'ag.ano_academico_id', '=', 'aa.id')
+        ->join('departamento_prog_d_form as dpf', 'aa.id_prog_form', '=', 'dpf.id_prog_form')
+        ->join('departamento as d', 'dpf.id_departamento', '=', 'd.id')
+        ->join('facultad_departamento as fd', 'd.id', '=', 'fd.id_departamento')
+        ->where('eg.estudiante_id', $estudianteId)
+        ->where('fd.id_facultad', $facultadId)
+        ->orderByDesc('eg.fecha')
+        ->select(
+            'd.id as departamento_id',
+            'd.nombre as departamento',
+            'aa.identificador as anio'
+        )
+        ->first();
+}
+
+private function ubicacionAcademicaEstudianteExport(int $estudianteId, ?int $facultadId, ?int $departamentoId)
+{
+    $query = DB::table('estudiante_grupo as eg')
+        ->join('ano_grupo as ag', 'eg.grupo_id', '=', 'ag.grupo_id')
+        ->join('a_academico as aa', 'ag.ano_academico_id', '=', 'aa.id')
+        ->join('departamento_prog_d_form as dpf', 'aa.id_prog_form', '=', 'dpf.id_prog_form')
+        ->join('departamento as d', 'dpf.id_departamento', '=', 'd.id')
+        ->join('facultad_departamento as fd', 'd.id', '=', 'fd.id_departamento')
+        ->where('eg.estudiante_id', $estudianteId);
+
+    if ($departamentoId) {
+        $query->where('d.id', $departamentoId);
+    } elseif ($facultadId) {
+        $query->where('fd.id_facultad', $facultadId);
+    }
+
+    return $query
+        ->orderByDesc('eg.fecha')
+        ->select(
+            'd.id as departamento_id',
+            'd.nombre as departamento',
+            'fd.id_facultad',
+            'aa.identificador as anio'
+        )
+        ->first();
 }
 public function historialAA(Request $request)
 {
@@ -759,7 +832,7 @@ public function historialAA(Request $request)
         ]
     );
 
-    $nombreArchivo = "Historial_AA_{$desde}_{$hasta}.pdf";
+    $nombreArchivo = $this->documentFileName("Historial_AA_{$desde}_{$hasta}", 'pdf');
     $ruta = "documentos/{$nombreArchivo}";
 
     // 🔥 guardar

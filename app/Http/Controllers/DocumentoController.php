@@ -12,13 +12,13 @@ class DocumentoController extends Controller
 
 private function guardarDocumento($nombre, $tipo, $tipoDoc, $contenido, $extension)
 {
-    $fecha = now()->format('Y-m-d_H-i-s');
+    $fecha = now()->format('Y-m-d_H-i-s_u');
 
-    $nombreArchivo = "{$fecha}_{$tipoDoc}_{$tipo}.{$extension}";
+    $nombreArchivo = $this->documentFileName("{$tipoDoc}_{$tipo}", $extension);
     $ruta = "documentos/{$nombreArchivo}";
 
     // 🔥 guardar archivo
-    Storage::put($ruta, $contenido);
+    Storage::disk('public')->put($ruta, $contenido);
 
     // 🔥 guardar en BD
     Documento::create([

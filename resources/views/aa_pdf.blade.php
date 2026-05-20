@@ -53,50 +53,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-}
-
-.table th, .table td {
-    border: 1px solid black;
-    padding: 6px;
-    font-size: 12pt;
-    font-family: Arial, sans-serif;
-}
-
-.table th {
-    font-weight: bold;
-    text-align: center;
-}
-
-.center {
-    text-align: center;
-}
-
-/* FIRMA */
-.firma {
-    margin-top: 40px;
-}
-.table th:nth-child(1),
-.table td:nth-child(1) {
-    width: 25%;
-}
-
-.table th:nth-child(2),
-.table td:nth-child(2) {
-    width: 10%;
-    text-align: center;
-}
-
-.table th:nth-child(3),
-.table td:nth-child(3) {
-    width: 35%;
-}
-
-.table th:nth-child(4),
-.table td:nth-child(4),
-.table th:nth-child(5),
-.table td:nth-child(5) {
-    width: 15%;
-    text-align: center;
+    table-layout: fixed;
 }
 .header-table {
     width: 100%;
@@ -155,18 +112,38 @@ body {
 
 .table th, .table td {
     border: 1px solid black;
-    padding: 6px;
-    text-align: center;
+    padding: 4px;
+    font-size: 9.5pt;
+    font-family: Arial, sans-serif;
+    vertical-align: middle;
     word-wrap: break-word;
 }
 
+.table th {
+    font-weight: bold;
+    text-align: center;
+}
+
+.center {
+    text-align: center;
+}
+
+/* FIRMA */
+.firma {
+    margin-top: 40px;
+}
+
 /* 🔥 tamaños personalizados */
-.col-no { width: 2%; }
-.col-carnet { width: 21%; }
-.col-nombre { width: 32%; }
-.col-ano { width: 15%; }
-.col-tutor { width: 20%; }
+.col-no { width: 6%; }
+.col-carnet { width: 18%; }
+.col-nombre { width: 30%; }
+.col-ano { width: 9%; }
+.col-tutor { width: 27%; }
 .col-etapa { width: 10%; }
+.departamento-docente {
+    font-weight: bold;
+    margin: 10px 0 4px 0;
+}
 
 </style>
 
@@ -184,7 +161,7 @@ body {
 
         <td class="header-text">
             <div>UNIVERSIDAD CENTRAL “MARTA ABREU” DE LAS VILLAS</div>
-            <div><strong>FACULTAD DE MATEMÁTICA, FÍSICA Y COMPUTACIÓN</strong></div>
+            <div><strong>{{ $nombreFacultadMayus }}</strong></div>
 
         </td>
 
@@ -230,23 +207,27 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 <!-- 🟣 PRIMERO -->
 <p class="articulo">
 <strong>PRIMERO:</strong> Designar a los Alumnos Ayudantes para el primer período del curso {{$ano}}
+</p>
+
+@foreach($designados as $grupo)
+<p class="departamento-docente">Departamento Docente: {{ $grupo['departamento'] }}</p>
 
 <!-- 🟣 TABLA -->
 <table class="table">
 <thead>
 <tr>
-<th class="col-no">No</th>
-    <th class="col-carnet">Carnet</th>
-    <th class="col-nombre">Nombre</th>
-    <th class="col-ano">Año Académico</th>
-    <th class="col-tutor">Tutor</th>
-    <th class="col-etapa">Etapa</th>
+<th class="col-no">N°</th>
+    <th class="col-carnet">C. DE IDENTIDAD</th>
+    <th class="col-nombre">NOMBRES Y APELLIDOS</th>
+    <th class="col-ano">AÑO</th>
+    <th class="col-tutor">TUTOR</th>
+    <th class="col-etapa">ETAPA</th>
 </tr>
 </thead>
 
 <tbody>
 
-        @foreach($designados as $fila)
+        @foreach($grupo['items'] as $fila)
        <tr>
     <td>{{ $fila['no'] }}</td>
     <td>{{ $fila['carnet'] }}</td>
@@ -259,6 +240,7 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
     </tbody>
 
 </table>
+@endforeach
 
 
 <!-- 🟣 Segunda -->
@@ -266,16 +248,19 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 <strong>SEGUNDO:</strong>  Desnombrar a los siguientes Alumnos Ayudantes para el primer período del curso {{$ano}}
 </p>
 
+@foreach($desnombrados as $grupo)
+<p class="departamento-docente">Departamento Docente: {{ $grupo['departamento'] }}</p>
+
 <!-- 🟣 TABLA -->
 <table class="table">
 <thead>
 <tr>
-<th class="col-no">No</th>
-    <th class="col-carnet">Carnet</th>
-    <th class="col-nombre">Nombre</th>
-    <th class="col-ano">Año Académico</th>
-    <th class="col-tutor">Tutor</th>
-    <th class="col-etapa">Etapa</th>
+<th class="col-no">N°</th>
+    <th class="col-carnet">C. DE IDENTIDAD</th>
+    <th class="col-nombre">NOMBRES Y APELLIDOS</th>
+    <th class="col-ano">AÑO</th>
+    <th class="col-tutor">TUTOR</th>
+    <th class="col-etapa">ETAPA</th>
 </tr>
 </thead>
 
@@ -283,7 +268,7 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 
 
 
-@foreach($desnombrados as $fila)
+@foreach($grupo['items'] as $fila)
 <tr>
     <td>{{ $fila['no'] }}</td>
     <td>{{ $fila['carnet'] }}</td>
@@ -295,6 +280,7 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 @endforeach
 </tbody>
 </table>
+@endforeach
 
 <!-- 🟣 Tercero -->
 <p class="articulo">
@@ -327,7 +313,7 @@ Esta Resolución entra en vigor a partir de su firma.
 </p>
 
 <p class="parrafo">
-<strong>ARCHÍVESE</strong> el original en el protocolo de Disposiciones de la Facultad de Matemática, Física y Computación
+<strong>ARCHÍVESE</strong> el original en el protocolo de Disposiciones de {{ $nombreFacultad }}
 </p>
 
 <p class="parrafo">

@@ -15,18 +15,27 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         th, td {
             border: 1px solid #000;
-            padding: 6px;
-            font-size: 12px;
-            text-align: center;
+            padding: 4px;
+            font-size: 10px;
+            vertical-align: middle;
+            word-wrap: break-word;
         }
 
         th {
             background: #f0f0f0;
+            text-align: center;
         }
+
+        .carnet { width: 18%; text-align: center; }
+        .nombre { width: 32%; }
+        .tutor { width: 24%; }
+        .departamento { width: 18%; }
+        .ano { width: 8%; text-align: center; }
     </style>
 </head>
 <body>
@@ -38,22 +47,22 @@
 <table>
     <thead>
         <tr>
-            <th>Carnet</th>
-            <th>Nombre del Estudiante</th>
-            <th>Tutor</th>
-            <th>Departamento</th>
-            <th>Año</th>
+            <th class="carnet">Carnet</th>
+            <th class="nombre">Nombre del Estudiante</th>
+            <th class="tutor">Tutor</th>
+            <th class="departamento">Departamento</th>
+            <th class="ano">Año</th>
         </tr>
     </thead>
 
     <tbody>
         @foreach($data as $item)
             <tr>
-                <td>{{ $item['carnet'] }}</td>
-                <td>{{ $item['nombre'] }}</td>
-                <td>{{ $item['tutor'] }}</td>
-                <td>{{ $item['departamento'] }}</td>
-               <td>{{ $item['anio'] }}</td>
+                <td class="carnet">{{ $item['carnet'] }}</td>
+                <td class="nombre">{{ $item['nombre'] }}</td>
+                <td class="tutor">{{ $item['tutor'] }}</td>
+                <td class="departamento">{{ $item['departamento'] }}</td>
+               <td class="ano">{{ $item['anio'] }}</td>
             </tr>
         @endforeach
     </tbody>

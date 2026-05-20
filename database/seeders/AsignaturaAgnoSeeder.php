@@ -17,52 +17,52 @@ class AsignaturaAgnoSeeder extends Seeder
     {
         DB::table('asignatura_agno')->insert([
 
-            
+
             ['id' => Str::uuid(), 'id_asignatura' => 1, 'id_a_academico' => 1, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 2, 'id_a_academico' => 1, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 5, 'id_a_academico' => 1, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 8, 'id_a_academico' => 1, 'created_at'=>now(), 'updated_at'=>now(),],
 
-            
+
             ['id' => Str::uuid(), 'id_asignatura' => 3, 'id_a_academico' => 2, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 9, 'id_a_academico' => 2, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 13, 'id_a_academico' => 2, 'created_at'=>now(), 'updated_at'=>now(),],
 
-           
+
             ['id' => Str::uuid(), 'id_asignatura' => 10, 'id_a_academico' => 3, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 11, 'id_a_academico' => 3, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 6, 'id_a_academico' => 3, 'created_at'=>now(), 'updated_at'=>now(),],
 
-            
+
             ['id' => Str::uuid(), 'id_asignatura' => 12, 'id_a_academico' => 4, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 4, 'id_a_academico' => 4, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 7, 'id_a_academico' => 4, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 14, 'id_a_academico' => 4, 'created_at'=>now(), 'updated_at'=>now(),],
 
 
-            
+
 
             ['id' => Str::uuid(), 'id_asignatura' => 1, 'id_a_academico' => 5, 'created_at'=>now(), 'updated_at'=>now(),],
             ['id' => Str::uuid(), 'id_asignatura' => 2, 'id_a_academico' => 5, 'created_at'=>now(), 'updated_at'=>now(),],
 
-            ['id' => Str::uuid(), 'id_asignatura' => 3, 'id_a_academico' => 6, 'created_at'=>now(), 'updated_at'=>now(),],
-            ['id' => Str::uuid(), 'id_asignatura' => 9, 'id_a_academico' => 6, 'created_at'=>now(), 'updated_at'=>now(),],
+            ['id' => Str::uuid(), 'id_asignatura' => 3, 'id_a_academico' => 1, 'created_at'=>now(), 'updated_at'=>now(),],
+            ['id' => Str::uuid(), 'id_asignatura' => 9, 'id_a_academico' => 1, 'created_at'=>now(), 'updated_at'=>now(),],
 
-            ['id' => Str::uuid(), 'id_asignatura' => 10, 'id_a_academico' => 7, 'created_at'=>now(), 'updated_at'=>now(),],
+            ['id' => Str::uuid(), 'id_asignatura' => 10, 'id_a_academico' => 2, 'created_at'=>now(), 'updated_at'=>now(),],
 
-            ['id' => Str::uuid(), 'id_asignatura' => 12, 'id_a_academico' => 8, 'created_at'=>now(), 'updated_at'=>now(),],
+            ['id' => Str::uuid(), 'id_asignatura' => 12, 'id_a_academico' => 3, 'created_at'=>now(), 'updated_at'=>now(),],
 
 
-            
 
-            ['id' => Str::uuid(), 'id_asignatura' => 1, 'id_a_academico' => 9, 'created_at'=>now(), 'updated_at'=>now(),],
-            ['id' => Str::uuid(), 'id_asignatura' => 5, 'id_a_academico' => 9, 'created_at'=>now(), 'updated_at'=>now(),],
 
-            ['id' => Str::uuid(), 'id_asignatura' => 3, 'id_a_academico' => 10, 'created_at'=>now(), 'updated_at'=>now(),],
+            ['id' => Str::uuid(), 'id_asignatura' => 1, 'id_a_academico' => 4, 'created_at'=>now(), 'updated_at'=>now(),],
+            ['id' => Str::uuid(), 'id_asignatura' => 5, 'id_a_academico' => 4, 'created_at'=>now(), 'updated_at'=>now(),],
 
-            ['id' => Str::uuid(), 'id_asignatura' => 10, 'id_a_academico' => 11, 'created_at'=>now(), 'updated_at'=>now(),],
+            ['id' => Str::uuid(), 'id_asignatura' => 3, 'id_a_academico' => 5, 'created_at'=>now(), 'updated_at'=>now(),],
 
-            ['id' => Str::uuid(), 'id_asignatura' => 12, 'id_a_academico' => 12, 'created_at'=>now(), 'updated_at'=>now(),],
+            ['id' => Str::uuid(), 'id_asignatura' => 10, 'id_a_academico' => 1, 'created_at'=>now(), 'updated_at'=>now(),],
+
+            ['id' => Str::uuid(), 'id_asignatura' => 12, 'id_a_academico' => 2, 'created_at'=>now(), 'updated_at'=>now(),],
         ]);
     }
 }

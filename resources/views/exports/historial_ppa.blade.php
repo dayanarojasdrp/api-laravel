@@ -15,18 +15,28 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         th, td {
             border: 1px solid #000;
-            padding: 6px;
-            font-size: 12px;
-            text-align: center;
+            padding: 4px;
+            font-size: 10px;
+            vertical-align: middle;
+            word-wrap: break-word;
         }
 
         th {
             background: #f0f0f0;
+            text-align: center;
         }
+
+        .profesor { width: 22%; }
+        .cat { width: 10%; text-align: center; }
+        .departamento { width: 18%; }
+        .carrera { width: 22%; }
+        .ano { width: 9%; text-align: center; }
+        .academico { width: 9%; text-align: center; }
     </style>
 </head>
 <body>
@@ -38,26 +48,26 @@
 <table>
     <thead>
         <tr>
-            <th>Profesor</th>
-            <th>Cat Docente</th>
-            <th>Cat Científica</th>
-            <th>Departamento</th>
-            <th>Carrera</th>
-            <th>Año PPA</th>
-<th>Año Académico</th>
+            <th class="profesor">Profesor</th>
+            <th class="cat">Cat Docente</th>
+            <th class="cat">Cat Científica</th>
+            <th class="departamento">Departamento</th>
+            <th class="carrera">Carrera</th>
+            <th class="ano">Año PPA</th>
+<th class="academico">Año Académico</th>
         </tr>
     </thead>
 
     <tbody>
         @foreach($data as $item)
             <tr>
-                <td>{{ $item['nombre'] }} {{ $item['apellidos'] }}</td>
-                <td>{{ $item['catDocente'] }}</td>
-                <td>{{ $item['catCientifica'] }}</td>
-                <td>{{ $item['departamento'] }}</td>
-                <td>{{ $item['carrera'] }}</td>
-                <td>{{ $item['anio_calendario'] }}</td>
-<td>{{ $item['anio_academico'] }}</td>
+                <td class="profesor">{{ $item['nombre'] }} {{ $item['apellidos'] }}</td>
+                <td class="cat">{{ $item['catDocente'] }}</td>
+                <td class="cat">{{ $item['catCientifica'] }}</td>
+                <td class="departamento">{{ $item['departamento'] }}</td>
+                <td class="carrera">{{ $item['carrera'] }}</td>
+                <td class="ano">{{ $item['anio_calendario'] }}</td>
+<td class="academico">{{ $item['anio_academico'] }}</td>
             </tr>
         @endforeach
     </tbody>

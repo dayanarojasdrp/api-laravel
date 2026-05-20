@@ -76,7 +76,7 @@ Esta Resolución entra en vigor a partir de su firma.
 </p><br/>
 
 <p style="font-family: Arial; font-size: 12pt;">
-<strong>ARCHÍVESE</strong> el original en el protocolo de Disposiciones de la Facultad de Matemática, Física y Computación
+<strong>ARCHÍVESE</strong> el original en el protocolo de Disposiciones de {{ $nombreFacultad }}
 </p><br/>
 
 <p style="font-family: Arial; font-size: 12pt;">

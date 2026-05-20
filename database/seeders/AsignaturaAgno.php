@@ -20,37 +20,37 @@ class AsignaturaAgno extends Seeder
                 'id_a_academico' => 1
             ],[
                 'id_asignatura' => 1,
-                'id_a_academico' => 1
+                'id_a_academico' => 2
             ],[
                 'id_asignatura' => 2,
-                'id_a_academico' => 1
+                'id_a_academico' => 3
             ],[
                 'id_asignatura' => 2,
-                'id_a_academico' => 9
+                'id_a_academico' => 4
             ],[
                 'id_asignatura' => 2,
-                'id_a_academico' => 9
-            ],[
-                'id_asignatura' => 3,
-                'id_a_academico' => 9
+                'id_a_academico' => 5
             ],[
                 'id_asignatura' => 3,
                 'id_a_academico' => 1
             ],[
-                'id_asignatura' => 4,
+                'id_asignatura' => 3,
                 'id_a_academico' => 2
             ],[
                 'id_asignatura' => 4,
-                'id_a_academico' => 2
+                'id_a_academico' => 3
+            ],[
+                'id_asignatura' => 4,
+                'id_a_academico' => 4
             ],[
                 'id_asignatura' => 7,
-                'id_a_academico' => 2
+                'id_a_academico' => 5
             ],[
                 'id_asignatura' => 7,
-                'id_a_academico' => 10
+                'id_a_academico' => 1
             ],[
                 'id_asignatura' => 9,
-                'id_a_academico' => 10
+                'id_a_academico' => 3
             ],[
                 'id_asignatura' => 9,
                 'id_a_academico' => 2

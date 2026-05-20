@@ -18,63 +18,41 @@ class AnoGrupoSeeder extends Seeder
 {
     public function run(): void
     {
-        $gruposNecesarios = 5;
-
-        while (Grupo::count() < $gruposNecesarios) {
-            Grupo::create([]);
-        }
-
-        $grupos = Grupo::orderBy('id')->take($gruposNecesarios)->get();
-
-        $matematicaId = ProgFormacion::where('abreviatura', 'M')->value('id');
-        $quimicaId = ProgFormacion::where('abreviatura', 'LQ')->value('id');
-
-        $asignaciones = [
-            ['identificador' => '1ro', 'id_prog_form' => $matematicaId],
-            ['identificador' => '2do', 'id_prog_form' => $matematicaId],
-            ['identificador' => '3ro', 'id_prog_form' => $matematicaId],
-            ['identificador' => '1ro', 'id_prog_form' => $quimicaId],
-            ['identificador' => '2do', 'id_prog_form' => $quimicaId],
+        $relaciones = [
+            [
+                'ano_academico_id' => 1,
+                'grupo_id' => 1,
+            ],
+            [
+                'ano_academico_id' => 5,
+                'grupo_id' => 2,
+            ],
+            [
+                'ano_academico_id' => 10,
+                'grupo_id' => 3,
+            ],
+            [
+                'ano_academico_id' => 14,
+                'grupo_id' => 4,
+            ],
+            [
+                'ano_academico_id' => 17,
+                'grupo_id' => 5,
+            ],
         ];
 
-        foreach ($asignaciones as $index => $asignacion) {
-            $anoAcademicoId = AnoAcademico::where($asignacion)->value('id');
+        DB::table('ano_grupo')
+            ->whereIn('grupo_id', array_column($relaciones, 'grupo_id'))
+            ->delete();
 
-            if (!$anoAcademicoId || !isset($grupos[$index])) {
-                continue;
-            }
-
-            DB::table('ano_grupo')->updateOrInsert(
-
-                [
-                    'ano_academico_id' => 9,
-                    'grupo_id' => 1,
-                    'fecha' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'ano_academico_id' => 10,
-                    'grupo_id' => 2,
-                    'fecha' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'ano_academico_id' => 11,
-                    'grupo_id' => 3,
-                    'fecha' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'ano_academico_id' => 13,
-                    'grupo_id' => 4,
-                    'fecha' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
+        foreach ($relaciones as $relacion) {
+            DB::table('ano_grupo')->insert([
+                'ano_academico_id' => $relacion['ano_academico_id'],
+                'grupo_id' => $relacion['grupo_id'],
+                'fecha' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
     }
 }

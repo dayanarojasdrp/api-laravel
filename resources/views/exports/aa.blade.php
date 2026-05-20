@@ -1,24 +1,37 @@
-<h2 style="font-family: Arial; font-size: 14pt;">Listado de Alumnos Ayudantes</h2>
+<style>
+    body { font-family: Arial, sans-serif; }
+    h2 { font-size: 14pt; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9.5pt; }
+    th, td { border: 1px solid #000; padding: 4px; vertical-align: middle; word-wrap: break-word; }
+    th { text-align: center; font-weight: bold; }
+    .carnet { width: 18%; text-align: center; }
+    .nombre { width: 34%; }
+    .ano { width: 12%; text-align: center; }
+    .tutor { width: 26%; }
+    .etapa { width: 10%; text-align: center; }
+</style>
 
-<table style="width:100%; border-collapse: collapse; font-family: Arial; font-size: 12pt;">
+<h2>Listado de Alumnos Ayudantes</h2>
+
+<table>
     <thead>
         <tr>
-            <th style="border:1px solid black;">Carnet</th>
-            <th style="border:1px solid black;">Nombre</th>
-            <th style="border:1px solid black;">Año Académico</th>
-            <th style="border:1px solid black;">Tutor</th>
-            <th style="border:1px solid black;">Etapa</th>
+            <th class="carnet">Carnet</th>
+            <th class="nombre">Nombre</th>
+            <th class="ano">Año Académico</th>
+            <th class="tutor">Tutor</th>
+            <th class="etapa">Etapa</th>
         </tr>
     </thead>
 
     <tbody>
         @foreach($data as $item)
         <tr>
-            <td style="border:1px solid black;">{{ $item['carnet'] }}</td>
-            <td style="border:1px solid black;">{{ $item['nombre'] }}</td>
-            <td style="border:1px solid black;">{{ $item['anio'] }}</td>
-            <td style="border:1px solid black;">{{ $item['tutor'] }}</td>
-            <td style="border:1px solid black;">{{ $item['etapa'] }}</td>
+            <td class="carnet">{{ $item['carnet'] }}</td>
+            <td class="nombre">{{ $item['nombre'] }}</td>
+            <td class="ano">{{ $item['anio'] }}</td>
+            <td class="tutor">{{ $item['tutor'] }}</td>
+            <td class="etapa">{{ $item['etapa'] }}</td>
         </tr>
         @endforeach
     </tbody>

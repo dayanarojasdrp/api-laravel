@@ -52,7 +52,7 @@ Su trabajo es esencial para el cumplimiento de los objetivos de formación del a
 
 <!-- 🟣 PRIMERO -->
 <p style="font-family: Arial; font-size: 12pt;">
-<strong>PRIMERO:</strong> Ratificar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de la Facultad Matemática, Física y Computación para el curso {{ $anio }} en el Curso Diurno.
+<strong>PRIMERO:</strong> Ratificar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de {{ $nombreFacultad }} para el curso {{ $anio }} en el Curso Diurno.
 </p><br/>
 
 __TABLA_RATIFICADOS__
@@ -61,7 +61,7 @@ __TABLA_RATIFICADOS__
 
 <!-- 🟣 Segunda -->
 <p style="font-family: Arial; font-size: 12pt;">
-<strong>SEGUNDO:</strong> Desnombrar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de la Facultad Matemática, Física y Computación para el curso {{ $anio }} en el curso diurno.
+<strong>SEGUNDO:</strong> Desnombrar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de {{ $nombreFacultad }} para el curso {{ $anio }} en el curso diurno.
 </p>
 <br/>
 __TABLA_DESNOMBRADOS__
@@ -69,7 +69,7 @@ __TABLA_DESNOMBRADOS__
 <br/>
 <!-- 🟣 Tercero -->
 <p style="font-family: Arial; font-size: 12pt;">
-<strong>TERCERO:</strong> Designar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de la Facultad Matemática, Física y Computación para el curso {{ $anio }} en el Curso Diurno.
+<strong>TERCERO:</strong> Designar a los compañeros que a continuación se presentan como Profesores Principales de Año (PPA) de {{ $nombreFacultad }} para el curso {{ $anio }} en el Curso Diurno.
 </p><br/>
 
 __TABLA_DESIGNADOS__
@@ -85,7 +85,7 @@ Esta Resolución entra en vigor a partir de su firma.
 </p><br/>
 
 <p style="font-family: Arial; font-size: 12pt;">
-<strong>ARCHÍVESE</strong> el original en el protocolo de Disposiciones de la Facultad de Matemática, Física y Computación
+<strong>ARCHÍVESE</strong> el original en el protocolo de Disposiciones de {{ $nombreFacultad }}
 </p><br/>
 
 <p style="font-family: Arial; font-size: 12pt;">
@@ -96,4 +96,3 @@ Esta Resolución entra en vigor a partir de su firma.
 
     <p>__________________________</p>
     <p style="font-family: Arial; font-size: 12pt;">Dr. C. {{ $nombreDecano }}</p>
-

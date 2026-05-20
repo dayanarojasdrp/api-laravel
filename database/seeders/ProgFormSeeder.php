@@ -13,7 +13,7 @@ class ProgFormSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('programa_de_formacion')->insert([
+        $programas = [
             [
                 'nombre' => 'Ing. Informatica',
                 'abreviatura' => 'II'
@@ -45,6 +45,13 @@ class ProgFormSeeder extends Seeder
                 'nombre' => 'Lic. Quimica',
                 'abreviatura' => 'LQ'
             ],
-        ]);
+        ];
+
+        foreach ($programas as $programa) {
+            DB::table('programa_de_formacion')->updateOrInsert(
+                ['abreviatura' => $programa['abreviatura']],
+                $programa
+            );
+        }
     }
 }

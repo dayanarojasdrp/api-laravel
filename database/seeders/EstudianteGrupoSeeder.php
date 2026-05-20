@@ -15,42 +15,37 @@ class EstudianteGrupoSeeder extends Seeder
 {
     public function run(): void
     {
+        $carnets = [
+            '20230001',
+            '20230002',
+            '20230003',
+            '20230004',
+            '20230005',
+        ];
 
+        $estudiantes = Estudiante::whereIn('numero_carnet', $carnets)
+            ->orderBy('numero_carnet')
+            ->get();
+
+        while (Grupo::count() < $estudiantes->count()) {
+            $grupo = new Grupo();
+            $grupo->save();
+        }
+
+        $grupos = Grupo::orderBy('id')
+            ->take($estudiantes->count())
+            ->get();
+
+        foreach ($estudiantes as $index => $estudiante) {
+            if (!isset($grupos[$index])) {
+                continue;
+            }
 
             DB::table('estudiante_grupo')->updateOrInsert(
-
+                ['estudiante_id' => $estudiante->id],
                 [
-                    'estudiante_id' => 1,
-                    'grupo_id' => 1,
-                    'fecha' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                 [
-                    'estudiante_id' => 2,
-                    'grupo_id' => 2,
-                    'fecha' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                 [
-                    'estudiante_id' => 3,
-                    'grupo_id' => 3,
-                    'fecha' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-
-                 [
-                    'estudiante_id' => 4,
-                    'grupo_id' => 4,
-                    'fecha' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                 [
-                    'estudiante_id' => 5,
-                    'grupo_id' => 5,
+                    'estudiante_id' => $estudiante->id,
+                    'grupo_id' => $grupos[$index]->id,
                     'fecha' => now(),
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -58,4 +53,4 @@ class EstudianteGrupoSeeder extends Seeder
             );
         }
     }
-
+}
