@@ -65,7 +65,8 @@ class asignaturaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "nombre"=> "required",
-            "fondo_tiempo"=>"required",
+            "horas_clase"=>"nullable|integer|min:0",
+            "horas_practica_laboral"=>"nullable|integer|min:0",
             "id_a_academico"=>"required|array",
         ]);
 
@@ -76,9 +77,14 @@ class asignaturaController extends Controller
             ], 400);
         }
 
+        $horasClase = (int) $request->input('horas_clase', $request->input('fondo_tiempo', 0));
+        $horasPractica = (int) $request->input('horas_practica_laboral', 0);
+
         $asignatura = Asignatura::create([
             'nombre'=> $request->nombre,
-            'fondo_tiempo'=>$request->fondo_tiempo,
+            'fondo_tiempo' => $horasClase + $horasPractica,
+            'horas_clase' => $horasClase,
+            'horas_practica_laboral' => $horasPractica,
         ]);
 
         //  manejar relación con DISCIPLINA
@@ -167,8 +173,23 @@ class asignaturaController extends Controller
             $data['nombre'] = $request->nombre;
         }
 
-        if ($request->has('fondo_tiempo')) {
-            $data['fondo_tiempo'] = $request->fondo_tiempo;
+        if (
+            $request->has('horas_clase') ||
+            $request->has('horas_practica_laboral') ||
+            $request->has('fondo_tiempo')
+        ) {
+            $horasClase = (int) $request->input(
+                'horas_clase',
+                $request->input('fondo_tiempo', $asignatura->fondo_tiempo)
+            );
+            $horasPractica = (int) $request->input(
+                'horas_practica_laboral',
+                $asignatura->horas_practica_laboral ?? 0
+            );
+
+            $data['fondo_tiempo'] = $horasClase + $horasPractica;
+            $data['horas_clase'] = $horasClase;
+            $data['horas_practica_laboral'] = $horasPractica;
         }
 
         $asignatura->update($data);

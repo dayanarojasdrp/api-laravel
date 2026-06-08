@@ -14,9 +14,16 @@ class DisciplinaController extends Controller
 {
     public function index()
     {
-        $disciplina = Disciplina::with(
-            'curriculos'
-        )->get();
+        $disciplina = Disciplina::with([
+            'curriculos',
+            'asignaturas',
+        ])->get()->map(function ($disciplina) {
+            $disciplina->fondo_tiempo = $disciplina->asignaturas->sum('fondo_tiempo');
+            $disciplina->horas_clase = $disciplina->asignaturas->sum('horas_clase');
+            $disciplina->horas_practica_laboral = $disciplina->asignaturas->sum('horas_practica_laboral');
+
+            return $disciplina;
+        });
 
         return response()->json([
             'res' => true,
@@ -28,7 +35,6 @@ class DisciplinaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "nombre"=> "required",
-            "fondo_tiempo"=>"required",
         ]);
 
         if ($validator->fails()) {
@@ -40,7 +46,7 @@ class DisciplinaController extends Controller
 
         $disciplina = Disciplina::create([
             'nombre'=> $request->nombre,
-            'fondo_tiempo'=>$request->fondo_tiempo,
+            'fondo_tiempo'=> 0,
         ]);
 
         //  manejar relación con curriculo
@@ -71,7 +77,7 @@ class DisciplinaController extends Controller
 
     public function show(string $id)
     {
-        $disciplina = Disciplina::find($id);
+        $disciplina = Disciplina::with(['curriculos', 'asignaturas'])->find($id);
 
         if (!$disciplina) {
             return response()->json([
@@ -79,6 +85,10 @@ class DisciplinaController extends Controller
                 'message' => 'No se encontró la disciplina'
             ], 400);
         }
+
+        $disciplina->fondo_tiempo = $disciplina->asignaturas->sum('fondo_tiempo');
+        $disciplina->horas_clase = $disciplina->asignaturas->sum('horas_clase');
+        $disciplina->horas_practica_laboral = $disciplina->asignaturas->sum('horas_practica_laboral');
 
         return response()->json([
             'res' => true,
@@ -135,7 +145,6 @@ class DisciplinaController extends Controller
 
         
         if($request->has('nombre')) $data['nombre'] = $request->nombre;
-        if ($request->has('fondo_tiempo')) $data['fondo_tiempo'] = $request->fondo_tiempo;
     
 
         $disciplina->update($data);

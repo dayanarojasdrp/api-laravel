@@ -16,7 +16,7 @@ class AsignaturaSeeder extends Seeder
         DB::table('disciplina_asignatura')->delete();
         DB::table('asignatura')->delete();
 
-        DB::table('asignatura')->insert([
+        $asignaturas = [
             ['nombre' => 'Matematica I', 'fondo_tiempo' => 96],
             ['nombre' => 'Matematica II', 'fondo_tiempo' => 96],
             ['nombre' => 'Matematica III', 'fondo_tiempo' => 80],
@@ -66,6 +66,14 @@ class AsignaturaSeeder extends Seeder
             ['nombre' => 'Optativa 2', 'fondo_tiempo' => 64],
             ['nombre' => 'Optativa 3', 'fondo_tiempo' => 64],
             ['nombre' => 'Optativa 4', 'fondo_tiempo' => 68],
-        ]);
+        ];
+
+        DB::table('asignatura')->insert(array_map(function ($asignatura) {
+            return [
+                ...$asignatura,
+                'horas_clase' => $asignatura['fondo_tiempo'],
+                'horas_practica_laboral' => 0,
+            ];
+        }, $asignaturas));
     }
 }

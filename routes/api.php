@@ -162,6 +162,7 @@ Route::post('/progFormMod', [historialProgFormModCarController::class, 'store'])
 Route::delete('/progFormMod/{idM}/{idP}', [historialProgFormModCarController::class, 'destroy']);
 Route::get('/programa/{id}/calificacion', [progFormController::class, 'calificacion']);
 Route::get('/progForm/{id}/calificacion', [progFormController::class, 'calificacion']);
+Route::get('/progForm/{id}/estructura-curricular', [CurriculoController::class, 'arbolPorPrograma']);
 Route::get('/programa/{id}/modalidades', [historialProgFormModCarController::class, 'modalidadesPorPrograma']);
 Route::get('/progForm/{id}/modalidades', [historialProgFormModCarController::class, 'modalidadesPorPrograma']);
 

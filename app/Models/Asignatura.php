@@ -12,7 +12,9 @@ class Asignatura extends Model
     protected $table = 'asignatura';
     protected $fillable = [
         'nombre',
-        'fondo_tiempo'
+        'fondo_tiempo',
+        'horas_clase',
+        'horas_practica_laboral',
     ];
     protected $hidden = [
         'created_at',

@@ -25,6 +25,22 @@ class CurriculoController extends Controller
 
     public function arbol()
     {
+        return response()->json([
+            'res' => true,
+            'data' => $this->buildArbol(),
+        ], 200);
+    }
+
+    public function arbolPorPrograma(string $id)
+    {
+        return response()->json([
+            'res' => true,
+            'data' => $this->buildArbol((int) $id),
+        ], 200);
+    }
+
+    private function buildArbol(?int $programaId = null)
+    {
         $curriculos = Curriculo::with([
             'disciplinas' => function ($query) {
                 $query->orderBy('nombre');
@@ -37,37 +53,54 @@ class CurriculoController extends Controller
             },
         ])->orderBy('nombre')->get();
 
-        $data = $curriculos->map(function ($curriculo) {
+        return $curriculos->map(function ($curriculo) use ($programaId) {
             return [
                 'id' => $curriculo->id,
                 'nombre' => $curriculo->nombre,
-                'disciplinas' => $curriculo->disciplinas->map(function ($disciplina) {
+                'disciplinas' => $curriculo->disciplinas->map(function ($disciplina) use ($programaId) {
+                    $asignaturas = $disciplina->asignaturas->map(function ($asignatura) use ($programaId) {
+                        $anios = $asignatura->aniosAcademicos
+                            ->when($programaId, function ($collection) use ($programaId) {
+                                return $collection->where('id_prog_form', $programaId);
+                            })
+                            ->map(function ($anio) {
+                                return [
+                                    'id' => $anio->id,
+                                    'identificador' => $anio->identificador,
+                                    'id_prog_form' => $anio->id_prog_form,
+                                ];
+                            })
+                            ->values();
+
+                        if ($programaId && $anios->isEmpty()) {
+                            return null;
+                        }
+
+                        return [
+                            'id' => $asignatura->id,
+                            'nombre' => $asignatura->nombre,
+                            'fondo_tiempo' => $asignatura->fondo_tiempo,
+                            'horas_clase' => $asignatura->horas_clase ?? $asignatura->fondo_tiempo,
+                            'horas_practica_laboral' => $asignatura->horas_practica_laboral ?? 0,
+                            'anios' => $anios,
+                        ];
+                    })->filter()->values();
+
+                    if ($programaId && $asignaturas->isEmpty()) {
+                        return null;
+                    }
+
                     return [
                         'id' => $disciplina->id,
                         'nombre' => $disciplina->nombre,
-                        'fondo_tiempo' => $disciplina->fondo_tiempo,
-                        'asignaturas' => $disciplina->asignaturas->map(function ($asignatura) {
-                            return [
-                                'id' => $asignatura->id,
-                                'nombre' => $asignatura->nombre,
-                                'fondo_tiempo' => $asignatura->fondo_tiempo,
-                                'anios' => $asignatura->aniosAcademicos->map(function ($anio) {
-                                    return [
-                                        'id' => $anio->id,
-                                        'identificador' => $anio->identificador,
-                                    ];
-                                })->values(),
-                            ];
-                        })->values(),
+                        'fondo_tiempo' => $asignaturas->sum('fondo_tiempo'),
+                        'horas_clase' => $asignaturas->sum('horas_clase'),
+                        'horas_practica_laboral' => $asignaturas->sum('horas_practica_laboral'),
+                        'asignaturas' => $asignaturas,
                     ];
-                })->values(),
+                })->filter()->values(),
             ];
-        });
-
-        return response()->json([
-            'res' => true,
-            'data' => $data,
-        ], 200);
+        })->values();
     }
 
     public function store(Request $request)

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 
 class AsignaturaAgnoSeeder extends Seeder
@@ -16,15 +17,28 @@ class AsignaturaAgnoSeeder extends Seeder
     {
         DB::table('asignatura_agno')->delete();
 
+        $programaInformatica = DB::table('programa_de_formacion')
+            ->where('abreviatura', 'II')
+            ->first();
+
+        if (! $programaInformatica) {
+            return;
+        }
+
+        $anios = DB::table('a_academico')
+            ->where('id_prog_form', $programaInformatica->id)
+            ->pluck('id', 'identificador');
+
         $asignaturas = DB::table('asignatura')->pluck('id', 'nombre');
 
         $relaciones = [
-            1 => [
+            '1ro' => [
                 'Matematica I',
                 'Matematica II',
                 'Filosofia',
                 'Historia de Cuba',
                 'Logica Matematica',
+                'Matematica Computacional',
                 'Fundamentos de la Informatica',
                 'Introduccion a la Programacion',
                 'Diseno y Programacion Orientada a Objetos',
@@ -33,7 +47,7 @@ class AsignaturaAgnoSeeder extends Seeder
                 'Modelado y Diseno de Interfaces',
                 'Fisica',
             ],
-            2 => [
+            '2do' => [
                 'Matematica III',
                 'Matematica Numerica',
                 'Economia Politica',
@@ -48,9 +62,10 @@ class AsignaturaAgnoSeeder extends Seeder
                 'Educacion Fisica III',
                 'Educacion Fisica IV',
                 'Electiva 1',
+                'Optativa 1',
                 'Optativa 2',
             ],
-            3 => [
+            '3ro' => [
                 'Teoria Politica',
                 'Redes de Computadoras',
                 'Seguridad Informatica',
@@ -64,7 +79,7 @@ class AsignaturaAgnoSeeder extends Seeder
                 'Desarrollo de Aplicaciones Moviles',
                 'Optativa 3',
             ],
-            4 => [
+            '4to' => [
                 'Estudios de Ciencia, Tecnologia y Sociedad',
                 'Inteligencia Artificial II',
                 'Seminario Profesional',
@@ -79,7 +94,13 @@ class AsignaturaAgnoSeeder extends Seeder
 
         $rows = [];
 
-        foreach ($relaciones as $idAnioAcademico => $nombresAsignaturas) {
+        foreach ($relaciones as $identificadorAnio => $nombresAsignaturas) {
+            $idAnioAcademico = $anios[$identificadorAnio] ?? null;
+
+            if (! $idAnioAcademico) {
+                continue;
+            }
+
             foreach ($nombresAsignaturas as $nombreAsignatura) {
                 $idAsignatura = $asignaturas[$nombreAsignatura] ?? null;
 
@@ -88,7 +109,7 @@ class AsignaturaAgnoSeeder extends Seeder
                 }
 
                 $rows[] = [
-                    'id' => (string) \Illuminate\Support\Str::uuid(),
+                    'id' => (string) Str::uuid(),
                     'id_asignatura' => $idAsignatura,
                     'id_a_academico' => $idAnioAcademico,
                     'created_at' => now(),
