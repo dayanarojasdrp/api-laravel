@@ -30,6 +30,7 @@ use App\Http\Controllers\API\ModificacionController;
 use App\Http\Controllers\API\ProfesorController;
 use App\Http\Controllers\API\PlanEstudioController;
 use App\Http\Controllers\API\PlanEstudioProgFormController;
+use App\Http\Controllers\API\PlanNotificationController;
 use App\Http\Controllers\API\VersionController;
 use App\Http\Controllers\CohorteController;
 use App\Models\Asignatura_Agno;
@@ -69,6 +70,8 @@ Route::get('/users/{username}/access', [UserAccessController::class, 'userAccess
 Route::get('/access', [UserAccessController::class, 'index']);
 Route::post('/access/assign', [UserAccessController::class, 'assign']);
 Route::post('/access/admin/transfer', [UserAccessController::class, 'transferAdmin']);
+Route::get('/notifications', [PlanNotificationController::class, 'index']);
+Route::post('/notifications/read', [PlanNotificationController::class, 'markRead']);
 
 //Rutas provincia
 Route::get('/provincia', [provinciaController::class, 'index']);
@@ -253,6 +256,11 @@ Route::post('/indicadorReg', [indicadorRegistroController::class, 'store']);
 //Rutas de Plan de Estudio
 Route::get('/plan_estudio',[PlanEstudioController::class, 'index']);
 Route::post('/plan_estudio', [PlanEstudioController::class, 'store']);
+Route::get('/plan_estudio/decano/solicitudes', [PlanEstudioController::class, 'solicitudesDecano']);
+Route::get('/plan_estudio/decano/historial', [PlanEstudioController::class, 'historialSolicitudesDecano']);
+Route::post('/plan_estudio/{id}/enviar', [PlanEstudioController::class, 'enviarModificacion']);
+Route::post('/plan_estudio/{id}/aprobar', [PlanEstudioController::class, 'aprobarModificacion']);
+Route::post('/plan_estudio/{id}/cancelar', [PlanEstudioController::class, 'cancelarModificacion']);
 Route::post('/plan_estudio/{id}/modificar', [PlanEstudioController::class, 'modificar']);
 Route::get('/plan_estudio/{id}', [PlanEstudioController::class, 'show']);
 Route::put('/plan_estudio/{id}', [PlanEstudioController::class, 'update']);
