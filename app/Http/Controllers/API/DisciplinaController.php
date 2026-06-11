@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Disciplina;
 use App\Models\Curriculo;
 use App\Models\Curriculo_Disciplina;
+use App\Models\Disciplina_Asignatura;
+use App\Models\Asignatura;
+use App\Models\Asignatura_Agno;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -168,6 +171,27 @@ class DisciplinaController extends Controller
 
         try {
             DB::beginTransaction();
+
+            $asignaturaIds = Disciplina_Asignatura::where(
+                'id_disciplina',
+                $disciplina->id
+            )->pluck('id_asignatura');
+
+            foreach ($asignaturaIds as $asignaturaId) {
+                $relaciones = Disciplina_Asignatura::where(
+                    'id_asignatura',
+                    $asignaturaId
+                )->count();
+
+                Disciplina_Asignatura::where('id_disciplina', $disciplina->id)
+                    ->where('id_asignatura', $asignaturaId)
+                    ->delete();
+
+                if ($relaciones <= 1) {
+                    Asignatura_Agno::where('id_asignatura', $asignaturaId)->delete();
+                    Asignatura::where('id', $asignaturaId)->delete();
+                }
+            }
 
             Curriculo_Disciplina::where('id_disciplina', $disciplina->id)->delete();
             $disciplina->delete();
