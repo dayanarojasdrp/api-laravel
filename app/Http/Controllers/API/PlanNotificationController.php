@@ -61,7 +61,7 @@ class PlanNotificationController extends Controller
 
         return response()->json([
             'res' => true,
-            'message' => 'Notificaciones marcadas como leidas.',
+            'message' => 'Notificaciones marcadas como leídas.',
         ], 200);
     }
 }

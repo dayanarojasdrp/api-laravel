@@ -68,6 +68,13 @@ class PlanEstudioController extends Controller
             ], 400);
         }
 
+        if ($this->programaTienePlanInicialActivo((int) $request->id_prog_form)) {
+            return response()->json([
+                'res' => false,
+                'message' => 'Esta carrera ya tiene un plan de estudio vigente o en proceso. Solo puede crear uno nuevo desde cero si el anterior fue rechazado.',
+            ], 400);
+        }
+
         $programa = ProgFormacion::find($request->id_prog_form);
         $nombrePlan = $request->filled('nombre')
             ? $request->nombre
@@ -1326,6 +1333,25 @@ class PlanEstudioController extends Controller
             ->exists();
     }
 
+    private function programaTienePlanInicialActivo(int $programaId): bool
+    {
+        return PlanEstudio::where('id_prog_form', $programaId)
+            ->where(function ($query) {
+                $query
+                    ->where('tipo_plan', 'vigente')
+                    ->orWhere(function ($subQuery) {
+                        $subQuery
+                            ->where('tipo_plan', 'original')
+                            ->whereNotIn('estado', [
+                                'rechazado',
+                                'modificacion_cancelada',
+                                'version_anterior',
+                            ]);
+                    });
+            })
+            ->exists();
+    }
+
     private function contextoAcademicoPlan(PlanEstudio $plan): ?object
     {
         return DB::table('departamento_prog_d_form as dpf')
@@ -1368,10 +1394,10 @@ class PlanEstudioController extends Controller
                 'type' => $esPlanNuevo ? 'plan_nuevo_enviado' : 'plan_modificacion_enviada',
                 'title' => $esPlanNuevo
                     ? 'Nuevo plan de estudio recibido'
-                    : 'Solicitud de modificacion recibida',
+                    : 'Solicitud de modificación recibida',
                 'body' => $esPlanNuevo
-                    ? 'El jefe de departamento de ' . $contexto->departamento_nombre . ' creo un nuevo plan de estudio: ' . $plan->nombre . '.'
-                    : 'El jefe de departamento de ' . $contexto->departamento_nombre . ' envio una solicitud de modificacion del plan ' . $plan->nombre . '.',
+                    ? 'El jefe de departamento de ' . $contexto->departamento_nombre . ' creó un nuevo plan de estudio: ' . $plan->nombre . '.'
+                    : 'El jefe de departamento de ' . $contexto->departamento_nombre . ' envió una solicitud de modificación del plan ' . $plan->nombre . '.',
                 'plan_estudio_id' => $plan->id,
                 'data' => [
                     'departamento_id' => $contexto->departamento_id,
@@ -1407,10 +1433,10 @@ class PlanEstudioController extends Controller
                 'type' => $esPlanNuevo ? 'plan_nuevo_enviado_vicerrector' : 'plan_modificacion_enviada_vicerrector',
                 'title' => $esPlanNuevo
                     ? 'Nuevo plan aprobado por decano'
-                    : 'Modificacion aprobada por decano',
+                    : 'Modificación aprobada por decano',
                 'body' => $esPlanNuevo
-                    ? 'El decano aprobo el nuevo plan de estudio ' . $plan->nombre . ' y lo envio para revision final.'
-                    : 'El decano aprobo la modificacion del plan ' . $plan->nombre . ' y la envio para revision final.',
+                    ? 'El decano aprobó el nuevo plan de estudio ' . $plan->nombre . ' y lo envió para revisión final.'
+                    : 'El decano aprobó la modificación del plan ' . $plan->nombre . ' y la envió para revisión final.',
                 'plan_estudio_id' => $plan->id,
                 'data' => [
                     'departamento_id' => $contexto->departamento_id,
@@ -1448,12 +1474,12 @@ class PlanEstudioController extends Controller
         $esPlanNuevo = $plan->tipo_plan === 'vigente' && !$plan->modificacion
             || $plan->tipo_plan === 'original';
         $titulo = $aprobada
-            ? ($esPlanNuevo ? 'Plan de estudio aprobado' : 'Modificacion aprobada')
-            : ($esPlanNuevo ? 'Plan de estudio rechazado' : 'Modificacion cancelada');
+            ? ($esPlanNuevo ? 'Plan de estudio aprobado' : 'Modificación aprobada')
+            : ($esPlanNuevo ? 'Plan de estudio rechazado' : 'Modificación cancelada');
         $actorLabel = $actor === 'vicerrector' ? 'El vicerrector docente' : 'El decano';
         $cuerpo = $aprobada
-            ? $actorLabel . ' aprobo ' . ($esPlanNuevo ? 'el nuevo plan ' : 'la modificacion del plan ') . $plan->nombre . '. El plan queda vigente.'
-            : $actorLabel . ' rechazo ' . ($esPlanNuevo ? 'el nuevo plan ' : 'la modificacion del plan ') . $plan->nombre . '.';
+            ? $actorLabel . ' aprobó ' . ($esPlanNuevo ? 'el nuevo plan ' : 'la modificación del plan ') . $plan->nombre . '. El plan queda vigente.'
+            : $actorLabel . ' rechazó ' . ($esPlanNuevo ? 'el nuevo plan ' : 'la modificación del plan ') . $plan->nombre . '.';
 
         foreach ($destinatarios as $username) {
             PlanNotification::create([
@@ -1519,11 +1545,11 @@ class PlanEstudioController extends Controller
                     ? ($esPlanNuevo ? 'plan_nuevo_aprobado_vicerrector' : 'plan_modificacion_aprobada_vicerrector')
                     : ($esPlanNuevo ? 'plan_nuevo_rechazado_vicerrector' : 'plan_modificacion_cancelada_vicerrector'),
                 'title' => $aprobada
-                    ? ($esPlanNuevo ? 'Plan aprobado por vicerrector' : 'Modificacion aprobada por vicerrector')
-                    : ($esPlanNuevo ? 'Plan rechazado por vicerrector' : 'Modificacion rechazada por vicerrector'),
+                    ? ($esPlanNuevo ? 'Plan aprobado por vicerrector' : 'Modificación aprobada por vicerrector')
+                    : ($esPlanNuevo ? 'Plan rechazado por vicerrector' : 'Modificación rechazada por vicerrector'),
                 'body' => $aprobada
-                    ? 'El vicerrector docente aprobo ' . ($esPlanNuevo ? 'el nuevo plan ' : 'la modificacion del plan ') . $plan->nombre . '. El plan queda vigente.'
-                    : 'El vicerrector docente rechazo ' . ($esPlanNuevo ? 'el nuevo plan ' : 'la modificacion del plan ') . $plan->nombre . '.',
+                    ? 'El vicerrector docente aprobó ' . ($esPlanNuevo ? 'el nuevo plan ' : 'la modificación del plan ') . $plan->nombre . '. El plan queda vigente.'
+                    : 'El vicerrector docente rechazó ' . ($esPlanNuevo ? 'el nuevo plan ' : 'la modificación del plan ') . $plan->nombre . '.',
                 'plan_estudio_id' => $plan->id,
                 'data' => [
                     'estado' => $estado,
