@@ -144,13 +144,16 @@ class UserAccessController extends Controller
             ->where('role', $data['role'])
             ->where('active', true);
 
-        if ($data['role'] === 'vicerrector_docente') {
+        if (
+            $data['application_code'] === UserAppAccess::APPLICATION_GESTION_PLAN_ESTUDIO
+            && $data['role'] === 'vicerrector_docente'
+        ) {
             $baseQuery->update(['active' => false]);
             return;
         }
 
         // Scoped deactivation for faculty-level roles
-        if ($data['role'] === 'decano') {
+        if (in_array($data['role'], ['decano', 'vicedecano_docente'], true)) {
             $baseQuery->where('facultad_id', $data['facultad_id'])->update(['active' => false]);
             return;
         }
@@ -200,7 +203,7 @@ class UserAccessController extends Controller
             return null;
         }
 
-        if ($data['role'] === 'decano') {
+        if (in_array($data['role'], ['decano', 'vicedecano_docente'], true)) {
             if (empty($data['facultad_id'])) {
                 return response()->json([
                     'message' => "El rol {$data['role']} requiere facultad_id.",
