@@ -38,6 +38,7 @@ class DisciplinaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "nombre"=> "required",
+            "id_prog_form" => "nullable|exists:programa_de_formacion,id",
         ]);
 
         if ($validator->fails()) {
@@ -67,7 +68,8 @@ class DisciplinaController extends Controller
 
                 Curriculo_Disciplina::create([
                     'id_disciplina' => $disciplina->id,
-                    'id_curriculo' => $curriculo->id
+                    'id_curriculo' => $curriculo->id,
+                    'id_prog_form' => $request->id_prog_form ?: null,
                 ]);
             }
         }
@@ -138,7 +140,9 @@ class DisciplinaController extends Controller
 
                     'id_disciplina' => $disciplina->id,
 
-                    'id_curriculo' => $curriculo->id
+                    'id_curriculo' => $curriculo->id,
+
+                    'id_prog_form' => $request->id_prog_form ?: null,
                 ]);
             }
         }

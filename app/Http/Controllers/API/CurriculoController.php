@@ -54,11 +54,21 @@ class CurriculoController extends Controller
         ])->orderBy('nombre')->get();
 
         return $curriculos->map(function ($curriculo) use ($programaId) {
+            $disciplinas = $curriculo->disciplinas
+                ->sortByDesc(function ($disciplina) use ($programaId) {
+                    return $programaId
+                        && (int) ($disciplina->pivot?->id_prog_form ?? 0) === (int) $programaId
+                        ? 1
+                        : 0;
+                })
+                ->unique('id')
+                ->values();
+
             return [
                 'id' => $curriculo->id,
                 'nombre' => $curriculo->nombre,
-                'disciplinas' => $curriculo->disciplinas->map(function ($disciplina) use ($programaId) {
-                    $asignaturas = $disciplina->asignaturas->map(function ($asignatura) use ($programaId) {
+                'disciplinas' => $disciplinas->map(function ($disciplina) use ($programaId) {
+                    $asignaturas = $disciplina->asignaturas->unique('id')->map(function ($asignatura) use ($programaId) {
                         $anios = $asignatura->aniosAcademicos
                             ->when($programaId, function ($collection) use ($programaId) {
                                 return $collection->where('id_prog_form', $programaId);
@@ -88,7 +98,19 @@ class CurriculoController extends Controller
                         ];
                     })->filter()->values();
 
-                    if ($programaId && $asignaturas->isEmpty()) {
+                    $disciplinaProgramaId = $disciplina->pivot?->id_prog_form;
+                    $perteneceAlPrograma = !$programaId
+                        || !$disciplinaProgramaId
+                        || (int) $disciplinaProgramaId === (int) $programaId;
+                    $disciplinaCreadaParaPrograma = $programaId
+                        && $disciplinaProgramaId
+                        && (int) $disciplinaProgramaId === (int) $programaId;
+
+                    if (!$perteneceAlPrograma) {
+                        return null;
+                    }
+
+                    if ($programaId && $asignaturas->isEmpty() && !$disciplinaCreadaParaPrograma) {
                         return null;
                     }
 
@@ -98,6 +120,7 @@ class CurriculoController extends Controller
                         'fondo_tiempo' => $asignaturas->sum('fondo_tiempo'),
                         'horas_clase' => $asignaturas->sum('horas_clase'),
                         'horas_practica_laboral' => $asignaturas->sum('horas_practica_laboral'),
+                        'id_prog_form' => $disciplinaProgramaId ? (int) $disciplinaProgramaId : null,
                         'asignaturas' => $asignaturas,
                     ];
                 })->filter()->values(),
