@@ -905,10 +905,11 @@ class PlanEstudioController extends Controller
             foreach (($curriculoData['disciplinas'] ?? []) as $disciplinaData) {
                 $disciplina = $this->resolverDisciplina($disciplinaData);
 
-                Curriculo_Disciplina::firstOrCreate([
-                    'id_curriculo' => $curriculo->id,
-                    'id_disciplina' => $disciplina->id,
-                ]);
+                $this->vincularDisciplinaCurriculoPrograma(
+                    (int) $curriculo->id,
+                    (int) $disciplina->id,
+                    $programaId
+                );
 
                 $asignaturasMaterializadas = [];
 
@@ -921,6 +922,8 @@ class PlanEstudioController extends Controller
                     ]);
 
                     $anioIds = $this->resolverAniosAsignatura($asignaturaData, $programaId);
+
+                    $this->sincronizarAniosAsignaturaPrograma($asignatura->id, $anioIds, $programaId);
 
                     foreach ($anioIds as $anioId) {
                         Asignatura_Agno::firstOrCreate([
@@ -972,7 +975,155 @@ class PlanEstudioController extends Controller
             ];
         }
 
+        $this->sincronizarEstructuraRealConPlanVigente($estructuraMaterializada, $programaId);
+
         return $this->snapshotDesdeEstructuraMaterializada($estructuraMaterializada, $request);
+    }
+
+    private function vincularDisciplinaCurriculoPrograma(int $curriculoId, int $disciplinaId, int $programaId): void
+    {
+        Curriculo_Disciplina::firstOrCreate([
+            'id_curriculo' => $curriculoId,
+            'id_disciplina' => $disciplinaId,
+            'id_prog_form' => $programaId,
+        ]);
+
+        Curriculo_Disciplina::where('id_curriculo', $curriculoId)
+            ->where('id_disciplina', $disciplinaId)
+            ->where('id_prog_form', $programaId)
+            ->orderBy('created_at')
+            ->get()
+            ->skip(1)
+            ->each
+            ->delete();
+    }
+
+    private function sincronizarAniosAsignaturaPrograma(int $asignaturaId, array $anioIds, int $programaId): void
+    {
+        $aniosProgramaIds = DB::table('a_academico')
+            ->where('id_prog_form', $programaId)
+            ->pluck('id')
+            ->all();
+
+        if (empty($aniosProgramaIds)) {
+            return;
+        }
+
+        $query = Asignatura_Agno::where('id_asignatura', $asignaturaId)
+            ->whereIn('id_a_academico', $aniosProgramaIds);
+
+        if (empty($anioIds)) {
+            $query->delete();
+            return;
+        }
+
+        $query->whereNotIn('id_a_academico', $anioIds)->delete();
+    }
+
+    private function sincronizarEstructuraRealConPlanVigente(array $estructura, int $programaId): void
+    {
+        $curriculoIds = [];
+        $disciplinaIdsPorCurriculo = [];
+        $asignaturaIdsDeseadas = [];
+        $relacionesDisciplinaAsignaturaDeseadas = [];
+
+        foreach ($estructura as $curriculo) {
+            $curriculoId = (int) ($curriculo['id'] ?? 0);
+            if (!$curriculoId) {
+                continue;
+            }
+
+            $curriculoIds[] = $curriculoId;
+            $disciplinaIdsPorCurriculo[$curriculoId] = [];
+
+            foreach (($curriculo['disciplinas'] ?? []) as $disciplina) {
+                $disciplinaId = (int) ($disciplina['id'] ?? 0);
+                if (!$disciplinaId) {
+                    continue;
+                }
+
+                $disciplinaIdsPorCurriculo[$curriculoId][] = $disciplinaId;
+
+                foreach (($disciplina['asignaturas'] ?? []) as $asignatura) {
+                    $asignaturaId = (int) ($asignatura['id'] ?? 0);
+                    if (!$asignaturaId) {
+                        continue;
+                    }
+
+                    $asignaturaIdsDeseadas[] = $asignaturaId;
+                    $relacionesDisciplinaAsignaturaDeseadas[] = $disciplinaId . ':' . $asignaturaId;
+                }
+            }
+        }
+
+        $curriculoIds = array_values(array_unique($curriculoIds));
+        $asignaturaIdsDeseadas = array_values(array_unique($asignaturaIdsDeseadas));
+        $relacionesDisciplinaAsignaturaDeseadas = array_values(array_unique($relacionesDisciplinaAsignaturaDeseadas));
+
+        foreach ($disciplinaIdsPorCurriculo as $curriculoId => $disciplinaIdsDeseadas) {
+            Curriculo_Disciplina::where('id_curriculo', $curriculoId)
+                ->where('id_prog_form', $programaId)
+                ->whereNotIn('id_disciplina', array_values(array_unique($disciplinaIdsDeseadas)))
+                ->delete();
+        }
+
+        $disciplinaIdsContexto = Curriculo_Disciplina::whereIn('id_curriculo', $curriculoIds)
+            ->where(function ($query) use ($programaId) {
+                $query->where('id_prog_form', $programaId)
+                    ->orWhereNull('id_prog_form');
+            })
+            ->pluck('id_disciplina')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        $aniosProgramaIds = DB::table('a_academico')
+            ->where('id_prog_form', $programaId)
+            ->pluck('id')
+            ->all();
+
+        if (!empty($disciplinaIdsContexto) && !empty($aniosProgramaIds)) {
+            Disciplina_Asignatura::whereIn('id_disciplina', $disciplinaIdsContexto)
+                ->whereExists(function ($query) use ($aniosProgramaIds) {
+                    $query->select(DB::raw(1))
+                        ->from('asignatura_agno')
+                        ->whereColumn('asignatura_agno.id_asignatura', 'disciplina_asignatura.id_asignatura')
+                        ->whereIn('asignatura_agno.id_a_academico', $aniosProgramaIds);
+                })
+                ->get()
+                ->each(function ($relacion) use ($relacionesDisciplinaAsignaturaDeseadas) {
+                    $key = ((int) $relacion->id_disciplina) . ':' . ((int) $relacion->id_asignatura);
+                    if (!in_array($key, $relacionesDisciplinaAsignaturaDeseadas, true)) {
+                        $relacion->delete();
+                    }
+                });
+
+            $asignaturaAgnoQuery = Asignatura_Agno::whereIn('id_a_academico', $aniosProgramaIds);
+
+            if (empty($asignaturaIdsDeseadas)) {
+                $asignaturaAgnoQuery->delete();
+            } else {
+                $asignaturaAgnoQuery->whereNotIn('id_asignatura', $asignaturaIdsDeseadas)->delete();
+            }
+        }
+
+        $this->eliminarAsignaturasHuerfanas();
+        $this->eliminarDisciplinasHuerfanas();
+    }
+
+    private function eliminarAsignaturasHuerfanas(): void
+    {
+        Asignatura::whereDoesntHave('disciplinas')
+            ->whereDoesntHave('aniosAcademicos')
+            ->delete();
+    }
+
+    private function eliminarDisciplinasHuerfanas(): void
+    {
+        Disciplina::whereDoesntHave('curriculos')
+            ->whereDoesntHave('asignaturas')
+            ->delete();
     }
 
     private function resolverDisciplina(array $disciplinaData): Disciplina

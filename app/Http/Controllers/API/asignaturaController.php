@@ -82,13 +82,23 @@ class asignaturaController extends Controller
         $horasClase = (int) $request->input('horas_clase', $request->input('fondo_tiempo', 0));
         $horasPractica = (int) $request->input('horas_practica_laboral', 0);
 
+        $tieneExamenFinal = $request->boolean('tiene_examen_final');
+        $tieneTrabajoCurso = $request->boolean('tiene_trabajo_curso');
+
+        if ($tieneExamenFinal && $tieneTrabajoCurso) {
+            return response()->json([
+                'res' => false,
+                'message' => 'La asignatura solo puede tener examen final o trabajo de curso, no ambos.'
+            ], 400);
+        }
+
         $asignatura = Asignatura::create([
             'nombre'=> $request->nombre,
             'fondo_tiempo' => $horasClase + $horasPractica,
             'horas_clase' => $horasClase,
             'horas_practica_laboral' => $horasPractica,
-            'tiene_examen_final' => $request->boolean('tiene_examen_final'),
-            'tiene_trabajo_curso' => $request->boolean('tiene_trabajo_curso'),
+            'tiene_examen_final' => $tieneExamenFinal,
+            'tiene_trabajo_curso' => $tieneTrabajoCurso,
         ]);
 
         //  manejar relación con DISCIPLINA
@@ -198,10 +208,18 @@ class asignaturaController extends Controller
 
         if ($request->has('tiene_examen_final')) {
             $data['tiene_examen_final'] = $request->boolean('tiene_examen_final');
+
+            if ($data['tiene_examen_final']) {
+                $data['tiene_trabajo_curso'] = false;
+            }
         }
 
         if ($request->has('tiene_trabajo_curso')) {
             $data['tiene_trabajo_curso'] = $request->boolean('tiene_trabajo_curso');
+
+            if ($data['tiene_trabajo_curso']) {
+                $data['tiene_examen_final'] = false;
+            }
         }
 
         $asignatura->update($data);

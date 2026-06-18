@@ -528,8 +528,16 @@ class PlanEstudioExcelController extends Controller
         $sheet->setCellValue('D' . $rowNumber, (int) $row['fondo_tiempo'] ?: null);
         $sheet->setCellValue('E' . $rowNumber, (int) $row['horas_clase'] ?: null);
         $sheet->setCellValue('F' . $rowNumber, (int) $row['horas_practica_laboral'] ?: null);
-        $sheet->setCellValue('G' . $rowNumber, $row['tiene_examen_final'] ? 1 : null);
-        $sheet->setCellValue('H' . $rowNumber, $row['tiene_trabajo_curso'] ? 1 : null);
+        $sheet->setCellValueExplicit(
+            'G' . $rowNumber,
+            $row['tiene_examen_final'] ? '1' : '',
+            \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+        );
+        $sheet->setCellValueExplicit(
+            'H' . $rowNumber,
+            $row['tiene_trabajo_curso'] ? '1' : '',
+            \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+        );
         $this->writeYearValues($sheet, $rowNumber, $row['anios'] ?? [], $anios);
         $sheet->getStyle('B' . $rowNumber . ':L' . $rowNumber)
             ->getFont()

@@ -25,7 +25,7 @@ class Curriculo extends Model
             'curriculo_disciplina',
             'id_curriculo',
             'id_disciplina'
-        );
+        )->withPivot('id_prog_form');
     }
 
     public function planesEstudio(): BelongsToMany

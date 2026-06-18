@@ -26,7 +26,7 @@ class Disciplina extends Model
             'curriculo_disciplina',
             'id_disciplina',
             'id_curriculo'
-        );
+        )->withPivot('id_prog_form');
     }
 
     public function asignaturas(): BelongsToMany
